@@ -1,2 +1,2 @@
-# pepperi-data-retention
-repository for data retention addon
+# data-retention
+This is a Pepperi addon for creating and maintaining data retention policy.
