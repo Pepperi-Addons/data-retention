@@ -1,0 +1,53 @@
+<div class="dialog">
+    <h2 mat-dialog-title>
+        <span *ngIf="title?.length">{{ title }}</span>
+        <button mat-button [mat-dialog-close]="dialogData" class="pepperi-button xbtn md weak pull-right flip">
+            <mat-icon>
+                <svg class="svg-icon">
+                    <use attr.xlink:href="{{ svgIcons }}system-close"></use>
+                </svg>
+            </mat-icon>
+        </button>
+    </h2>
+    <div mat-dialog-content [formGroup]="form">
+        <div>
+
+            <div class="pep-row spacing-element">
+                <ndc-dynamic class="pepperi" #pepperiSelectTypeComp
+                  [ndcDynamicComponent]="pepperiSelect"
+                  [ndcDynamicInputs]="pepperiSelectTypeInputs"
+                  [ndcDynamicOutputs]="pepperiSelectTypeOutputs"
+                  (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectObjectTypeInputs', 'pepperiSelectObjectTypeOutputs',
+                                       'ObjectSelect', 'Select an object type', activityTypes, this['selectedActivity'] );">
+                </ndc-dynamic>
+              </div>
+              <br>
+              <div>
+                <label class="">Max history (Months)</label>
+                <input class="pepperi-input" type="text" [(ngModel)]="dialogData.maxHistory"   name="resourceTitle"
+                [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.maxHistory ? dialogData.maxHistory = $event : null" />
+                  <br>
+                  <br>
+              </div>
+              <div>
+                <label class="">Min items </label>
+                <input class="pepperi-input" type="text" [(ngModel)]="dialogData.minItems"   name="resourceTitle"
+                [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.minItems ? dialogData.minItems = $event : null" />
+                <br>
+              </div>
+            <!-- <div class="pep-row spacing-element">
+                <ndc-dynamic class="pepperi" #pepperiCheckboxComp
+                  [ndcDynamicComponent]="pepperiCheckbox"
+                  [ndcDynamicInputs]="pepperiCheckboxInputs"
+                  [ndcDynamicOutputs]="pepperiCheckboxOutputs"
+                  (ndcDynamicCreated)="pepperiCheckboxOnInit($event, 'pepperiCheckboxInputs', 'pepperiCheckboxOutputs',
+                                       'Boolean', true);">
+                </ndc-dynamic>
+            </div> -->
+
+        </div>
+    </div>
+    <div mat-dialog-actions>
+        <button class="pepperi-button md strong" mat-button [mat-dialog-close]="dialogData"  >{{ 'Confirm' | translate }}</button>
+    </div>
+</div>

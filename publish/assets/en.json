@@ -1,0 +1,12 @@
+{
+    "Plugin_Title": "Demo plugin",
+    "Test_Prompt_Title": "Enter the relative API you want to test (eg. /api/foo)",
+    "Submit_Btn_Title": "Test",
+    "Archive_Addon_Paragraph": "New entry called data retention undeer company profile. It will allow to define archive policy for operational data - activities, transactions, transaction lines (loading to nucleus).",
+    "Archive_Addon_Schedule_Paragraph": "Set a weekly schedule here. the module will include configuration mode based on activity history and advance mode(for system admin) allowing build advance login using code.",
+    "Archive_Addon_Header1": "Schedule",
+    "Archive_Addon_Header2": "Data retention policy",
+    "Archive_Addon_Header3": "Object type history",
+    "Archive_Addon_Policy_Paragraph": "One number in months defining the data retention per all objects - global history(in months) to be aloaded to the operational data and option to define it per object.",
+    "Archive_Addon_AddType": "Add activity"
+}
