@@ -1,7 +1,8 @@
+import { AdditionalData } from './../client-side/src/app/plugin.model';
 import { PapiClient, InstalledAddon, Addon, AddonVersion, GeneralActivity, Transaction, Account } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 
-class MyService {
+export class MyService {
 
     papiClient: PapiClient
 
@@ -21,26 +22,49 @@ class MyService {
         this.papiClient.addons.find()
     }
 
-    async getAccounts(callbackFunc): Promise<any> {
-        //return this.papiClient.get("/accounts?include_count=1&include_hidden=0&page=1&page_size=-1");
-        //return this.papiClient.accounts.find({fields:['InternalID'], page:1, page_size:-1});
-        let results: Promise<(GeneralActivity | Transaction)[]>[] = [];
+    async getAccounts(callbackFunc): Promise<ReportTuple[]> {
+        let results: Promise<ReportTuple[][]>[] = [];
         for await (let account of this.papiClient.accounts.iter({fields:['InternalID']})){
             results.push(callbackFunc(this, account.InternalID));
         }
-        return (await Promise.all(results)).flat();
-
-
+        return (await Promise.all(results)).flat(2);
     }
 
-    getActivitiesForAccount(accountID?:number) {
-        //return this.papiClient.get("/all_activities?include_count=1&include_hidden=0&page=1&page_size=-1&where=Account.InternalID=" + accountID);
-        return this.papiClient.allActivities.find({
-            fields:['InternalID','ActivityTypeID','Title','ActionDateTime'], 
+    async getActivitiesForAccount(accountID:number) {
+        return await this.papiClient.allActivities.iter({
+            fields:['InternalID','ActivityTypeID','Type','ActionDateTime'], 
             page:1, 
             page_size:-1, 
-            where:"Account.InternalID=" + accountID});
+            where:"Account.InternalID=" + accountID + " AND ActionDateTime is not null",
+            orderBy:"ActionDateTime desc"}).toArray();
+    }
+
+    async getAdditionalData(): Promise<AdditionalData> {
+        let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID('8c9a5568-f35a-407d-856a-32d25ace2859').get();
+        let retVal = {
+            ScheduledTypes: []
+        };
+        if(addon.AdditionalData) {
+            retVal = JSON.parse(addon.AdditionalData);
+        }
+
+        return retVal;
     }
 }
 
-export default MyService;
+export class ReportTuple {
+    ActivityType: {Key:number, Value:string};
+    BeforeCount: number;
+    AfterCount: number;
+    ArchiveCount: number;
+    Activities: number[];
+
+    constructor(activityTypeID:number, title:string, beforeCount:number, archiveCount:number, activities:number[])
+    {
+        this.ActivityType = { Key: activityTypeID, Value: title }
+        this.BeforeCount = beforeCount;
+        this.ArchiveCount = archiveCount;
+        this.AfterCount = beforeCount - archiveCount;
+        this.Activities = activities;
+    }
+}

@@ -1,13 +1,14 @@
 // @ts-ignore
 import { DialogDataType} from 'pepperi-dialog';
 
+
 export class KeyValuePair<T> {
     Key: number;
     Value: T;
 }
 
 export class ScheduledType {
-    ActivityType: KeyValuePair<any>;
+    ActivityType: KeyValuePair<string>;
     NumOfMonths: number;
     MinItems: number;
 
@@ -19,12 +20,27 @@ export class ScheduledType {
 
 }
 
+export class ReportTuple {
+    ActivityType: {Key:number, Value:string};
+    BeforeCount: number;
+    AfterCount: number;
+    ArchiveCount: number;
+    Activities: number[];
+
+    constructor(activityTypeID:number, title:string, beforeCount:number, archiveCount:number, activities:number[])
+    {
+        this.ActivityType = { Key: activityTypeID, Value: title }
+        this.BeforeCount = beforeCount;
+        this.ArchiveCount = archiveCount;
+        this.AfterCount = beforeCount - archiveCount;
+        this.Activities = activities;
+    }
+}
 
 
 export class AdditionalData {
     ScheduledTypes: ScheduledType[];
 }
-
 
 export class DialogModel {
 
