@@ -1,23 +1,55 @@
 import { Client, Request } from '@pepperi-addons/debug-server'
-import { GeneralActivity, Transaction } from '@pepperi-addons/papi-sdk';
+import { GeneralActivity, Transaction, MaintenanceJobResult } from '@pepperi-addons/papi-sdk';
 import { ReportTuple, MyService, ScheduledType } from './my.service';
 
-type HttpMethod =  'POST' | 'GET' | 'PUT' | 'DELETE';
+export async function archive(client:Client, request:Request) {
+    try {
+        const service = new MyService(client);
+        const final = await get_archive_report(client, request);
+        const jobsIds: MaintenanceJobResult[] = await service.archiveData(final.resultObject);
+        return {
+            Success: true,
+            ErrorMessage:'',
+            ArchiveJobs: jobsIds,
+        }
+    }
+    catch (err) {
+        return {
+            Success: false,
+            ErrorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            ArchiveJobs: [],
+        }
+    }
+
+}
 
 export async function get_archive_report(client:Client, request: Request) {
-    const service = new MyService(client);
-    const accounts = await service.getAccounts(processAccount);
-    
-    return {
-        resultObject: GenerateReport(accounts)
-    };
+    try {
+        const service = new MyService(client);
+        const report = await service.prepareReport(processAccount);
+        const final = GenerateReport(report, x=>x.ActivityType.Key);
+        
+        return {
+            Success:true,
+            ErrorMessage:'',
+            resultObject: final,
+        };
+    }
+    catch (err) {
+        return {
+            Success: false,
+            ErrorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            resultObject: []
+        }
+    }
+
 }
 
 async function processAccount(service: MyService, accountID: number, archiveData) : Promise<ReportTuple[]>{
     const activities :(GeneralActivity | Transaction)[] = await service.getActivitiesForAccount(accountID);
     let retVal:ReportTuple[] = [];
     let activitiesByType = groupBy(activities, x=>x.ActivityTypeID);
-    //console.log("after group by type: ", activitiesByType);
+    console.log("after group by type: ", activitiesByType);
     activitiesByType.forEach((items:(GeneralActivity | Transaction)[]) => {
         if(items.length > 0) { 
             let type: ScheduledType = archiveData.find(x=> x.ActivityType.Key == items[0].ActivityTypeID) || 
@@ -29,12 +61,13 @@ async function processAccount(service: MyService, accountID: number, archiveData
                 NumOfMonths: 24,
                 MinItems: -1
             };
-            let tuple = ProcessActivitiesByType(items, type);
+            let tuple:(ReportTuple & {AccountID?:number})= ProcessActivitiesByType(items, type);
+            tuple.AccountID = accountID;
             //console.log('ProcessActivitiesByType: ', type.ActivityType.Value, 'returned: ', tuple);
             retVal.push(tuple);
         }
     });
-    //console.log('report for account id: ', accountID, 'is: ', retVal);
+    console.log('report for account id: ', accountID, 'is: ', retVal);
     return retVal;
 }
 
@@ -53,7 +86,7 @@ function shouldArchiveActivity(activityDate:Date, numOfMonths:number) : boolean{
 function ProcessActivitiesByType(items:(GeneralActivity | Transaction)[], type:ScheduledType):ReportTuple {
     let activitiesToArchive:number[] = [];
     items.forEach((activity:(GeneralActivity | Transaction)) => {
-        const activityDate = new Date(activity.ActionDateTime || '')
+        const activityDate = new Date(activity.ActionDateTime || activity.ModificationDateTime || '')
         const activityID = activity.InternalID || -1;
         if(shouldArchiveActivity(activityDate, type.NumOfMonths)) {
             activitiesToArchive.push(activityID);
@@ -85,24 +118,21 @@ function ProcessActivitiesByType(items:(GeneralActivity | Transaction)[], type:S
 
 }
 
-function GenerateReport(rows:ReportTuple[]) {
-    const report = rows.reduce((result, currentValue) => {
-        let obj = currentValue;
-        if (!result[currentValue.ActivityType.Key]) {
-            result[currentValue.ActivityType.Key] = currentValue;
-        }
-        else {
-            obj = result[currentValue.ActivityType.Key];
-            obj.BeforeCount += currentValue.BeforeCount;
-            obj.AfterCount += currentValue.AfterCount;
-            obj.ArchiveCount += currentValue.ArchiveCount;
-            obj.Activities = obj.Activities.concat(currentValue.Activities);
-        }
-        // Return the current iteration `result` value, this will be taken as next iteration `result` value and accumulate
-        return result;
-    }, Object.create(null)); // empty object is the initial value for result object
-
-    return Object.values(report);
+function GenerateReport(list:ReportTuple[], keyGetter) {
+    const map = new Map<number, ReportTuple>();
+    list.forEach((item) => {
+         const key = keyGetter(item);
+         const collection = map.get(key);
+         if (!collection) {
+             map.set(key, item);
+         } else {
+             collection.BeforeCount += item.BeforeCount;
+             collection.AfterCount += item.AfterCount;
+             collection.ArchiveCount += item.ArchiveCount;
+             collection.Activities = collection.Activities.concat(item.Activities);
+         }
+    });
+    return [...map.values()];
 }
 
 function groupBy(list, keyGetter) {

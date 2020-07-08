@@ -1,19 +1,19 @@
 import { AdditionalData } from './../client-side/src/app/plugin.model';
-import { PapiClient, InstalledAddon, Addon, AddonVersion, GeneralActivity, Transaction, Account } from '@pepperi-addons/papi-sdk'
+import { PapiClient, InstalledAddon, MaintenanceJobResult } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import config from './../addon.config.json'
 
 export class MyService {
 
     papiClient: PapiClient
-    uuid = '';
+    addonUUID = '';
 
     constructor(private client: Client) {
         this.papiClient = new PapiClient({
             baseURL: client.BaseURL,
             token: client.OAuthAccessToken
         });
-        this.uuid = client.AddonUUID;
+        this.addonUUID = client.AddonUUID;
     }
 
     doSomething() {
@@ -22,46 +22,53 @@ export class MyService {
 
     getAddons(): Promise<InstalledAddon[]> {
         return this.papiClient.addons.installedAddons.find({});
-        this.papiClient.addons.find()
     }
 
-    async getAccounts(callbackFunc): Promise<ReportTuple[]> {
-        let results: Promise<ReportTuple[][]>[] = [];
+    async prepareReport(callbackFunc): Promise<ReportTuple[]> {
+        let results: Promise<ReportTuple[]>[] = [];
         let archiveData = (await this.getAdditionalData()).ScheduledTypes;
-        for await (let account of this.papiClient.accounts.iter({fields:['InternalID']})){
+        for await (let account of this.papiClient.accounts.iter({fields:['InternalID'], page_size:1000, include_deleted:true})){
             results.push(callbackFunc(this, account.InternalID, archiveData));
         }
-        let retVal = (await Promise.all(results)).flat(2);
-        //console.log("all accounts:", retVal);
-        return retVal;
+        let retVal = (await Promise.all(results));
+        console.log("all accounts:", retVal);
+        return retVal.flat();
     }
 
     async getActivitiesForAccount(accountID:number) {
         let retVal =  await this.papiClient.allActivities.iter({
-            fields:['InternalID','ActivityTypeID','Type','ActionDateTime'], 
+            fields:['InternalID','ActivityTypeID','Type','ActionDateTime', 'ModificationDateTime'], 
             page:1, 
             page_size:-1, 
-            where:"Account.InternalID=" + accountID + " AND ActionDateTime is not null",
+            where:"Account.InternalID=" + accountID,
             orderBy:"ActionDateTime desc",
-            include_deleted:false}).toArray();
+            include_deleted:true}).toArray();
         
         console.log("activities for account ", accountID, " are: ", retVal);
         return retVal;
     }
 
     async getAdditionalData(): Promise<AdditionalData> {
-        let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID('8c9a5568-f35a-407d-856a-32d25ace2859').get();
+        let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID(this.addonUUID).get();
         let retVal = {
             ScheduledTypes: []
         };
         if(addon?.AdditionalData) {
             retVal = JSON.parse(addon.AdditionalData);
         }
-        else {
-            retVal = JSON.parse('{"ScheduledTypes":[{"ActivityType":{"Key":15210,"Value":"Event"},"NumOfMonths":3,"MinItems":5},{"ActivityType":{"Key":15212,"Value":"Messe"},"NumOfMonths":12,"MinItems":2},{"ActivityType":{"Key":15210,"Value":"Besuch"},"NumOfMonths":12,"MinItems":2},{"ActivityType":{"Key":15512,"Value":"Katalog"},"NumOfMonths":8,"MinItems":4},{"ActivityType":{"Key":15515,"Value":"OrderTest"},"NumOfMonths":2,"MinItems":7}]}')
-        }
 
         return retVal;
+    }
+
+    async archiveData(data: ReportTuple[]): Promise<MaintenanceJobResult[]> {
+        const maintenanceJobs: Promise<MaintenanceJobResult>[] = [];
+        data.forEach((row) => {
+            if(row.Activities.length > 0) {
+                const ids = row.Activities.join(',');
+                maintenanceJobs.push(this.papiClient.maintenance.type('all_activities').archive({where:`InternalID in (${ids})`}));
+            }
+        })
+        return await (Promise.all(maintenanceJobs));
     }
 }
 
