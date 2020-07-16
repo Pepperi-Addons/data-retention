@@ -7,6 +7,8 @@ import virtual from 'rollup-plugin-virtual';
 import sass from 'node-sass';
 import CleanCSS from 'clean-css';
 import { minify as minifyHtml } from 'html-minifier';
+import builtins from 'rollup-plugin-node-builtins'
+import globals from 'rollup-plugin-node-globals'
 
 const cssmin = new CleanCSS();
 const htmlminOpts = {
@@ -44,6 +46,27 @@ export default [{
           return data
         }
      }),
+     {
+      name:'my-example',
+      resolveId(source) {
+         if (source === 'perf_hooks') {
+            return source;
+         }
+         else if (source === 'node-fetch') {
+          return source;
+         }
+         return null;
+      },
+      load(id) {
+       if (id === 'perf_hooks') {
+          return 'export default { performance }';
+       }
+       if (id === 'node-fetch') {
+          return 'export default window.fetch.bind(window)';
+       }
+       return null;
+      }
+   },
      resolve({
         jsnext: true,
         main: true,
@@ -61,10 +84,14 @@ export default [{
      virtual({
       'foo': 'export default 1'
     }),
-     commonjs(),
-     includePaths({ paths: ["s"] }),
-
-
+    commonjs({
+      namedExports: {
+         '@pepperi-addons/papi-sdk': ['DataViewFieldTypes', 'PapiClient']
+      }
+   }),
+   includePaths({ paths: ["s"] }),
+   builtins(),
+   globals(),
    ],
 
    external: [
