@@ -1,0 +1,28 @@
+<div  class="listContainer">
+    <div class="rowBody">
+        <div class="topBarDynCont">
+            <ndc-dynamic
+                #topBarComp
+                [ndcDynamicComponent]="topBarComponent"
+                [ndcDynamicInputs]="topBarInputs"
+                [ndcDynamicOutputs]="topBarOutputs"
+                (ndcDynamicCreated)="topBarOnInit($event)"
+            >
+            </ndc-dynamic>
+        </div>
+        <div id="mainContent" class="main-content row">
+            <div class="main-layout pull-right flip">
+                <div #pepperiListCont class="content" style="height: calc(100vh - 250px); overflow-y: auto;">
+                    <ndc-dynamic
+                        #pepperiListComp
+                        [ndcDynamicComponent]="pepperiListComponent"
+                        [ndcDynamicInputs]="pepperiListInputs"
+                        [ndcDynamicOutputs]="pepperiListOutputs"
+                        (ndcDynamicCreated)="pepperiListOnInit($event, apiEndpoint)"
+                    >
+                    </ndc-dynamic>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
