@@ -1,19 +1,19 @@
 <!-- <div *ngIf="!installing" id="archive-main-container"> -->
     <div id="archive-main-container" class="plugin-container">
 
-
-
         <div id="archiveHeader" class="header-content">
         <div class="content pepperi-border-bottom body-lg ellipsis">
-            {{ 'Data Retention' | translate }}
-            <button *ngIf="showReset" mat-button class="topButtons pepperi-button weak main caution md"  (click)="resetPlugin()">Reset</button>
+            {{ 'Archive_Addon_Title' | translate }}
+            <button mat-button class="topButtons pepperi-button strong main md"  (click)="publishPlugin()">Publish</button>
         </div>
         </div>
     
         <div id="archiveBody">
-    
-        <p class="p3">{{ 'Archive_Addon_Paragraph' | translate }}</p><br><br>
-    
+        <br />
+        <p class="p3">
+            {{ 'Archive_Addon_Paragraph' | translate }}
+        </p>
+        <br />
         <div id="main-container">
     
             <div id="schedule-container">
@@ -23,47 +23,46 @@
                 <hr>
               </h4>
                 </div>
-                <br>
                 <p class="p3">{{ 'Archive_Addon_Schedule_Paragraph' | translate }}</p>
-                <br>
                 <div class="pep-row field1">
-              <ndc-dynamic class="pepperi" #pepperiSelectDayComp
+              <!-- <ndc-dynamic class="pepperi" #pepperiSelectDayComp
                 [ndcDynamicComponent]="pepperiSelect"
                 [ndcDynamicInputs]="pepperiSelectDayInputs"
                 [ndcDynamicOutputs]="pepperiSelectDayOutputs"
                 (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectDayInputs', 'pepperiSelectDayOutputs',
                                      'DaySelect', 'Select a day of the week', dayOptions);">
-              </ndc-dynamic>
+              </ndc-dynamic> -->
+              <pepperi-select [required]="true" [label]="'Archive_Addon_SelectDaysTitle' | translate" [(value)]="selectedDay" [options]="dayOptions"></pepperi-select>
+
                 </div>
                 <div class="pep-row field2">
-              <ndc-dynamic class="pepperi" #pepperiSelectTimeComp
+              <!-- <ndc-dynamic class="pepperi" #pepperiSelectTimeComp
                 [ndcDynamicComponent]="pepperiSelect"  [ndcDynamicInputs]="pepperiSelectTimeInputs"
                 [ndcDynamicOutputs]="pepperiSelectTimeOutputs"
                 (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectTimeInputs', 'pepperiSelectTimeOutputs',
                                      'TimeSelect', 'Time (UTC)', timeOptions);">
-              </ndc-dynamic>
+              </ndc-dynamic> -->
+              <pepperi-select [required]="true" [label]="'Archive_Addon_SelectTimeTitle' | translate" [(value)]="selectedHour" [options]="timeOptions"></pepperi-select>
                 </div>
             </div>
     
             <div id="data-retention-policy">
     
                 <div><h4>{{ 'Archive_Addon_Header2' | translate }}<hr></h4></div>
-                <br>
-    
+            
                 <p class="p3">{{ 'Archive_Addon_Policy_Paragraph' | translate }}</p>
-                <br>
-    
+            
                 <div class="pep-row">
-                    <ndc-dynamic class="pepperi" #pepperiInputComp
+                    <!-- <ndc-dynamic class="pepperi" #pepperiInputComp
                         [ndcDynamicComponent]="pepperiInput"
                         [ndcDynamicInputs]="pepperiInputInputs"
                         [ndcDynamicOutputs]="pepperiInputOutputs"
                         (ndcDynamicCreated)="pepperiFieldOnInit($event, 'pepperiInputInputs', 'pepperiInputOutputs',
                                          'MonthsInput', 'Months of data retention', '');">
-                    </ndc-dynamic>
+                    </ndc-dynamic> -->
+                    <pepperi-textbox [required]="true" [label]="'Archive_Addon_MonthsTitle' | translate" [(value)]="defaultNumofMonthes" [type]="'number'"></pepperi-textbox>
                 </div>
-                <br>
-    
+            
                 <div id="retentionPreview">
                     <!-- <h4 id="retentionPreviewHeader">
                         <span>{{ 'Archive_Addon_Header3' | translate }}</span>
@@ -89,7 +88,7 @@
                         </div>
                     </h4> -->
     
-                    <div #genericCont id="genericCont">
+                    <!-- <div #genericCont id="genericCont">
     
                         <ndc-dynamic #topBarComp
                             [ndcDynamicComponent]="topBar"
@@ -105,11 +104,8 @@
                             (ndcDynamicCreated)="pepperiListOnInit($event)">
                         </ndc-dynamic>
     
-                    </div>
-    
-    
-    
-    
+                    </div> -->
+                    <app-list-view #typesList [scheduledTypes]="this.additionalData?.ScheduledTypes" (actionClicked)="onActionClicked($event)"></app-list-view>
                     <ng-template #addType>
                         <p class="p3">{{ 'Archive_Addon_Policy_Paragraph' | translate }}</p>
                     </ng-template>

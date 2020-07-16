@@ -32,13 +32,13 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
 
 
     pepperiSelect = PepperiSelectComponent;
-    @ViewChild("pepperiSelectTypeComp") pepperiSelectTypeComp: DynamicComponent;
+    @ViewChild("pepperiSelectTypeComp", {static:false}) pepperiSelectTypeComp: DynamicComponent;
     pepperiSelectTypeInputs;
     pepperiSelectTypeOutputs;
     activityTypes = [];
 
     pepperiCheckbox = PepperiCheckboxComponent;
-    @ViewChild("pepperiCheckboxComp") pepperiCheckboxComp: DynamicComponent;
+    @ViewChild("pepperiCheckboxComp", {static:false}) pepperiCheckboxComp: DynamicComponent;
     pepperiCheckboxInputs;
     pepperiCheckboxOutputs;
 
@@ -46,9 +46,10 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
     form: FormGroup;
     dialogData;
     svgIcons;
-    maxHistory;
+    NumOfMonths;
     minItems;
     selectedActivity;
+    mode = 'Add';
 
     constructor(private fb: FormBuilder,
         public dialogRef: MatDialogRef<AddTypeDialogComponent>,
@@ -60,26 +61,27 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
         this.svgIcons = incoming.data.svgIcons;
         if (incoming.data.selectedType){
             let current = incoming.data.selectedType;
-            this.dialogData.maxHistory = incoming.data.maxHistory;
-            this.dialogData.minItems = incoming.data.minItems;
-            this.dialogData.selectedActivity = current.ActivityType;
-            this.selectedActivity = current.ActivityType;
+            this.dialogData.numOfMonths = current.NumOfMonths;
+            this.dialogData.minItems = current.MinItems;
+            this.dialogData.selectedActivity = current.ActivityType.Key;
+            this.selectedActivity = current.ActivityType.Key;
+            this.mode = 'Edit'
         }
     }
 
     ngOnInit() {
         this.form = this.fb.group({
-            maxHistory: [this.maxHistory, []],
+            numOfMonths: [this.NumOfMonths, []],
             minItems: [this.minItems, []],
             selectedActivity: [this.selectedActivity, []]
         });
     }
 
-    onConfirm() {
+    onAdd() {
         this.dialogData =
             {
                 selectedActivity: this.selectedActivity,
-                maxHistory: this.maxHistory,
+                numOfMonths: this.NumOfMonths,
                 minItems: this.minItems,
                 boolean: true,
             };

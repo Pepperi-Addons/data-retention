@@ -3,8 +3,7 @@ import { PluginComponent } from './plugin.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { MatTabsModule, MatIconModule, MatInputModule, MatCheckboxModule, MatFormFieldModule, MatDialogModule, MatCardModule } from '@angular/material';
-// @ts-ignore
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateService, TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // @ts-ignore
@@ -14,17 +13,27 @@ import { ignoreElements } from 'rxjs/operators';
 //@ts-ignore
 import {EnvVariables} from 'pepperi-environment-variables';
 
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { AddonApiService } from './addon-api.service';
-import { AddTypeDialogComponent } from './dialogs/add-type-dialog/add-type-dialog.component';
+//@ts-ignore
+import {AddonService} from 'pepperi-addon-service';
 
+import { HttpClientModule, HttpClient } from '@angular/common/http';
+
+import { AddTypeDialogComponent } from './dialogs/add-type-dialog/add-type-dialog.component';
+import { PepperiSelectComponent } from './components/pepperi-select/pepperi-select.component';
+import { PepperiTextboxComponent } from './components/pepperi-textbox/pepperi-textbox.component';
+import { PepperiListContComponent } from './components/pepperi-list/pepperi-list.component'
+import { ListViewComponent } from './components/list-view/list-view.component'
 function getUrl(){
     debugger;
 }
 @NgModule({
   declarations: [
     PluginComponent,
-    AddTypeDialogComponent
+    AddTypeDialogComponent,
+    PepperiSelectComponent,
+    PepperiTextboxComponent,
+    PepperiListContComponent,
+    ListViewComponent
   ],
   imports: [
     CommonModule,
@@ -36,14 +45,14 @@ function getUrl(){
     MatFormFieldModule,
     MatDialogModule,
     MatCardModule,
-    TranslateModule.forRoot({
-        loader: {
-            provide: TranslateLoader,
-            useFactory: createTranslateLoader,
-            deps: [HttpClient, AddonApiService]
-        }
-    }),
     FormsModule,
+    TranslateModule.forRoot({
+      loader: {
+          provide: TranslateLoader,
+          useFactory: createTranslateLoader,
+          deps: [HttpClient, AddonService],
+      },
+  }),
     ReactiveFormsModule,
     DynamicModule.withComponents([])
     ],
@@ -58,7 +67,7 @@ function getUrl(){
     }],
     multi: true
   },
-  AddonApiService
+  TranslateService
 ],
   entryComponents: [
     PluginComponent,
@@ -71,7 +80,7 @@ export class PluginModule {
 
 }
 
-export function createTranslateLoader(http: HttpClient, apiService: AddonApiService, url: string = '') {
+export function createTranslateLoader(http: HttpClient, apiService: AddonService, url: string = '') {
   if (!url) {
     url = apiService.getAddonStaticFolderURL();
   }

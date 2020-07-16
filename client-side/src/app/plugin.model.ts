@@ -1,5 +1,6 @@
 // @ts-ignore
 import { DialogDataType} from 'pepperi-dialog';
+import { AbstractFormGroupDirective } from '@angular/forms';
 
 
 export class KeyValuePair<T> {
@@ -8,11 +9,13 @@ export class KeyValuePair<T> {
 }
 
 export class ScheduledType {
+    UUID?: string;
     ActivityType: KeyValuePair<string>;
     NumOfMonths: number;
     MinItems: number;
 
-    constructor(activityTypeID, title, numOfMonths = 3, minItems = 100){
+    constructor(activityTypeID, title, numOfMonths = 3, minItems = -1){
+        this.UUID = Guid.newGuid();
         this.ActivityType = { Key: activityTypeID, Value: title };
         this.NumOfMonths = numOfMonths;
         this.MinItems = minItems;
@@ -39,6 +42,7 @@ export class ReportTuple {
 
 
 export class AdditionalData {
+    CodeJobUUID?: string;
     ScheduledTypes: ScheduledType[];
 }
 
@@ -168,11 +172,13 @@ export class InstalledAddon {
     }
 }
 
-
-
-
-
-
-
-
-
+export class Guid {
+    static newGuid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+  }
+  
