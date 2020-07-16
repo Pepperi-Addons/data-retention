@@ -53,7 +53,8 @@ exports.install = async (Client, Request) => {
 exports.uninstall = async (Client, Request) => {
     const papiClient = new PapiClient({
         baseURL: Client.BaseURL,
-        token: Client.OAuthAccessToken
+        token: Client.OAuthAccessToken,
+        addonUUID: Client.AddonUUID
     });
     try {
         let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
@@ -87,44 +88,44 @@ exports.downgrade = async (Client, Request) => {
 
 function getCronExpression() {
     let expressions = [
-        '0 0 19 ? * FRI *',
-        '0 0 20 ? * FRI *',
-        '0 0 21 ? * FRI *',
-        '0 0 22 ? * FRI *',
-        '0 0 23 ? * FRI *',
-        '0 0 0 ? * SAT *',
-        '0 0 01 ? * SAT *',
-        '0 0 02 ? * SAT *',
-        '0 0 03 ? * SAT *',
-        '0 0 04 ? * SAT *',
-        '0 0 05 ? * SAT *',
-        '0 0 06 ? * SAT *',
-        '0 0 07 ? * SAT *',
-        '0 0 08 ? * SAT *',
-        '0 0 09 ? * SAT *',
-        '0 0 10 ? * SAT *',
-        '0 0 11 ? * SAT *',
-        '0 0 12 ? * SAT *',
-        '0 0 13 ? * SAT *',
-        '0 0 14 ? * SAT *',
-        '0 0 15 ? * SAT *',
-        '0 0 16 ? * SAT *',
-        '0 0 17 ? * SAT *',
-        '0 0 18 ? * SAT *',
-        '0 0 19 ? * SAT *',
-        '0 0 20 ? * SAT *',
-        '0 0 21 ? * SAT *',
-        '0 0 22 ? * SAT *',
-        '0 0 23 ? * SAT *',
-        '0 0 24 ? * SAT *',
-        '0 0 0 ? * SUN *',
-        '0 0 01 ? * SUN *',
-        '0 0 02 ? * SUN *',
-        '0 0 03 ? * SUN *',
-        '0 0 04 ? * SUN *',        
+        '0 19 * * FRI',
+        '0 20 * * FRI',
+        '0 21 * * FRI',
+        '0 22 * * FRI',
+        '0 23 * * FRI',
+        '0 0 * * SAT',
+        '0 1 * * SAT',
+        '0 2 * * SAT',
+        '0 3 * * SAT',
+        '0 4 * * SAT',
+        '0 5 * * SAT',
+        '0 6 * * SAT',
+        '0 7 * * SAT',
+        '0 8 * * SAT',
+        '0 9 * * SAT',
+        '0 10 * * SAT',
+        '0 11 * * SAT',
+        '0 12 * * SAT',
+        '0 13 * * SAT',
+        '0 14 * * SAT',
+        '0 15 * * SAT',
+        '0 16 * * SAT',
+        '0 17 * * SAT',
+        '0 18 * * SAT',
+        '0 19 * * SAT',
+        '0 20 * * SAT',
+        '0 21 * * SAT',
+        '0 22 * * SAT',
+        '0 23 * * SAT',
+        '0 24 * * SAT',
+        '0 0 * * SUN',
+        '0 1 * * SUN',
+        '0 2 * * SUN',
+        '0 3 * * SUN',
+        '0 4 * * SUN',        
     ]
-
-    return expressions[Math.random() * expressions.length];
+    const index = Math.floor(Math.random() * expressions.length);
+    return expressions[index];
 }
 
 async function updateCodeJobUUID(papiClient, addonUUID, uuid) {
@@ -162,7 +163,13 @@ async function getCodeJobUUID(papiClient, addonUUID) {
     let uuid = '';
     let addon = await papiClient.addons.installedAddons.addonUUID(addonUUID).get();
     if(addon?.AdditionalData) {
-        uuid = addon.AdditionalData.CodeJobUUID;
+        uuid = JSON.parse(addon.AdditionalData).CodeJobUUID;
     }
     return uuid;
+}
+
+function getRandomIndex(arrayLength:number): number {
+    let index: number = 0;
+    Math.floor(Math.random() * (arrayLength + 1))
+    return index;
 }
