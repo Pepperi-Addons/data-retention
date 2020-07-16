@@ -2,3 +2,4 @@
 /publish/editors
 var_sk
 node_modules
+*.code-workspace
