@@ -50,6 +50,7 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
     minItems;
     selectedActivity;
     mode = 'Add';
+    maxHistory: number = 24;
 
     constructor(private fb: FormBuilder,
         public dialogRef: MatDialogRef<AddTypeDialogComponent>,
@@ -59,6 +60,7 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
         this.dialogData = incoming.data;
         this.activityTypes = incoming.data.activityTypes;
         this.svgIcons = incoming.data.svgIcons;
+        this.maxHistory = this.dialogData.numOfMonths = incoming.data.maxHistory; 
         if (incoming.data.selectedType){
             let current = incoming.data.selectedType;
             this.dialogData.numOfMonths = current.NumOfMonths;
