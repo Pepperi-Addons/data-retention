@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
 import { PluginService } from 'src/app/plugin.service';
 import { PepperiListService, PepperiListContComponent } from '../pepperi-list/pepperi-list.component';
-//import { EventsService } from 'src/app/events.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ScheduledType } from 'src/app/plugin.model';
@@ -17,7 +16,7 @@ export class ListViewComponent implements OnInit {
   @Input() scheduledTypes: ScheduledType[];
 
   service: PepperiListService = {
-    getDataView: () => {
+    getDataView: (translates) => {
       return {
         Context: {
           Name: '',
@@ -25,26 +24,26 @@ export class ListViewComponent implements OnInit {
           ScreenSize: 'Landscape'
         },
         Type: 'Grid',
-        Title: this.translate.instant('Archive_Addon_TypesTableTitle'),
+        Title: translates ? translates['Archive_Addon_TypesTableTitle'] : '',
         Fields: [
           {
             FieldID: 'ActivityType.Value',
             Type: 'TextBox',
-            Title: this.translate.instant('Archive_Addon_TypesActivityColumnTitle'),
+            Title: translates ? translates['Archive_Addon_TypesActivityColumnTitle'] : '',
             Mandatory: false,
             ReadOnly: true
           },
           {
             FieldID: 'NumOfMonths',
             Type: 'TextBox',
-            Title: this.translate.instant('Archive_Addon_TypesMonthsColumnTitle'),
+            Title: translates ? translates['Archive_Addon_TypesMonthsColumnTitle'] : '',
             Mandatory: false,
             ReadOnly: true
           },
           {
             FieldID: 'MinItems',
             Type: 'TextBox',
-            Title: this.translate.instant('Archive_Addon_TypesItemsColumnTitle'),
+            Title: translates ? translates['Archive_Addon_TypesItemsColumnTitle'] : '',
             Mandatory: false,
             ReadOnly: true
           },
@@ -86,10 +85,10 @@ export class ListViewComponent implements OnInit {
       ]
     },
 
-    rightButtons: () => {
+    rightButtons: (translates) => {
       return [
         {
-          Title: this.translate.instant('Archive_Addon_AddType'),
+          Title: translates ? translates['Archive_Addon_AddType'] : '',
           Icon: 'number-plus',
           Action: () => this.actionClicked.emit({ApiName:'Add'})
         }
@@ -105,6 +104,7 @@ export class ListViewComponent implements OnInit {
     }
   }
 
+  translates: string[] = [];
 
   @ViewChild('list', { static: false })
 
@@ -114,7 +114,9 @@ export class ListViewComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private translate: TranslateService,
-  ) { }
+  ) { 
+
+  }
 
   ngOnInit(): void {
   }
