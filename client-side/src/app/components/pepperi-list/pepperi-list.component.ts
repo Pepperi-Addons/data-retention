@@ -26,7 +26,7 @@ import { GridDataView, DataViewFieldTypes } from '@pepperi-addons/papi-sdk'
 import { PluginJsonFilter } from 'src/app/plugin.model';
 
 export interface PepperiListService {
-  getDataView(): GridDataView;
+  getDataView(translates): GridDataView;
   getList(): Promise<any[]>;
   getActions(): {
     Key: string;
@@ -34,7 +34,7 @@ export interface PepperiListService {
     Filter: (obj: any) => boolean;
     Action: (obj: any) => void;
   }[];
-  rightButtons?(): {
+  rightButtons?(translates): {
     Title: string;
     Icon: string;
     Action: () => void;
@@ -144,35 +144,42 @@ export class PepperiListContComponent implements OnInit {
   }
 
   topBarOnInit(compRef: ComponentRef<any>) {
-    const topRightButtons = [];
-    const topLeftButtons = [];
-    const dataView = this.service.getDataView();
+    this.translate.get([
+        'Archive_Addon_TypesTableTitle', 
+        'Archive_Addon_TypesActivityColumnTitle', 
+        'Archive_Addon_TypesMonthsColumnTitle',
+        'Archive_Addon_TypesItemsColumnTitle',
+        'Archive_Addon_AddType'
+    ]).subscribe((translates) => {
+        const topRightButtons = [];
+        const topLeftButtons = [];
+        const dataView = this.service.getDataView(translates);
 
-    let rightButtons = this.service.rightButtons() || [];
-    rightButtons = rightButtons.map(action => {
-      return new TopBarButton(action.Title, () => action.Action(), action.Icon, ICON_POSITION.End, true, null, 'pepperi-button mat-button strong color-main lg');
-    })
+        let rightButtons = this.service.rightButtons(translates) || [];
+        rightButtons = rightButtons.map(action => {
+        return new TopBarButton(action.Title, () => action.Action(), action.Icon, ICON_POSITION.End, true, null, 'pepperi-button mat-button strong color-main lg');
+        })
 
-    this.listActions = this.getListActions();
-    this.topBarInputs = {
-      showSearch: false,
-      selectedList: '',
-      listActionsXDirection: 'after',
-      listActionsData: this.listActions,
-      leftButtons: topLeftButtons,
-      rightButtons: rightButtons,
-      showTotals: false,
-      showListActions: false,
-      topbarTitle: dataView.Title || '',
-      standalone: true
-    };
+        this.listActions = this.getListActions();
+        this.topBarInputs = {
+        showSearch: false,
+        selectedList: '',
+        listActionsXDirection: 'after',
+        listActionsData: this.listActions,
+        leftButtons: topLeftButtons,
+        rightButtons: rightButtons,
+        showTotals: false,
+        showListActions: false,
+        topbarTitle: dataView.Title || '',
+        standalone: true
+        };
 
-    this.topBarOutputs = {
-      actionClicked: event => this.onActionClicked(event),
-      jsonDateFilterChanged: event =>  this.onJsonDateFilterChanged(event),
-      searchStringChanged: event => this.searchChanged(event)
-    };
-
+        this.topBarOutputs = {
+        actionClicked: event => this.onActionClicked(event),
+        jsonDateFilterChanged: event =>  this.onJsonDateFilterChanged(event),
+        searchStringChanged: event => this.searchChanged(event)
+        };
+    });
   }
 
   getListActions(rowData = null): Array<ListActionsItem> {
@@ -202,36 +209,44 @@ export class PepperiListContComponent implements OnInit {
   } 
 
   async loadlist(apiEndpoint) {
-    const dataView = this.service.getDataView();
-    this.list = await this.service.getList();
-    const rows: PepperiRowData[] = this.list.map(x => {
-      const res = new PepperiRowData();
-      res.Fields = dataView.Fields.map((field, i) => {
-        return {
-          ApiName: field.FieldID,
-          Title: field.Title,
-          XAlignment: 1,
-          FormattedValue: this.getValue(x, field.FieldID),
-          Value:  this.getValue(x, field.FieldID),
-          ColumnWidth: dataView.Columns[i].Width,
-          AdditionalValue: '',
-          OptionalValues: [],
-          FieldType: DataViewFieldTypes[field.Type]
-        }
-      })
-      return res;
+    this.translate.get([
+        'Archive_Addon_TypesTableTitle', 
+        'Archive_Addon_TypesActivityColumnTitle', 
+        'Archive_Addon_TypesMonthsColumnTitle',
+        'Archive_Addon_TypesItemsColumnTitle',
+        'Archive_Addon_AddType'
+    ]).subscribe(async (translates) => {
+        const dataView = this.service.getDataView(translates);
+        this.list = await this.service.getList();
+        const rows: PepperiRowData[] = this.list.map(x => {
+        const res = new PepperiRowData();
+        res.Fields = dataView.Fields.map((field, i) => {
+            return {
+            ApiName: field.FieldID,
+            Title: field.Title,
+            XAlignment: 1,
+            FormattedValue: this.getValue(x, field.FieldID),
+            Value:  this.getValue(x, field.FieldID),
+            ColumnWidth: dataView.Columns[i].Width,
+            AdditionalValue: '',
+            OptionalValues: [],
+            FieldType: DataViewFieldTypes[field.Type]
+            }
+        })
+        return res;
+        });
+
+        const pepperiListObj = this.pluginService.pepperiDataConverter.convertListData(rows);
+        const uiControl = pepperiListObj.UIControl;
+        const l = pepperiListObj.Rows.map((row, i) => {
+        row.UID = this.list[i].UUID || row.UID;
+        const osd = new ObjectSingleData(uiControl, row);
+        osd.IsEditable = false;
+        return osd;
+        })
+
+        this.pepperiListComp.componentRef.instance.initListData(uiControl, l.length, l, VIEW_TYPE.Table, '', true);
     });
-
-    const pepperiListObj = this.pluginService.pepperiDataConverter.convertListData(rows);
-    const uiControl = pepperiListObj.UIControl;
-    const l = pepperiListObj.Rows.map((row, i) => {
-      row.UID = this.list[i].UUID || row.UID;
-      const osd = new ObjectSingleData(uiControl, row);
-      osd.IsEditable = false;
-      return osd;
-    })
-
-    this.pepperiListComp.componentRef.instance.initListData(uiControl, l.length, l, VIEW_TYPE.Table, '', true);
   }
 
   onActionClicked(event) {
