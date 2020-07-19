@@ -199,7 +199,7 @@ export class PepperiListContComponent implements OnInit {
     }
 
     // support regular APINames & dot anotation
-    if (apiName in object) {
+    if (apiName in object && object[apiName]) {
         return object[apiName].toString();
     }
 

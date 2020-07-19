@@ -14,7 +14,7 @@ export class ScheduledType {
     NumOfMonths: number;
     MinItems: number;
 
-    constructor(activityTypeID, title, numOfMonths = 3, minItems = -1){
+    constructor(activityTypeID, title, numOfMonths = 3, minItems){
         this.UUID = Guid.newGuid();
         this.ActivityType = { Key: activityTypeID, Value: title };
         this.NumOfMonths = numOfMonths;
