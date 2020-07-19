@@ -21,8 +21,10 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { AddTypeDialogComponent } from './dialogs/add-type-dialog/add-type-dialog.component';
 import { PepperiSelectComponent } from './components/pepperi-select/pepperi-select.component';
 import { PepperiTextboxComponent } from './components/pepperi-textbox/pepperi-textbox.component';
-import { PepperiListContComponent } from './components/pepperi-list/pepperi-list.component'
-import { ListViewComponent } from './components/list-view/list-view.component'
+import { PepperiListContComponent } from './components/pepperi-list/pepperi-list.component';
+import { PepperiMenuComponent } from './components/pepperi-menu/pepperi-menu.component';
+import { ListViewComponent } from './components/list-view/list-view.component';
+
 function getUrl(){
     debugger;
 }
@@ -33,6 +35,7 @@ function getUrl(){
     PepperiSelectComponent,
     PepperiTextboxComponent,
     PepperiListContComponent,
+    PepperiMenuComponent,
     ListViewComponent
   ],
   imports: [
