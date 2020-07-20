@@ -57,6 +57,7 @@ import { UserService } from "pepperi-user-service";
 import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 import { runInThisContext } from "vm";
 import { ListViewComponent } from './components/list-view/list-view.component';
+import { Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: "plugin",
@@ -169,6 +170,8 @@ export class PluginComponent implements OnInit, OnDestroy {
 //   topBarOutputs;
 
   codeJob: CodeJob;
+
+  schedulerURL = '/settings/fcb7ced2-4c81-4705-9f2b-89310d45e6c7/scheduler';
 
   constructor(
     public pluginService: PluginService,
@@ -426,13 +429,72 @@ export class PluginComponent implements OnInit, OnDestroy {
 
   onMenuItemClicked(event) {
 
-    switch (event.ApiName) {
-
+    switch (event.apiName) {
+        case 'Report': {
+            this.generateReport();
+            break;
+        }
+        case 'Audit': {
+            this.router.navigate([
+                this.schedulerURL
+            ], {
+                queryParams: {
+                    view: 'audit',
+                    job_id: this.additionalData.CodeJobUUID
+                }
+            });
+            break;
+        }
+        case 'Executions': {
+            this.router.navigate([
+                this.schedulerURL
+            ], {
+                queryParams: {
+                    view: 'executions',
+                    job_id: this.additionalData.CodeJobUUID
+                }
+            });
+            break;
+        }
+        case 'Run': {
+            this.showRunMessage();
+            break;
+        }
         default: {
-          alert(event.ApiName + " is not supported");
+          alert(event.apiName + " is not supported");
         }
       }
   }
+    generateReport() {
+        
+    }
+
+    showRunMessage() {
+        const title = this.translate.instant('Addon_Archive_ExecuteModal_Title');
+        const content = this.translate.instant('Addon_Archive_ExecuteModal_Paragraph');
+        const buttons = [{
+            title: this.translate.instant("Addon_Archive_Confirm"),
+            callback: res => {
+                this.runJob();
+            },
+            className: "",
+            icon: null
+        },
+        {
+            title: this.translate.instant("Addon_Archive_Cancel"),
+            callback: res => {
+            },
+            className: "",
+            icon: null
+        }]
+        this.pluginService.openTextDialog(title, content, buttons);
+    }
+
+    runJob() {
+        this.pluginService.papiClient.codeJobs.async().uuid(this.additionalData.CodeJobUUID).execute().then(value => {
+            console.log(value);
+        });
+    }
 
   // Updates plugin's metadata in pluginEmits event to webapp's settings menu,
   // Refresh the settings component and navigates to tools-setup
@@ -512,10 +574,7 @@ export class PluginComponent implements OnInit, OnDestroy {
             };
             const title = this.translate.instant("Addon_Archive_PublishModal_Title");
             const content = this.translate.instant("Addon_Archive_PublishModal_Success");
-            const data = new DialogData(title, content, DialogDataType.Text, [
-                actionButton
-            ]);
-            this.pluginService.userService.openDialog(data);
+            this.pluginService.openTextDialog(title, content, [actionButton]);
         }
         catch(error) {
             const actionButton = {
@@ -527,10 +586,7 @@ export class PluginComponent implements OnInit, OnDestroy {
             };
             const title = this.translate.instant("Addon_Archive_PublishModal_Title");
             const content = this.translate.instant("Addon_Archive_PublishModal_Failure", ('message' in error) ? error.message : 'Unknown error occured');
-            const data = new DialogData(title, content, DialogDataType.Text, [
-                actionButton
-            ]);
-            this.pluginService.userService.openDialog(data);
+            this.pluginService.openTextDialog(title, content, [actionButton]);
         }
     // Implement: save UI data
   }
@@ -618,10 +674,7 @@ export class PluginComponent implements OnInit, OnDestroy {
       };
       const title = this.translate.instant("Addon_Archive_DeleteModal_Title");
       const content = this.translate.instant("Addon_Archive_DeleteModal_Paragraph");
-      const data = new DialogData(title, content, DialogDataType.Text, [
-        actionButton
-      ]);
-      this.pluginService.userService.openDialog(data);
+      this.pluginService.openTextDialog(title, content, [actionButton]);
       //this.pluginService.openDialog(data);
         
     // if (this.selection.selected.length > 0) {

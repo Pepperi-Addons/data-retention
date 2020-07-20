@@ -20,8 +20,8 @@
     "Archive_Addon_MinItemsCheck": "Save minimal records",
     "Addon_Archive_ModalTitle_Add": "Add Activity",
     "Addon_Archive_ModalTitle_Update": "Update Activity",
-    "Addon_Archive_Modal_Add": "Add",
-    "Addon_Archive_Modal_Update": "Update",
+    "Addon_Archive_Add": "Add",
+    "Addon_Archive_Update": "Update",
     "Addon_Archive_Confirm": "OK",
     "Addon_Archive_DeleteModal_Title": "Delete Activity",
     "Addon_Archive_DeleteModal_Paragraph": "Are you sure you want to delete this Activity from the data retention policy?",
@@ -34,7 +34,6 @@
     "Addon_Archive_Menu_Execution": "Execution Log",
     "Addon_Archive_Menu_Audit": "Audit Trail",
     "Addon_Archive_Menu_RunNow": "Run Data Retention",
-    "Addon_Archive_Menu_Title": "Menu"
-
-    
+    "Addon_Archive_Menu_Title": "Menu",
+    "Addon_Archive_Cancel": "Cancel"
 }

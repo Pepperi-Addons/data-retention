@@ -144,6 +144,11 @@ export class PluginService {
       }));
     }
 
+    openTextDialog(title, content, buttons ) {
+        const data = new DialogData(title, content, DialogDataType.Text, buttons);
+        this.userService.openDialog(data);
+    }
+
 }
 
 
