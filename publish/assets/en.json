@@ -27,12 +27,14 @@
     "Addon_Archive_DeleteModal_Paragraph": "Are you sure you want to remove the object from the list?",
     "Addon_Archive_PublishModal_Title": "Publish Data",
     "Addon_Archive_PublishModal_Success": "All your data is saved and will be operational for next run",
+    "Addon_Archive_PublishModal_Failure": "Publish data process has failed. Error message: {0}",
     "Addon_Archive_ExecuteModal_Title": "Execute Data retention",
     "Addon_Archive_ExecuteModal_Paragraph": "are you sure? – we recommend not to do that during working hours. \nAll your data will be published",
     "Addon_Archive_Menu_Report": "Report",
     "Addon_Archive_Menu_Execution": "Execution Log",
     "Addon_Archive_Menu_Audit": "Audit Trail",
-    "Addon_Archive_Menu_RunNow": "Run data retention"
+    "Addon_Archive_Menu_RunNow": "Run data retention",
+    "Addon_Archive_Menu_Title": "Menu"
 
     
 }

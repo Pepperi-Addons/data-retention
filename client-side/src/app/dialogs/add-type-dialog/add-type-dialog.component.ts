@@ -1,5 +1,5 @@
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Component, OnInit, Inject, ViewChild, OnDestroy, Injectable } from '@angular/core';
 // @ts-ignore
 import { PepperiSelectComponent} from 'pepperi-select';
@@ -31,16 +31,16 @@ export class AddTypeDialogService {
 export class AddTypeDialogComponent implements OnInit, OnDestroy {
 
 
-    pepperiSelect = PepperiSelectComponent;
-    @ViewChild("pepperiSelectTypeComp", {static:false}) pepperiSelectTypeComp: DynamicComponent;
-    pepperiSelectTypeInputs;
-    pepperiSelectTypeOutputs;
+    // pepperiSelect = PepperiSelectComponent;
+    // @ViewChild("pepperiSelectTypeComp", {static:false}) pepperiSelectTypeComp: DynamicComponent;
+    // pepperiSelectTypeInputs;
+    // pepperiSelectTypeOutputs;
     activityTypes = [];
 
-    pepperiCheckbox = PepperiCheckboxComponent;
-    @ViewChild("pepperiCheckboxComp", {static:false}) pepperiCheckboxComp: DynamicComponent;
-    pepperiCheckboxInputs;
-    pepperiCheckboxOutputs;
+    // pepperiCheckbox = PepperiCheckboxComponent;
+    // @ViewChild("pepperiCheckboxComp", {static:false}) pepperiCheckboxComp: DynamicComponent;
+    // pepperiCheckboxInputs;
+    // pepperiCheckboxOutputs;
 
     title;
     form: FormGroup;
@@ -79,64 +79,64 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
         });
     }
 
-    onAdd() {
-        this.dialogData =
-            {
-                selectedActivity: this.selectedActivity,
-                numOfMonths: this.NumOfMonths,
-                minItems: this.minItems,
-                boolean: true,
-            };
-    }
+    // onAdd() {
+    //     this.dialogData =
+    //         {
+    //             selectedActivity: this.selectedActivity,
+    //             numOfMonths: this.NumOfMonths,
+    //             minItems: this.minItems,
+    //             boolean: true,
+    //         };
+    // }
 
-    pepperiSelectOnInit(compRef, inputs, outputs, key, label, options, initalValue = null) {
-        const self = this;
-        this[inputs] = {
-            'key': key,
-            'label': label,
-            'rowSpan': '3',
-            'xAlignment': '1',
-            'options': options,
-            'emptyOption': false,
-            'value': initalValue ? initalValue.Key : options[0].Key,
-            'formattedValue': initalValue ?  initalValue.Value : options[0].Value,
-            'readonly': true
-        };
+    // pepperiSelectOnInit(compRef, inputs, outputs, key, label, options, initalValue = null) {
+    //     const self = this;
+    //     this[inputs] = {
+    //         'key': key,
+    //         'label': label,
+    //         'rowSpan': '3',
+    //         'xAlignment': '1',
+    //         'options': options,
+    //         'emptyOption': false,
+    //         'value': initalValue ? initalValue.Key : options[0].Key,
+    //         'formattedValue': initalValue ?  initalValue.Value : options[0].Value,
+    //         'readonly': true
+    //     };
 
-        this.dialogData.selectedType = initalValue ? initalValue : options[0];
+    //     this.dialogData.selectedType = initalValue ? initalValue : options[0];
 
-        this[outputs] = {
-            elementClicked: (event) => self.onElementClicked(event),
-            valueChanged: (event) => self.onValueChanged(event)
-        };
-    }
+    //     this[outputs] = {
+    //         elementClicked: (event) => self.onElementClicked(event),
+    //         valueChanged: (event) => self.onValueChanged(event)
+    //     };
+    // }
 
-    pepperiCheckboxOnInit(compRef, inputs, outputs, key, label, value) {
-        const self = this;
-        this[inputs] = {
-            key: key,
-            label: label,
-            rowSpan: '3',
-            xAlignment: '1',
-            emptyOption: false,
-            value: value
-        };
-        this[outputs] = {
-            elementClicked: (event) => self.onElementClicked(event),
-            valueChanged: (event) => self.onValueChanged(event)
-        };
-    }
+    // pepperiCheckboxOnInit(compRef, inputs, outputs, key, label, value) {
+    //     const self = this;
+    //     this[inputs] = {
+    //         key: key,
+    //         label: label,
+    //         rowSpan: '3',
+    //         xAlignment: '1',
+    //         emptyOption: false,
+    //         value: value
+    //     };
+    //     this[outputs] = {
+    //         elementClicked: (event) => self.onElementClicked(event),
+    //         valueChanged: (event) => self.onValueChanged(event)
+    //     };
+    // }
 
-    onElementClicked(e) {
-    }
+    // onElementClicked(e) {
+    // }
 
-    onValueChanged(e) {
-        switch (e.apiName) {
-            case 'ObjectSelect':
-                let selectedActivity = this.activityTypes.filter(activity => activity.Key == e.value)[0];
-                this.dialogData['selectedType'] = selectedActivity;
-        }
-    }
+    // onValueChanged(e) {
+    //     switch (e.apiName) {
+    //         case 'ObjectSelect':
+    //             let selectedActivity = this.activityTypes.filter(activity => activity.Key == e.value)[0];
+    //             this.dialogData['selectedType'] = selectedActivity;
+    //     }
+    // }
 
     ngOnDestroy(){
         this.selectedActivity = null;

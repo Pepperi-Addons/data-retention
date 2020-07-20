@@ -4,7 +4,8 @@
         <div id="archiveHeader" class="header-content">
         <div class="content pepperi-border-bottom body-lg ellipsis">
             {{ 'Archive_Addon_Title' | translate }}
-            <button mat-button class="topButtons pepperi-button strong main md"  (click)="publishPlugin()">Publish</button>
+            <button mat-button class="topButtons pepperi-button strong main md pull-right flip"  (click)="publishPlugin()">Publish</button>
+            <pepperi-menu class="pull-right flip spacing-element" [label]="'Addon_Archive_Menu_Title' | translate" [options]="menuOptions" (menuItemClicked)="onMenuItemClicked($event)"></pepperi-menu>
         </div>
         </div>
     
@@ -60,7 +61,7 @@
                         (ndcDynamicCreated)="pepperiFieldOnInit($event, 'pepperiInputInputs', 'pepperiInputOutputs',
                                          'MonthsInput', 'Months of data retention', '');">
                     </ndc-dynamic> -->
-                    <pepperi-textbox [required]="true" [label]="'Archive_Addon_MonthsTitle' | translate" [(value)]="defaultNumofMonthes" [type]="'number'"></pepperi-textbox>
+                    <pepperi-textbox [required]="true" [label]="'Archive_Addon_MonthsTitle' | translate" [(value)]="defaultNumofMonths" [type]="'number'"></pepperi-textbox>
                 </div>
             
                 <div id="retentionPreview">

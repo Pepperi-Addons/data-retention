@@ -79,7 +79,7 @@ export class PluginComponent implements OnInit, OnDestroy {
   scheduledList = [];
   selectedDay: string = "";
   selectedHour: string = "";
-  defaultNumofMonthes: number = 24;
+  defaultNumofMonths: number = 24;
   //selection = new SelectionModel<ScheduledType>(false, []);
   listActions = [];
   // Data sent from webapp
@@ -90,14 +90,22 @@ export class PluginComponent implements OnInit, OnDestroy {
   @Output() addEditors: EventEmitter<any> = new EventEmitter<any>();
   @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
-  pepperiSelect = PepperiSelectComponent;
+//   pepperiSelect = PepperiSelectComponent;
 
-  @ViewChild(ListViewComponent, { static: false }) typesList:ListViewComponent;
+    @ViewChild(ListViewComponent, { static: false }) typesList:ListViewComponent;
 
-  @ViewChild("pepperiSelectTimeComp", { static: false })
-  pepperiSelectTimeComp: DynamicComponent;
-  pepperiSelectTimeInputs;
-  pepperiSelectTimeOutputs;
+    menuOptions = [
+        {Key:'Report', Value:'Report'},
+        {Key:'Executions', Value:'Execution Log'},
+        {Key:'Audit', Value:'Audit Trail'},
+        {Key:'Run', Value:'Run Data Retention Now'},
+    ]
+
+
+//   @ViewChild("pepperiSelectTimeComp", { static: false })
+//   pepperiSelectTimeComp: DynamicComponent;
+//   pepperiSelectTimeInputs;
+//   pepperiSelectTimeOutputs;
   timeOptions = [
     { Key: "0", Value: "00" },
     { Key: "1", Value: "01" },
@@ -125,10 +133,10 @@ export class PluginComponent implements OnInit, OnDestroy {
     { Key: "23", Value: "23" },
   ];
 
-  @ViewChild("pepperiSelectDayComp", { static: false })
-  pepperiSelectDayComp: DynamicComponent;
-  pepperiSelectDayInputs;
-  pepperiSelectDayOutputs;
+//   @ViewChild("pepperiSelectDayComp", { static: false })
+//   pepperiSelectDayComp: DynamicComponent;
+//   pepperiSelectDayInputs;
+//   pepperiSelectDayOutputs;
   dayOptions = [
     { Key: "SUN", Value: "Sunday" },
     { Key: "MON", Value: "Monday" },
@@ -139,26 +147,26 @@ export class PluginComponent implements OnInit, OnDestroy {
     { Key: "SAT", Value: "Saturday" },
   ];
 
-  pepperiInput = PepperiTextboxComponent;
+//   pepperiInput = PepperiTextboxComponent;
 
-  @ViewChild("pepperiInputComp", { static: false })
-  pepperiInputComp: DynamicComponent;
-  pepperiInputInputs;
-  pepperiInputOutputs;
+//   @ViewChild("pepperiInputComp", { static: false })
+//   pepperiInputComp: DynamicComponent;
+//   pepperiInputInputs;
+//   pepperiInputOutputs;
 
-  @ViewChild("genericCont", { static: false }) genericCont: ElementRef;
-  @ViewChild("pepperiListComp", { static: false })
-  pepperiListComp: DynamicComponent;
+//   @ViewChild("genericCont", { static: false }) genericCont: ElementRef;
+//   @ViewChild("pepperiListComp", { static: false })
+//   pepperiListComp: DynamicComponent;
 
-  pepperiList = PepperiListComponent;
-  pepperiListInputs;
-  pepperiListOutputs;
+//   pepperiList = PepperiListComponent;
+//   pepperiListInputs;
+//   pepperiListOutputs;
 
-  @ViewChild("topBarComp", { static: false }) topBarComp: DynamicComponent;
+//   @ViewChild("topBarComp", { static: false }) topBarComp: DynamicComponent;
 
-  topBar = TopBarComponent;
-  topBarInputs;
-  topBarOutputs;
+//   topBar = TopBarComponent;
+//   topBarInputs;
+//   topBarOutputs;
 
   codeJob: CodeJob;
 
@@ -197,87 +205,87 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
   }
 
-  initDateTime() {
-    const hours = [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      20,
-      21,
-      22,
-      23,
-    ];
-    const days = [
-      { Key: "Sunday", Value: "SUN" },
-      { Key: "Monday", Value: "MON" },
-      { Key: "Tuesday", Value: "TUE" },
-      { Key: "Wednesday", Value: "WED" },
-      { Key: "Thursday", Value: "THU" },
-      { Key: "Friday", Value: "FRI" },
-      { Key: "Saturday", Value: "SAT" },
-    ];
-    hours.forEach((hour) => {
-      const hour24 = hour.toString().length > 1 ? hour : "0" + hour;
-      this.timeOptions.push({
-        Key: "" + hour24 + ":00",
-        Value: "" + hour24 + ":00",
-      });
-    });
-    days.forEach((day) =>
-      this.dayOptions.push({ Key: "" + day + "", Value: "" + day + "" })
-    );
-  }
+//   initDateTime() {
+//     const hours = [
+//       0,
+//       1,
+//       2,
+//       3,
+//       4,
+//       5,
+//       6,
+//       7,
+//       8,
+//       9,
+//       10,
+//       11,
+//       12,
+//       13,
+//       14,
+//       15,
+//       16,
+//       17,
+//       18,
+//       19,
+//       20,
+//       21,
+//       22,
+//       23,
+//     ];
+//     const days = [
+//       { Key: "Sunday", Value: "SUN" },
+//       { Key: "Monday", Value: "MON" },
+//       { Key: "Tuesday", Value: "TUE" },
+//       { Key: "Wednesday", Value: "WED" },
+//       { Key: "Thursday", Value: "THU" },
+//       { Key: "Friday", Value: "FRI" },
+//       { Key: "Saturday", Value: "SAT" },
+//     ];
+//     hours.forEach((hour) => {
+//       const hour24 = hour.toString().length > 1 ? hour : "0" + hour;
+//       this.timeOptions.push({
+//         Key: "" + hour24 + ":00",
+//         Value: "" + hour24 + ":00",
+//       });
+//     });
+//     days.forEach((day) =>
+//       this.dayOptions.push({ Key: "" + day + "", Value: "" + day + "" })
+//     );
+//   }
 
-  install() {
-    this.installing = true;
-    this.addEditorsForAddon();
-  }
+//   install() {
+//     this.installing = true;
+//     this.addEditorsForAddon();
+//   }
 
-  pepperiSelectOnInit(
-    compRef: ComponentRef<any>,
-    inputs,
-    outputs,
-    key,
-    label,
-    options
-  ) {
-    const self = this;
-    const index = this.getSelectedOptionIndex(key);
-    this[inputs] = {
-      key,
-      label,
-      rowSpan: "3",
-      xAlignment: "1",
-      options,
-      emptyOption: false,
-      value: options[index],
-    };
-    this[outputs] = {
-      elementClicked: (event) => self.onElementClicked(event),
-      valueChanged: (event) => self.onValueChanged(event),
-    };
-    // this.pepperiSelectOutputs = {
-    // elementClicked: (event) => self.onElementClicked(event),
-    // valueChanged: (event) => self.onValueChanged(event)
-    // };
-  }
+//   pepperiSelectOnInit(
+//     compRef: ComponentRef<any>,
+//     inputs,
+//     outputs,
+//     key,
+//     label,
+//     options
+//   ) {
+//     const self = this;
+//     const index = this.getSelectedOptionIndex(key);
+//     this[inputs] = {
+//       key,
+//       label,
+//       rowSpan: "3",
+//       xAlignment: "1",
+//       options,
+//       emptyOption: false,
+//       value: options[index],
+//     };
+//     this[outputs] = {
+//       elementClicked: (event) => self.onElementClicked(event),
+//       valueChanged: (event) => self.onValueChanged(event),
+//     };
+//     // this.pepperiSelectOutputs = {
+//     // elementClicked: (event) => self.onElementClicked(event),
+//     // valueChanged: (event) => self.onValueChanged(event)
+//     // };
+//   }
 
   getSelectedOptionIndex(mode: string) {
     let index = 0;
@@ -301,105 +309,103 @@ export class PluginComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  pepperiFieldOnInit(
-    compRef: ComponentRef<any>,
-    inputs,
-    outputs,
-    key,
-    label = ""
-  ) {
-    const self = this;
-    this[inputs] = {
-      key,
-      label,
-      rowSpan: "3",
-      xAlignment: "1",
-      value: 24,
-    };
-    this[outputs] = {
-      elementClicked: (event) => self.onElementClicked(event),
-      valueChanged: (event) => self.onValueChanged(event),
-    };
-  }
+//   pepperiFieldOnInit(
+//     compRef: ComponentRef<any>,
+//     inputs,
+//     outputs,
+//     key,
+//     label = ""
+//   ) {
+//     const self = this;
+//     this[inputs] = {
+//       key,
+//       label,
+//       rowSpan: "3",
+//       xAlignment: "1",
+//       value: 24,
+//     };
+//     this[outputs] = {
+//       elementClicked: (event) => self.onElementClicked(event),
+//       valueChanged: (event) => self.onValueChanged(event),
+//     };
+//   }
 
-  pepperiListOnInit(compRef: ComponentRef<any>) {
-    const self = this;
-    this.pepperiListInputs = {
-      selectionTypeForActions: 1,
-      firstFieldAsLink: false,
-      listType: "code_jobs",
-      supportSorting: true,
-      noDataFoundMsg: "No Data Found",
-      parentScroll: this.genericCont.nativeElement,
-    };
-    this.pepperiListOutputs = {
-      notifyListChanged: (event) => self.onListChange(event),
-      notifySortingChanged: (event) => self.onListSortingChange(event),
-      notifyFieldClicked: (event) => self.onCustomizeFieldClick(event),
-      notifySelectedItemsChanged: (event) => self.selectedRowsChanged(event),
-    };
-  }
+//   pepperiListOnInit(compRef: ComponentRef<any>) {
+//     const self = this;
+//     this.pepperiListInputs = {
+//       selectionTypeForActions: 1,
+//       firstFieldAsLink: false,
+//       listType: "code_jobs",
+//       supportSorting: true,
+//       noDataFoundMsg: "No Data Found",
+//       parentScroll: this.genericCont.nativeElement,
+//     };
+//     this.pepperiListOutputs = {
+//       notifyListChanged: (event) => self.onListChange(event),
+//       notifySortingChanged: (event) => self.onListSortingChange(event),
+//       notifyFieldClicked: (event) => self.onCustomizeFieldClick(event),
+//       notifySelectedItemsChanged: (event) => self.selectedRowsChanged(event),
+//     };
+//   }
 
-  topBarOnInit(compRef: ComponentRef<any>) {
-    const self = this;
-    const topBarInstance = compRef.instance;
-    const topLeftButtons = [];
-    const topRightButtons = [];
-    self.listActions = self.getListActions();
-    // if (topLeftButtons.length === 0) {
-    //     // const btn = new TopBarButton('', () => self.goBack(), 'system-edit', ICON_POSITION.End, true, 'editButton', 'strong');
-    //     const titleBtn = new TopBarButton('Object type history', null, '', ICON_POSITION.End, true, 'titleButton', 'titleButton');
-    //     // topLeftButtons.push(btn);
-    //     topLeftButtons.push(titleBtn);
-    //    }
-    if (topRightButtons.length === 0) {
-      const btn = new TopBarButton(
-        self.translate.instant("Archive_Addon_AddType"),
-        () => self.openTypeDialog("add"),
-        "number-plus",
-        ICON_POSITION.End,
-        true,
-        "addButton",
-        "strong"
-      );
-      topRightButtons.push(btn);
-    }
-    self.topBarInputs = {
-      showSearch: false,
-      selectedList: "",
-      // jsonDateFilter: this.jsonDateFilter,
-      listActionsData: self.listActions,
-      leftButtons: topLeftButtons,
-      rightButtons: topRightButtons,
-      showTotals: false,
-      showSideLayout: false,
-      showListActions: false,
-      topbarTitle: self.translate.instant("Archive_Addon_TypesTableTitle"),
-      standalone: true,
-    };
+//   topBarOnInit(compRef: ComponentRef<any>) {
+//     const self = this;
+//     const topBarInstance = compRef.instance;
+//     const topLeftButtons = [];
+//     const topRightButtons = [];
+//     self.listActions = self.getListActions();
+//     // if (topLeftButtons.length === 0) {
+//     //     // const btn = new TopBarButton('', () => self.goBack(), 'system-edit', ICON_POSITION.End, true, 'editButton', 'strong');
+//     //     const titleBtn = new TopBarButton('Object type history', null, '', ICON_POSITION.End, true, 'titleButton', 'titleButton');
+//     //     // topLeftButtons.push(btn);
+//     //     topLeftButtons.push(titleBtn);
+//     //    }
+//     if (topRightButtons.length === 0) {
+//       const btn = new TopBarButton(
+//         self.translate.instant("Archive_Addon_AddType"),
+//         () => self.openTypeDialog("add"),
+//         "number-plus",
+//         ICON_POSITION.End,
+//         true,
+//         "addButton",
+//         "strong"
+//       );
+//       topRightButtons.push(btn);
+//     }
+//     self.topBarInputs = {
+//       showSearch: false,
+//       selectedList: "",
+//       // jsonDateFilter: this.jsonDateFilter,
+//       listActionsData: self.listActions,
+//       leftButtons: topLeftButtons,
+//       rightButtons: topRightButtons,
+//       showTotals: false,
+//       showSideLayout: false,
+//       showListActions: false,
+//       topbarTitle: self.translate.instant("Archive_Addon_TypesTableTitle"),
+//       standalone: true,
+//     };
 
-    self.topBarOutputs = {
-      actionClicked: (event) => self.onActionClicked(event),
-      // jsonDateFilterChanged: self.onJsonDateFilterChanged(event),
-      searchStringChanged: self.searchChanged(event),
-    };
-  }
+//     self.topBarOutputs = {
+//       actionClicked: (event) => self.onActionClicked(event),
+//       // jsonDateFilterChanged: self.onJsonDateFilterChanged(event),
+//       searchStringChanged: self.searchChanged(event),
+//     };
+//   }
 
-  goBack() {}
+//   goBack() {}
 
-  getListActions(): Array<ListActionsItem> {
-    let action: ListActionsItem;
-    const retVal = new Array<ListActionsItem>();
+//   getListActions(): Array<ListActionsItem> {
+//     let action: ListActionsItem;
+//     const retVal = new Array<ListActionsItem>();
 
-    action = new ListActionsItem("edit", "Edit", false);
-    retVal.push(action);
-    action = new ListActionsItem("delete", "Delete", false);
-    retVal.push(action);
+//     action = new ListActionsItem("edit", "Edit", false);
+//     retVal.push(action);
+//     action = new ListActionsItem("delete", "Delete", false);
+//     retVal.push(action);
 
-    return retVal;
-  }
-
-  searchChanged(e) {}
+//     return retVal;
+//   }
 
   onActionClicked(event) {
     switch (event.ApiName) {
@@ -418,51 +424,45 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
   }
 
-  onListChange(e) {}
+  onMenuItemClicked(event) {
 
-  onListSortingChange(e) {}
+    switch (event.ApiName) {
 
-  onCustomizeFieldClick(e) {}
-
-  selectedRowsChanged(e) {}
-
-  onValueChanged(e) {
-    // debugger;
-  }
-
-  onElementClicked(e) {
-    // debugger;
+        default: {
+          alert(event.ApiName + " is not supported");
+        }
+      }
   }
 
   // Updates plugin's metadata in pluginEmits event to webapp's settings menu,
   // Refresh the settings component and navigates to tools-setup
-  addEditorsForAddon() {
-    const self = this;
-    const systemData = { Version: null, Editors: null };
-    systemData.Version = "v1.0";
-    systemData.Editors = [
-      {
-        ParentPackageName: "Company Profile",
-        PackageName: "archive",
-        Description: "Data Retention",
-      },
-      {
-        ParentPackageName: "Company Profile",
-        PackageName: "archive",
-        Description: "Data Retrieve",
-      },
-    ];
+//   addEditorsForAddon() {
+//     const self = this;
+//     const systemData = { Version: null, Editors: null };
+//     systemData.Version = "v1.0";
+//     systemData.Editors = [
+//       {
+//         ParentPackageName: "Company Profile",
+//         PackageName: "archive",
+//         Description: "Data Retention",
+//       },
+//       {
+//         ParentPackageName: "Company Profile",
+//         PackageName: "archive",
+//         Description: "Data Retrieve",
+//       },
+//     ];
 
-    // Update installed add-on in webapp
-    let body = {
-      Addon: { UUID: this.pluginService.pluginUUID },
-      SystemData: JSON.stringify(systemData),
-    };
+//     // Update installed add-on in webapp
+//     let body = {
+//       Addon: { UUID: this.pluginService.pluginUUID },
+//       SystemData: JSON.stringify(systemData),
+//     };
 
-    this.pluginService.updateSystemData(body, (res) => {
-      self.addEditors.emit();
-    });
-  }
+//     this.pluginService.updateSystemData(body, (res) => {
+//       self.addEditors.emit();
+//     });
+//   }
 
   async run() {
     // Implement: Run plugin (onInit)
@@ -479,7 +479,6 @@ export class PluginComponent implements OnInit, OnDestroy {
       .uuid(this.additionalData.CodeJobUUID)
       .find();
     const parts = this.codeJob ? this.codeJob.CronExpression.split(" ") : [];
-    console.log("part array is:", parts);
     if (parts.length > 4) {
       this.selectedDay = this.dayOptions.find(
         (item) => item.Key === parts[4]
@@ -488,58 +487,69 @@ export class PluginComponent implements OnInit, OnDestroy {
         (item) => item.Key === parts[1]
       ).Key;
     }
-    //this.loadlist();
-    // this.pluginService.getAdditionalData().then((data) => {
-    //   if(data) {
-    //     self.additionalData = data;
-    //     self.pluginService.getCodeJob(data.CodeJobUUID).then(codeJob => {
-    //       if(codeJob) {
-    //         self.codeJob = codeJob;
-    //       }
-    //       else {
-    //         console.log('could not get code job with id:', data.CodeJobUUID);
-    //       }
-    //     })
-    //   }
-    //   else {
-    //     console.log('could not get additional data!');
-    //   }
-    // }).catch((error) => {
-    //   console.log(error);
-    // });
-    //this.pluginService;
   }
 
-  tabClick($event) {
-    // Implement: Tab navigate function
-  }
-
-  publishPlugin() {
-      const cronExpression = '0 ' + this.selectedHour + ' * * ' + this.selectedDay
-      this.pluginService.papiClient.codeJobs.upsert({
-          UUID: this.codeJob.UUID,
-          CodeJobName: this.codeJob.CodeJobName,
-          CronExpression: cronExpression
-      });
-      this.pluginService.papiClient.addons.installedAddons.upsert({
-          Addon: {
-              UUID:this.pluginService.pluginUUID,
-          },
-          AdditionalData: JSON.stringify(this.additionalData)
-      })
+    async publishPlugin() {
+        const cronExpression = '0 ' + this.selectedHour + ' * * ' + this.selectedDay
+        try {
+            await this.pluginService.papiClient.codeJobs.upsert({
+                UUID: this.codeJob.UUID,
+                CodeJobName: this.codeJob.CodeJobName,
+                CronExpression: cronExpression
+            });
+            await this.pluginService.papiClient.addons.installedAddons.upsert({
+                Addon: {
+                    UUID:this.pluginService.pluginUUID,
+                },
+                AdditionalData: JSON.stringify(this.additionalData)
+            })
+            const actionButton = {
+                title: this.translate.instant("Addon_Archive_Confirm"),
+                callback: res => {
+                },
+                className: "",
+                icon: null
+            };
+            const title = this.translate.instant("Addon_Archive_PublishModal_Title");
+            const content = this.translate.instant("Addon_Archive_PublishModal_Success");
+            const data = new DialogData(title, content, DialogDataType.Text, [
+                actionButton
+            ]);
+            this.pluginService.userService.openDialog(data);
+        }
+        catch(error) {
+            const actionButton = {
+                title: this.translate.instant("Addon_Archive_Confirm"),
+                callback: res => {
+                },
+                className: "",
+                icon: null
+            };
+            const title = this.translate.instant("Addon_Archive_PublishModal_Title");
+            const content = this.translate.instant("Addon_Archive_PublishModal_Failure", ('message' in error) ? error.message : 'Unknown error occured');
+            const data = new DialogData(title, content, DialogDataType.Text, [
+                actionButton
+            ]);
+            this.pluginService.userService.openDialog(data);
+        }
     // Implement: save UI data
   }
 
   openTypeDialog(operation, selectedObj = undefined) {
     const self = this;
+    const types = self.activityTypes.filter((item) => {
+        return self.additionalData.ScheduledTypes.findIndex(type => type.ActivityType.Key == item.Key) == -1 || (selectedObj ? selectedObj.ActivityType.Key == item.Key : false)
+    });
     self.pluginService.openDialog(
         operation == 'Add' ? this.translate.instant('Addon_Archive_ModalTitle_Add') : this.translate.instant('Addon_Archive_ModalTitle_Update'),
       AddTypeDialogComponent,
       [],
       {
+        //svgIcons: self.pluginService.addonService.getSvgIcons(),
         svgIcons: self.pluginService.userService.svgIcons,
-        activityTypes: self.activityTypes,
+        activityTypes: types,
         selectedType: selectedObj,
+        maxHistory: self.defaultNumofMonths
       },
       (data) => {
         // callback from dialog with input data
@@ -570,32 +580,31 @@ export class PluginComponent implements OnInit, OnDestroy {
             );
         }
     }
-    this.typesList? this.typesList.reload(): null;
-    //this.loadlist();
+    this.typesList ? this.typesList.reload(): null;
   }
 
-  updateScheduledList(additionalData): any {
-    const self = this;
-    this.pluginService.updateAdditionalData(
-      additionalData,
-      (res) => {
-        return res.ScheduledType;
-      },
-      null
-    );
-  }
+//   updateScheduledList(additionalData): any {
+//     const self = this;
+//     this.pluginService.updateAdditionalData(
+//       additionalData,
+//       (res) => {
+//         return res.ScheduledType;
+//       },
+//       null
+//     );
+//   }
 
   getActivityTypes() {
+    this.activityTypes = [];
     this.pluginService.getTypes((types) => {
       if (types) {
-        this.activityTypes = [];
         this.activityTypes = this.activityTypes.concat(types);
       }
     });
   }
 
   deleteType(selectedObj) {
-    const actionButton = {
+        const actionButton = {
         title: this.translate.instant("Addon_Archive_Confirm"),
         callback: res => {
             if(selectedObj) {
@@ -622,79 +631,79 @@ export class PluginComponent implements OnInit, OnDestroy {
     // }
   }
 
-  loadlist() {
-    if (this.additionalData && this.additionalData.ScheduledTypes) {
-      const tableData = new Array<PepperiRowData>();
-      this.additionalData.ScheduledTypes.forEach((scheduledType) => {
-        tableData.push(
-          this.convertScheduledTypeToPepperiRowData(scheduledType)
-        );
-      });
-      const pepperiListObj = this.pluginService.pepperiDataConverter.convertListData(
-        tableData
-      );
-      // this.totalRows = res.TotalRows;
-      const buffer = [];
-      if (pepperiListObj.Rows) {
-        pepperiListObj.Rows.forEach((row) => {
-          const osd = new ObjectSingleData(pepperiListObj.UIControl, row);
-          osd.IsEditable = false;
-          buffer.push(osd);
-        });
-      }
-      this.pepperiListComp.componentRef.instance.initListData(
-        pepperiListObj.UIControl,
-        buffer.length,
-        buffer,
-        VIEW_TYPE.Table,
-        "",
-        true
-      );
-    }
-  }
+//   loadlist() {
+//     if (this.additionalData && this.additionalData.ScheduledTypes) {
+//       const tableData = new Array<PepperiRowData>();
+//       this.additionalData.ScheduledTypes.forEach((scheduledType) => {
+//         tableData.push(
+//           this.convertScheduledTypeToPepperiRowData(scheduledType)
+//         );
+//       });
+//       const pepperiListObj = this.pluginService.pepperiDataConverter.convertListData(
+//         tableData
+//       );
+//       // this.totalRows = res.TotalRows;
+//       const buffer = [];
+//       if (pepperiListObj.Rows) {
+//         pepperiListObj.Rows.forEach((row) => {
+//           const osd = new ObjectSingleData(pepperiListObj.UIControl, row);
+//           osd.IsEditable = false;
+//           buffer.push(osd);
+//         });
+//       }
+//       this.pepperiListComp.componentRef.instance.initListData(
+//         pepperiListObj.UIControl,
+//         buffer.length,
+//         buffer,
+//         VIEW_TYPE.Table,
+//         "",
+//         true
+//       );
+//     }
+//   }
 
-  convertScheduledTypeToPepperiRowData(scheduledType: ScheduledType) {
-    const row = new PepperiRowData();
-    row.Fields = [];
-    Object.keys(scheduledType).forEach((key) => {
-      row.Fields.push({
-        ApiName: key,
-        FormattedValue:
-          key === "ActivityType"
-            ? scheduledType[key].Value.toString()
-            : scheduledType[key].toString(),
-        Value:
-          key === "ActivityType"
-            ? scheduledType[key].Key.toString()
-            : scheduledType[key].toString(),
-        FieldType: FIELD_TYPE.TextBox,
-        ColumnWidth: 1,
-        XAlignment: 1,
-        Title: key,
-      });
-    });
-    return row;
-  }
+//   convertScheduledTypeToPepperiRowData(scheduledType: ScheduledType) {
+//     const row = new PepperiRowData();
+//     row.Fields = [];
+//     Object.keys(scheduledType).forEach((key) => {
+//       row.Fields.push({
+//         ApiName: key,
+//         FormattedValue:
+//           key === "ActivityType"
+//             ? scheduledType[key].Value.toString()
+//             : scheduledType[key].toString(),
+//         Value:
+//           key === "ActivityType"
+//             ? scheduledType[key].Key.toString()
+//             : scheduledType[key].toString(),
+//         FieldType: FIELD_TYPE.TextBox,
+//         ColumnWidth: 1,
+//         XAlignment: 1,
+//         Title: key,
+//       });
+//     });
+//     return row;
+//   }
 
-  convertPepperiRowDataToScheduledType(row: PepperiRowData) {
-    const ActivityType = {};
-    let NumOfMonths;
-    let MinItems;
-    row.Data.Fields.forEach((field) => {
-      if (field.ApiName === "ActivityType") {
-        ActivityType["Key"] = field.FormattedValue.toString();
-        ActivityType["Value"] = field.Value.toString();
-      }
-      field.ApiName === "NumOfMonths" ? (NumOfMonths = field.Value) : null;
-      field.ApiName === "MinItems" ? (MinItems = field.Value) : null;
-    });
-    return new ScheduledType(
-      ActivityType["Key"].toString(),
-      ActivityType["Value"].toString(),
-      NumOfMonths,
-      MinItems
-    );
-  }
+//   convertPepperiRowDataToScheduledType(row: PepperiRowData) {
+//     const ActivityType = {};
+//     let NumOfMonths;
+//     let MinItems;
+//     row.Data.Fields.forEach((field) => {
+//       if (field.ApiName === "ActivityType") {
+//         ActivityType["Key"] = field.FormattedValue.toString();
+//         ActivityType["Value"] = field.Value.toString();
+//       }
+//       field.ApiName === "NumOfMonths" ? (NumOfMonths = field.Value) : null;
+//       field.ApiName === "MinItems" ? (MinItems = field.Value) : null;
+//     });
+//     return new ScheduledType(
+//       ActivityType["Key"].toString(),
+//       ActivityType["Value"].toString(),
+//       NumOfMonths,
+//       MinItems
+//     );
+//   }
 
   ngOnDestroy() {}
 }

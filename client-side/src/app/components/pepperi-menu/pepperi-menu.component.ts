@@ -39,6 +39,7 @@ export class PepperiMenuComponent implements OnInit, OnChanges {
       label: this.label,
       options: this.options,
       disabled: this.disabled,
+      invertClass: this.invertClass
     }
   }
 
@@ -53,4 +54,7 @@ export class PepperiMenuComponent implements OnInit, OnChanges {
 
   @Input()
   disabled: boolean = false
+
+  @Input()
+  invertClass: boolean = false
 };
