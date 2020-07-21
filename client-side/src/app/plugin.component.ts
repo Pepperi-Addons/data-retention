@@ -95,12 +95,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     @ViewChild(ListViewComponent, { static: false }) typesList:ListViewComponent;
 
-    menuOptions = [
-        {Key:'Report', Value:'Report'},
-        {Key:'Executions', Value:'Execution Log'},
-        {Key:'Audit', Value:'Audit Trail'},
-        {Key:'Run', Value:'Run Data Retention Now'},
-    ]
+    menuOptions = [];
 
 
 //   @ViewChild("pepperiSelectTimeComp", { static: false })
@@ -549,6 +544,20 @@ export class PluginComponent implements OnInit, OnDestroy {
         (item) => item.Key === parts[1]
       ).Key;
     }
+
+    this.translate.get([
+        'Addon_Archive_Menu_Report',
+        'Addon_Archive_Menu_Execution',
+        'Addon_Archive_Menu_Audit',
+        'Addon_Archive_Menu_RunNow'
+    ]).subscribe(texts => {
+        self.menuOptions = [
+            {Key:'Report', Value:texts['Addon_Archive_Menu_Report']},
+            {Key:'Executions', Value:texts['Addon_Archive_Menu_Execution']},
+            {Key:'Audit', Value:texts['Addon_Archive_Menu_Audit']},
+            {Key:'Run', Value:texts['Addon_Archive_Menu_RunNow']},
+        ]
+    })
   }
 
     async publishPlugin() {
