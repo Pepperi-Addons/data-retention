@@ -1,7 +1,7 @@
-<div class="dialog">
-    <h2 mat-dialog-title>
+<div>
+    <h2 mat-dialog-title class="mat-dialog-title pepperi-border-bottom">
         <span *ngIf="title?.length">{{ title }}</span>
-        <!-- <button mat-button [mat-dialog-close]="dialogData" class="pepperi-button xbtn md weak pull-right flip">
+        <!--<button mat-button [mat-dialog-close]="dialogData" class="pepperi-button xbtn md weak pull-right flip">
             <mat-icon>
                 <svg class="svg-icon">
                     <use attr.xlink:href="{{ svgIcons }}system-close"></use>
@@ -9,50 +9,60 @@
             </mat-icon>
         </button> -->
     </h2>
-    <div mat-dialog-content [formGroup]="form">
+    <div mat-dialog-content class="mat-dialog-content" [formGroup]="form">
         <div>
-
-            <div class="pep-row spacing-element">
-                <!-- <ndc-dynamic class="pepperi" #pepperiSelectTypeComp
-                  [ndcDynamicComponent]="pepperiSelect"
-                  [ndcDynamicInputs]="pepperiSelectTypeInputs"
-                  [ndcDynamicOutputs]="pepperiSelectTypeOutputs"
-                  (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectObjectTypeInputs', 'pepperiSelectObjectTypeOutputs',
-                                       'ObjectSelect', 'Select an object type', activityTypes, this['selectedActivity'] );">
-                </ndc-dynamic> -->
-                <pepperi-select [(value)]="dialogData.selectedActivity" [disabled]="mode == 'Edit'" [options]="activityTypes" [label]="'Archive_Addon_ObjectTypeTitle' | translate"></pepperi-select>
-              </div>
-              <br>
-              <div>
-                <!-- <label class="">Max history (Months)</label>
-                <input class="pepperi-input" type="text" [(ngModel)]="dialogData.maxHistory"   name="resourceTitle"
-                [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.maxHistory ? dialogData.maxHistory = $event : null" />
-                  <br>
-                  <br> -->
-                  <pepperi-textbox [label]="'Archive_Addon_HistoryTitle' | translate" [(value)]="dialogData.numOfMonths" [type]="'number'"></pepperi-textbox>
-                  
-              </div>
-              <div>
-                <!-- <label class="">Min items </label>
-                <input class="pepperi-input" type="text" [(ngModel)]="dialogData.minItems"   name="resourceTitle"
-                [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.minItems ? dialogData.minItems = $event : null" />
-                <br> -->
-                <pepperi-textbox [label]="'Archive_Addon_MinItemsTitle' | translate" [(value)]="dialogData.minItems" [type]="'number'" [disabled]="dialogData.Boolean"></pepperi-textbox>
-              </div>
-            <!-- <div class="pep-row spacing-element">
-                <ndc-dynamic class="pepperi" #pepperiCheckboxComp
-                  [ndcDynamicComponent]="pepperiCheckbox"
-                  [ndcDynamicInputs]="pepperiCheckboxInputs"
-                  [ndcDynamicOutputs]="pepperiCheckboxOutputs"
-                  (ndcDynamicCreated)="pepperiCheckboxOnInit($event, 'pepperiCheckboxInputs', 'pepperiCheckboxOutputs',
-                                       'Boolean', 'Save minimal items', 'false');">
-                </ndc-dynamic>
-            </div> -->
-
+            <!-- <ndc-dynamic class="pepperi" #pepperiSelectTypeComp
+                [ndcDynamicComponent]="pepperiSelect"
+                [ndcDynamicInputs]="pepperiSelectTypeInputs"
+                [ndcDynamicOutputs]="pepperiSelectTypeOutputs"
+                (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectObjectTypeInputs', 'pepperiSelectObjectTypeOutputs',
+                                    'ObjectSelect', 'Select an object type', activityTypes, this['selectedActivity'] );">
+            </ndc-dynamic> -->
+            <pepperi-select [(value)]="dialogData.selectedActivity" [disabled]="mode == 'Edit'" [options]="activityTypes" [label]="'Archive_Addon_ObjectTypeTitle' | translate"></pepperi-select>
         </div>
+        <div>
+        <!-- <label class="">Max history (Months)</label>
+        <input class="pepperi-input" type="text" [(ngModel)]="dialogData.maxHistory"   name="resourceTitle"
+        [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.maxHistory ? dialogData.maxHistory = $event : null" />
+            <br>
+            <br> -->
+            <pepperi-textbox [label]="'Archive_Addon_HistoryTitle' | translate" [(value)]="dialogData.numOfMonths" [type]="'number'"></pepperi-textbox>
+            
+        </div>
+        <div>
+        <!-- <label class="">Min items </label>
+        <input class="pepperi-input" type="text" [(ngModel)]="dialogData.minItems"   name="resourceTitle"
+        [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.minItems ? dialogData.minItems = $event : null" />
+        <br> -->
+        <pepperi-textbox [label]="'Archive_Addon_MinItemsTitle' | translate" [(value)]="dialogData.minItems" [type]="'number'" [disabled]="dialogData.Boolean"></pepperi-textbox>
+        </div>
+        <!-- <div class="pep-row spacing-element">
+            <ndc-dynamic class="pepperi" #pepperiCheckboxComp
+                [ndcDynamicComponent]="pepperiCheckbox"
+                [ndcDynamicInputs]="pepperiCheckboxInputs"
+                [ndcDynamicOutputs]="pepperiCheckboxOutputs"
+                (ndcDynamicCreated)="pepperiCheckboxOnInit($event, 'pepperiCheckboxInputs', 'pepperiCheckboxOutputs',
+                                    'Boolean', 'Save minimal items', 'false');">
+            </ndc-dynamic>
+        </div> -->
+
     </div>
-    <div mat-dialog-actions>
-        <button class="pepperi-button md" mat-button [mat-dialog-close]="dialogData">{{ 'Addon_Archive_Cancel' | translate }}</button>
-        <button class="pepperi-button md strong" mat-button [mat-dialog-close]="dialogData" >{{ (mode == 'Add' ? 'Addon_Archive_Add' : 'Addon_Archive_Update') | translate }}</button>
+    <div mat-dialog-actions class="pepperi-border-top mat-dialog-actions split-actions" style="justify-content: flex-end;">
+        <div class="spacing-element-negative">
+            <button class="spacing-element pepperi-button md weak mat-button" mat-button [mat-dialog-close]="dialogData">
+                <span class="mat-button-wrapper">
+                    {{ 'Addon_Archive_Cancel' | translate }}
+                </span>
+                <div class="mat-button-ripple mat-ripple" matripple></div>
+                <div class="mat-button-focus-overlay"></div>
+            </button>
+            <button class="spacing-element pepperi-button md strong mat-button" mat-button [mat-dialog-close]="dialogData" >
+                <span class="mat-button-wrapper">
+                    {{ (mode == 'Add' ? 'Addon_Archive_Add' : 'Addon_Archive_Update') | translate }}
+                </span>
+                <div class="mat-button-ripple mat-ripple" matripple></div>
+                <div class="mat-button-focus-overlay"></div>
+            </button>
+        </div>
     </div>
 </div>

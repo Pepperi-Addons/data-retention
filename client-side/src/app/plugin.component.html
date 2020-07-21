@@ -2,11 +2,19 @@
     <div id="archive-main-container" class="plugin-container">
 
         <div id="archiveHeader" class="header-content">
-        <div class="content pepperi-border-bottom body-lg ellipsis">
-            {{ 'Archive_Addon_Title' | translate }}
-            <button mat-button class="topButtons pepperi-button strong main md pull-right flip"  (click)="publishPlugin()">Publish</button>
-            <pepperi-menu class="pull-right flip spacing-element" [label]="'Addon_Archive_Menu_Title' | translate" [options]="menuOptions" (menuItemClicked)="onMenuItemClicked($event)"></pepperi-menu>
-        </div>
+            <div class="content pepperi-border-bottom">
+                <div class="left-container spacing-element-negative pull-left flip">
+                    <div class="spacing-element title">
+                        {{ 'Archive_Addon_Title' | translate }}
+                    </div>
+                </div>
+                <div class="right-container spacing-element-negative pull-right flip">
+                    <button mat-button class="mat-button pepperi-button strong md spacing-element" (click)="publishPlugin()">
+                        {{ 'Addon_Archive_Publish' | translate }}
+                    </button>
+                    <pepperi-menu class="menu spacing-element pull-right flip" [label]="'Addon_Archive_Menu_Title' | translate" [options]="menuOptions" (menuItemClicked)="onMenuItemClicked($event)"></pepperi-menu>
+                </div>
+            </div>
         </div>
     
         <div id="archiveBody">

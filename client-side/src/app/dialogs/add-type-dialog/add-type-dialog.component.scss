@@ -1,88 +1,88 @@
-.dialog{
-    height: 448px;
-    width: 100%;
-    display: -ms-grid;
-    display: grid;
-    height: 100%;
+// .dialog{
+//     height: 448px;
+//     width: 100%;
+//     display: -ms-grid;
+//     display: grid;
+//     height: 100%;
 
-    grid-template-areas: 'mat-dialog-title' 'mat-dialog-content' 'mat-dialog-actions';
-    -ms-grid-rows: min-content auto 2rem;
-    grid-template-rows: min-content auto 2rem;
-    -ms-grid-columns: 1fr;
-    grid-template-columns: 1fr;
-    .mat-icon {
-        height: 40px !important;
-    }
+//     grid-template-areas: 'mat-dialog-title' 'mat-dialog-content' 'mat-dialog-actions';
+//     -ms-grid-rows: min-content auto 2rem;
+//     grid-template-rows: min-content auto 2rem;
+//     -ms-grid-columns: 1fr;
+//     grid-template-columns: 1fr;
+//     .mat-icon {
+//         height: 40px !important;
+//     }
 
-}
+// }
 
-.mat-dialog-title {
-    margin: 0;
-    display: block;
-    color: rgb(26, 26, 26); // TODO - SET THE COLOR ON THE THEME FILE
-    font-size: 1.125rem;
-    font-weight: 600;
-    height: 3rem;
-    line-height: 3rem;
-    grid-row: mat-dialog-title;
+// .mat-dialog-title {
+//     margin: 0;
+//     display: block;
+//     color: rgb(26, 26, 26); // TODO - SET THE COLOR ON THE THEME FILE
+//     font-size: 1.125rem;
+//     font-weight: 600;
+//     height: 3rem;
+//     line-height: 3rem;
+//     grid-row: mat-dialog-title;
 
 
-    .pepperi-button {
-        padding: 0;
-        min-width: 2rem;
-        margin-top: 0.5rem;
+//     .pepperi-button {
+//         padding: 0;
+//         min-width: 2rem;
+//         margin-top: 0.5rem;
 
-        .mat-icon {
-            .svg-icon {
-                height: 1.5rem;
-                width: 1.5rem;
-                fill: #000; // TODO - SET THE COLOR ON THE THEME FILE
-            }
-        }
-    }
-}
+//         .mat-icon {
+//             .svg-icon {
+//                 height: 1.5rem;
+//                 width: 1.5rem;
+//                 fill: #000; // TODO - SET THE COLOR ON THE THEME FILE
+//             }
+//         }
+//     }
+// }
 
-.mat-dialog-content {
-    border: 1px solid rgba(0, 0, 0, 0.24);
-    min-height: 12rem;
-    border-right: none;
-    border-left: none;
-    margin: 0;
-    padding: 1rem .25rem;
-}
+// .mat-dialog-content {
+//     border: 1px solid rgba(0, 0, 0, 0.24);
+//     min-height: 12rem;
+//     border-right: none;
+//     border-left: none;
+//     margin: 0;
+//     padding: 1rem .25rem;
+// }
 
-.mat-dialog-actions {
-    justify-content: flex-end;
-    grid-row: mat-dialog-actions;
-    margin-bottom: 0;
-    .pepperi-button {
-        margin: 0 5px;
+// .mat-dialog-actions {
+//     justify-content: flex-end;
+//     grid-row: mat-dialog-actions;
+//     margin-bottom: 0;
+//     .pepperi-button {
+//         margin: 0 5px;
 
-        &:last-of-type {
-            margin: 0 0 0 5px;
-        }
-    }
-}
+//         &:last-of-type {
+//             margin: 0 0 0 5px;
+//         }
+//     }
+// }
 
-#x-btn{
-    padding: .5rem;
+// #x-btn{
+//     padding: .5rem;
 
-}
+// }
 
-*/deep/ .svg-icon{
-    fill: black;
-}
+// */deep/ .svg-icon{
+//     fill: black;
+// }
 
-textarea{
-    min-height: 8rem;
-    resize: none;
-}
-label{
-    display: block;
-    font-size: 12px;
-    font-weight: 400;
-}
-.xbtn{
-    padding: 0 .5rem;
-    line-height: 3.4rem;
-}
+// textarea{
+//     min-height: 8rem;
+//     resize: none;
+// }
+// label{
+//     display: block;
+//     font-size: 12px;
+//     font-weight: 400;
+// }
+// .xbtn{
+//     padding: 0 .5rem;
+//     line-height: 3.4rem;
+// }
