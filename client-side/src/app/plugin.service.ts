@@ -100,18 +100,21 @@ export class PluginService {
 
   openDialog(title = 'Modal Test', content = AddTypeDialogComponent, buttons,
         input , callbackFunc, panelClass = 'pepperi-modalbox'): void {
+   openDialog(title = 'Modal Test', content = AddTypeDialogComponent, buttons,
+         input , callbackFunc, panelClass = 'pepperi-modalbox'): void {
         const self = this;
         const dialogConfig = new MatDialogConfig();
         const data = new DialogModel(title, content, DialogDataType.Component, [], input);
         dialogConfig.disableClose = true;
         dialogConfig.autoFocus = false
         dialogConfig.data = data;
-        dialogConfig.panelClass = 'pepperi-permissions-dialog'
+        dialogConfig.panelClass = 'pepperi-standalone';
         const dialogRef = this.dialog.open(content, dialogConfig);
         dialogRef.afterClosed().subscribe(res => {
                  callbackFunc(res);
         });
-  }
+   }
+
 
     getTypes(successFunc = null, errorFunc = null){
       let types:KeyValuePair<string>[] = [];
