@@ -487,6 +487,19 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     runJob() {
         this.pluginService.papiClient.codeJobs.async().uuid(this.additionalData.CodeJobUUID).execute().then(value => {
+            const executionLogLink = `${this.schedulerURL}?jobID=${this.additionalData.CodeJobUUID}&ExecutionUUID=${value.ExecutionUUID}`;
+            const title = this.translate.instant('Addon_Archive_ExecuteModal_Title');
+            const content = this.translate.instant('Addon_Archive_Executing_Paragraph', {
+                ExecutionLogLink: executionLogLink
+            });
+            const buttons = [{
+                title: this.translate.instant("Addon_Archive_Close"),
+                callback: res => {                    
+                },
+                className: "",
+                icon: null
+            }]
+            this.pluginService.openTextDialog(title, content, buttons);
             console.log(value);
         });
     }
@@ -525,13 +538,11 @@ export class PluginComponent implements OnInit, OnDestroy {
     // Implement: Run plugin (onInit)
     const self = this;
     this.getActivityTypes();
-    this.additionalData = JSON.parse(
-      await (
-        await this.pluginService.papiClient.addons.installedAddons
-          .addonUUID(this.pluginService.pluginUUID)
-          .get()
-      ).AdditionalData
-    );
+    const installedAddon = await this.pluginService.papiClient.addons.installedAddons.addonUUID(this.pluginService.pluginUUID).get();
+    this.additionalData = JSON.parse(installedAddon.AdditionalData);
+    if(typeof this.additionalData.ScheduledTypes == 'undefined') {
+        this.additionalData.ScheduledTypes = [];
+    }
     this.codeJob = await this.pluginService.papiClient.codeJobs
       .uuid(this.additionalData.CodeJobUUID)
       .find();
@@ -594,7 +605,9 @@ export class PluginComponent implements OnInit, OnDestroy {
                 icon: null
             };
             const title = this.translate.instant("Addon_Archive_PublishModal_Title");
-            const content = this.translate.instant("Addon_Archive_PublishModal_Failure", ('message' in error) ? error.message : 'Unknown error occured');
+            const content = this.translate.instant("Addon_Archive_PublishModal_Failure", {
+                 message : ('message' in error) ? error.message : 'Unknown error occured'
+            });
             this.pluginService.openTextDialog(title, content, [actionButton]);
         }
     // Implement: save UI data
@@ -602,9 +615,9 @@ export class PluginComponent implements OnInit, OnDestroy {
 
   openTypeDialog(operation, selectedObj = undefined) {
     const self = this;
-    const types = self.activityTypes.filter((item) => {
+    const types = self.additionalData.ScheduledTypes ? self.activityTypes.filter((item) => {
         return self.additionalData.ScheduledTypes.findIndex(type => type.ActivityType.Key == item.Key) == -1 || (selectedObj ? selectedObj.ActivityType.Key == item.Key : false)
-    });
+    }) : self.activityTypes;
     self.pluginService.openDialog(
         operation == 'Add' ? this.translate.instant('Addon_Archive_ModalTitle_Add') : this.translate.instant('Addon_Archive_ModalTitle_Update'),
       AddTypeDialogComponent,
@@ -626,11 +639,11 @@ export class PluginComponent implements OnInit, OnDestroy {
   }
 
   typeCallback(data, selectedType) {
-    const exist =
+    const exist = this.additionalData.ScheduledTypes ?
       this.additionalData.ScheduledTypes.filter(
         (type) =>
           data.selectedActivity && type.ActivityType.Key == data.selectedActivity
-      ).length == 1;
+      ).length == 1 : false;
     if (exist) {
       const index = this.additionalData.ScheduledTypes.findIndex(
         (type) => type.ActivityType.Key === data.selectedActivity
