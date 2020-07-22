@@ -1,0 +1,49 @@
+<div>
+    <h2 mat-dialog-title class="mat-dialog-title pepperi-border-bottom">
+        <span *ngIf="title?.length" class="pull-left flip">{{ title }}</span>
+        <button mat-button [mat-dialog-close] class="pepperi-button icon-button sm weak pull-right flip mat-button">
+            <span class="mat-button-wrapper">
+                <mat-icon class="mat-icon">
+                    <svg class="svg-icon">
+                        <use attr.xlink:href="{{ svgIcons }}system-close"></use>
+                    </svg>
+                </mat-icon>
+            </span>
+            <div class="mat-button-ripple mat-ripple" matripple></div>
+            <div class="mat-button-focus-overlay"></div>
+        </button>
+    </h2>
+    <div *ngIf="reportRows?.length > 0" mat-dialog-content class="mat-dialog-content reportContent" >
+        <table mat-table [dataSource]="dataSource">
+            <ng-container *ngFor="let disCol of displayedColumns; let colIndex = index" matColumnDef="{{disCol}}">
+                <th class="ellipsis" mat-header-cell *matHeaderCellDef >{{ ('Archive_ReportModal_TableHeader_' + disCol | translate)  }}</th>
+                <td class="ellipsis" mat-cell *matCellDef="let row">
+                    <span title="{{ row[disCol] }}">{{ row[disCol] }}</span>                   
+                </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns;" ></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+    <div *ngIf="reportRows?.length == 0" class="no-data mat-dialog-content" mat-dialog-content>
+        {{'Archive_ReportModal_NoItems' | translate}}
+    </div>
+    <!-- <div mat-dialog-actions class="pepperi-border-top mat-dialog-actions split-actions" style="justify-content: flex-end;">
+        <div class="spacing-element-negative">
+            <button class="spacing-element pepperi-button md weak mat-button" mat-button [mat-dialog-close]="dialogData">
+                <span class="mat-button-wrapper">
+                    {{ 'Archive_Cancel' | translate }}
+                </span>
+                <div class="mat-button-ripple mat-ripple" matripple></div>
+                <div class="mat-button-focus-overlay"></div>
+            </button>
+            <button class="spacing-element pepperi-button md strong mat-button" mat-button [mat-dialog-close]="dialogData" >
+                <span class="mat-button-wrapper">
+                    {{ (mode == 'Add' ? 'Archive_Add' : 'Archive_Update') | translate }}
+                </span>
+                <div class="mat-button-ripple mat-ripple" matripple></div>
+                <div class="mat-button-focus-overlay"></div>
+            </button>
+        </div>
+    </div> -->
+</div>

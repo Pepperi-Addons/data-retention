@@ -1,5 +1,5 @@
 import jwt from 'jwt-decode';
-import { CodeJob, PapiClient } from '@pepperi-addons/papi-sdk';
+import { CodeJob, PapiClient, AuditLog } from '@pepperi-addons/papi-sdk';
 import { AddTypeDialogComponent } from './dialogs/add-type-dialog/add-type-dialog.component';
 import { Injectable, ElementRef } from '@angular/core';
 import { Http, RequestOptions, Headers } from '@angular/http';
@@ -98,9 +98,7 @@ export class PluginService {
     this.addonService.httpPostApiCall('/addons/installed_addons', body, successFunc, errorFunc);
   }
 
-  openDialog(title = 'Modal Test', content = AddTypeDialogComponent, buttons,
-        input , callbackFunc, panelClass = 'pepperi-modalbox'): void {
-   openDialog(title = 'Modal Test', content = AddTypeDialogComponent, buttons,
+   openDialog(title = 'Modal Test', content, buttons,
          input , callbackFunc, panelClass = 'pepperi-modalbox'): void {
         const self = this;
         const dialogConfig = new MatDialogConfig();
@@ -150,6 +148,15 @@ export class PluginService {
     openTextDialog(title, content, buttons ) {
         const data = new DialogData(title, content, DialogDataType.Text, buttons);
         this.userService.openDialog(data);
+    }
+
+    async getReportToken(){
+        const token = await this.papiClient.addons.api.uuid(this.pluginUUID).async().file('api').func('get_archive_report').post();
+        return token ? token.ExecutionUUID : '';
+    }
+
+    async getExecutionLog(executionUUID): Promise<AuditLog> {
+        return await this.papiClient.auditLogs.uuid(executionUUID).get()
     }
 
 }

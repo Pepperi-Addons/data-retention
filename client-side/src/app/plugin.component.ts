@@ -58,6 +58,7 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 import { runInThisContext } from "vm";
 import { ListViewComponent } from './components/list-view/list-view.component';
 import { Breakpoints } from '@angular/cdk/layout';
+import { ReportDialogComponent } from './dialogs/report-dialog/report-dialog.component';
 
 @Component({
   selector: "plugin",
@@ -81,6 +82,7 @@ export class PluginComponent implements OnInit, OnDestroy {
   selectedDay: string = "";
   selectedHour: string = "";
   defaultNumofMonths: number = 24;
+  latestReport = undefined;
   //selection = new SelectionModel<ScheduledType>(false, []);
   listActions = [];
   // Data sent from webapp
@@ -460,8 +462,67 @@ export class PluginComponent implements OnInit, OnDestroy {
         }
       }
   }
-    generateReport() {
-        
+    async generateReport() {
+        const self = this;
+        const token = await this.pluginService.getReportToken();
+        if(token) {
+            const title = this.translate.instant('Archive_ReportModal_Title');
+            const content = this.translate.instant('Archive_ReportModal_Paragraph');
+            const buttons = [{
+                title: this.translate.instant("Archive_Confirm"),
+                callback: res => { 
+                },
+                className: "",
+                icon: null
+            }]
+            this.pluginService.openTextDialog(title, content, buttons);
+            let interval = window.setInterval(() => {
+                this.pluginService.getExecutionLog(token).then(logRes => {
+                    // this.pluginService.userService.userServiceDialogRef
+                    // ? this.pluginService.userService.userServiceDialogRef
+                    //         .afterClosed()
+                    //         .subscribe(result => {
+                    //             window.clearInterval(interval);
+                    //         })
+                    //     : null;
+                    if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress') {
+                        window.clearInterval(interval);
+                        const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
+                        if(resultObj.Success == true) {
+                            self.latestReport = resultObj.resultObject.map(item=> {
+                                return {
+                                    ActivityType: item.ActivityType.Value,
+                                    BeforeCount: item.BeforeCount,
+                                    ArchiveCount: item.ArchiveCount,
+                                    AfterCount: item.AfterCount
+                                }
+                            });
+                            console.log('latest report is:', self.latestReport);
+                            if(self.pluginService.userService.userServiceDialogRef.componentInstance) {
+                                self.pluginService.userService.userServiceDialogRef.close();
+                                self.viewReport();
+                            }
+                        }
+                    }
+                });
+            },1500);
+        }
+    }
+
+    viewReport() {
+        const self = this;
+        self.pluginService.openDialog(
+            this.translate.instant('Archive_ReportModal_Title'),
+            ReportDialogComponent,
+            [],
+            {
+                svgIcons: self.pluginService.userService.svgIcons,
+                reportRows: self.latestReport
+            },
+            (data) => {
+                // callback from dialog with input data
+            }
+        );
     }
 
     showRunMessage() {

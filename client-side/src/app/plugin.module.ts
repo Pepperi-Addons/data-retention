@@ -2,7 +2,7 @@ import { NgModule  } from '@angular/core';
 import { PluginComponent } from './plugin.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { MatTabsModule, MatIconModule, MatInputModule, MatCheckboxModule, MatFormFieldModule, MatDialogModule, MatCardModule } from '@angular/material';
+import { MatTabsModule, MatIconModule, MatInputModule, MatCheckboxModule, MatFormFieldModule, MatDialogModule, MatCardModule, MatTableModule } from '@angular/material';
 import { TranslateService, TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -24,6 +24,7 @@ import { PepperiTextboxComponent } from './components/pepperi-textbox/pepperi-te
 import { PepperiListContComponent } from './components/pepperi-list/pepperi-list.component';
 import { PepperiMenuComponent } from './components/pepperi-menu/pepperi-menu.component';
 import { ListViewComponent } from './components/list-view/list-view.component';
+import { ReportDialogComponent } from './dialogs/report-dialog/report-dialog.component';
 
 function getUrl(){
     debugger;
@@ -36,7 +37,8 @@ function getUrl(){
     PepperiTextboxComponent,
     PepperiListContComponent,
     PepperiMenuComponent,
-    ListViewComponent
+    ListViewComponent,
+    ReportDialogComponent
   ],
   imports: [
     CommonModule,
@@ -48,6 +50,7 @@ function getUrl(){
     MatFormFieldModule,
     MatDialogModule,
     MatCardModule,
+    MatTableModule,
     FormsModule,
     TranslateModule.forRoot({
       loader: {
@@ -75,7 +78,8 @@ function getUrl(){
   entryComponents: [
     PluginComponent,
     DynamicComponent,
-    AddTypeDialogComponent
+    AddTypeDialogComponent,
+    ReportDialogComponent
   ]
 })
 
