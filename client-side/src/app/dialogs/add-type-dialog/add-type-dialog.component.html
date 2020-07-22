@@ -1,4 +1,5 @@
 <div>
+<div class="dialog">
     <h2 mat-dialog-title class="mat-dialog-title pepperi-border-bottom">
         <span *ngIf="title?.length">{{ title }}</span>
         <!--<button mat-button [mat-dialog-close]="dialogData" class="pepperi-button xbtn md weak pull-right flip">
@@ -30,11 +31,15 @@
             
         </div>
         <div>
+        <div class="minItems">
         <!-- <label class="">Min items </label>
         <input class="pepperi-input" type="text" [(ngModel)]="dialogData.minItems"   name="resourceTitle"
         [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.minItems ? dialogData.minItems = $event : null" />
         <br> -->
         <pepperi-textbox [label]="'Archive_Addon_MinItemsTitle' | translate" [(value)]="dialogData.minItems" [type]="'number'" [disabled]="dialogData.Boolean"></pepperi-textbox>
+        <mat-label class="body-xs">
+            {{'Archive_TypesModal_MinItemsDisclaimer' | translate}}
+        </mat-label>
         </div>
         <!-- <div class="pep-row spacing-element">
             <ndc-dynamic class="pepperi" #pepperiCheckboxComp
