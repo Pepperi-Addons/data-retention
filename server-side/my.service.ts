@@ -24,9 +24,8 @@ export class MyService {
         return this.papiClient.addons.installedAddons.find({});
     }
 
-    async prepareReport(callbackFunc): Promise<ReportTuple[]> {
+    async prepareReport(callbackFunc, archiveData): Promise<ReportTuple[]> {
         let results: Promise<ReportTuple[]>[] = [];
-        let archiveData = (await this.getAdditionalData()).ScheduledTypes;
         for await (let account of this.papiClient.accounts.iter({fields:['InternalID'], page_size:1000, include_deleted:true})){
             results.push(callbackFunc(this, account.InternalID, archiveData));
         }
@@ -51,10 +50,15 @@ export class MyService {
     async getAdditionalData(): Promise<AdditionalData> {
         let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID(this.addonUUID).get();
         let retVal = {
-            ScheduledTypes: []
+            ScheduledTypes: [],
+            DraftScheduledTypes: []
         };
         if(addon?.AdditionalData) {
             retVal = JSON.parse(addon.AdditionalData);
+        }
+        if(typeof retVal.ScheduledTypes == 'undefined' || typeof retVal.DraftScheduledTypes == 'undefined') {
+            retVal.ScheduledTypes = [];
+            retVal.DraftScheduledTypes = [];
         }
 
         return retVal;

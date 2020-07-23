@@ -599,11 +599,7 @@ export class PluginComponent implements OnInit, OnDestroy {
     // Implement: Run plugin (onInit)
     const self = this;
     this.getActivityTypes();
-    const installedAddon = await this.pluginService.papiClient.addons.installedAddons.addonUUID(this.pluginService.pluginUUID).get();
-    this.additionalData = JSON.parse(installedAddon.AdditionalData);
-    if(typeof this.additionalData.ScheduledTypes == 'undefined') {
-        this.additionalData.ScheduledTypes = [];
-    }
+    this.additionalData = await this.pluginService.getAdditionalData();
     this.codeJob = await this.pluginService.papiClient.codeJobs
       .uuid(this.additionalData.CodeJobUUID)
       .find();
@@ -634,6 +630,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     async publishPlugin() {
         const cronExpression = '0 ' + this.selectedHour + ' * * ' + this.selectedDay
+        this.additionalData.ScheduledTypes = this.additionalData.DraftScheduledTypes;
         try {
             await this.pluginService.papiClient.codeJobs.upsert({
                 UUID: this.codeJob.UUID,
@@ -676,8 +673,8 @@ export class PluginComponent implements OnInit, OnDestroy {
 
   openTypeDialog(operation, selectedObj = undefined) {
     const self = this;
-    const types = self.additionalData.ScheduledTypes ? self.activityTypes.filter((item) => {
-        return self.additionalData.ScheduledTypes.findIndex(type => type.ActivityType.Key == item.Key) == -1 || (selectedObj ? selectedObj.ActivityType.Key == item.Key : false)
+    const types = self.additionalData.DraftScheduledTypes ? self.activityTypes.filter((item) => {
+        return self.additionalData.DraftScheduledTypes.findIndex(type => type.ActivityType.Key == item.Key) == -1 || (selectedObj ? selectedObj.ActivityType.Key == item.Key : false)
     }) : self.activityTypes;
     self.pluginService.openDialog(
         operation == 'Add' ? this.translate.instant('Archive_TypesModalTitle_Add') : this.translate.instant('Archive_TypesModalTitle_Update'),
@@ -700,21 +697,21 @@ export class PluginComponent implements OnInit, OnDestroy {
   }
 
   typeCallback(data, selectedType) {
-    const exist = this.additionalData.ScheduledTypes ?
-      this.additionalData.ScheduledTypes.filter(
+    const exist = this.additionalData.DraftScheduledTypes ?
+      this.additionalData.DraftScheduledTypes.filter(
         (type) =>
           data.selectedActivity && type.ActivityType.Key == data.selectedActivity
       ).length == 1 : false;
     if (exist) {
-      const index = this.additionalData.ScheduledTypes.findIndex(
+      const index = this.additionalData.DraftScheduledTypes.findIndex(
         (type) => type.ActivityType.Key === data.selectedActivity
       );
-      this.additionalData.ScheduledTypes[index].NumOfMonths = data.numOfMonths;
-      this.additionalData.ScheduledTypes[index].MinItems = data.minItems;
+      this.additionalData.DraftScheduledTypes[index].NumOfMonths = data.numOfMonths;
+      this.additionalData.DraftScheduledTypes[index].MinItems = data.minItems;
     } else {
         const type = this.activityTypes.find(item => item.Key == data.selectedActivity);
         if(type) {
-            this.additionalData.ScheduledTypes.push(
+            this.additionalData.DraftScheduledTypes.push(
                 new ScheduledType(type.Key, type.Value, data.numOfMonths, data.minItems)
             );
         }
@@ -747,8 +744,8 @@ export class PluginComponent implements OnInit, OnDestroy {
         title: this.translate.instant("Archive_Confirm"),
         callback: res => {
             if(selectedObj) {
-                const index = this.additionalData.ScheduledTypes.findIndex(item => item.ActivityType.Key == selectedObj.ActivityType.Key);
-                index > -1 ? this.additionalData.ScheduledTypes.splice(index, 1) : null;
+                const index = this.additionalData.DraftScheduledTypes.findIndex(item => item.ActivityType.Key == selectedObj.ActivityType.Key);
+                index > -1 ? this.additionalData.DraftScheduledTypes.splice(index, 1) : null;
                 this.typesList? this.typesList.reload(): null;
             }
         },

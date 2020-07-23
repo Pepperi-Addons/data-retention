@@ -44,6 +44,7 @@ export class ReportTuple {
 export class AdditionalData {
     CodeJobUUID?: string;
     ScheduledTypes: ScheduledType[];
+    DraftScheduledTypes: ScheduledType[];
 }
 
 export class DialogModel {

@@ -5,8 +5,11 @@ import { ReportTuple, MyService, ScheduledType } from './my.service';
 export async function archive(client:Client, request:Request) {
     try {
         const service = new MyService(client);
-        const final = await get_archive_report(client, request);
-        const jobsIds: MaintenanceJobResult[] = await service.archiveData(final.resultObject);
+        //const final = await get_archive_report(client, request);
+        const archiveData = (await service.getAdditionalData()).ScheduledTypes;
+        const report = await service.prepareReport(processAccount, archiveData);
+        const final = GenerateReport(report, x=>x.ActivityType.Key);
+        const jobsIds: MaintenanceJobResult[] = await service.archiveData(final);
         return {
             Success: true,
             ErrorMessage:'',
@@ -26,7 +29,9 @@ export async function archive(client:Client, request:Request) {
 export async function get_archive_report(client:Client, request: Request) {
     try {
         const service = new MyService(client);
-        const report = await service.prepareReport(processAccount);
+        const archiveData = (await service.getAdditionalData()).DraftScheduledTypes;
+        console.log("Archive data is:", archiveData);
+        const report = await service.prepareReport(processAccount, archiveData);
         const final = GenerateReport(report, x=>x.ActivityType.Key);
         
         return {

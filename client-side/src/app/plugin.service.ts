@@ -1,7 +1,7 @@
 import jwt from 'jwt-decode';
 import { CodeJob, PapiClient, AuditLog } from '@pepperi-addons/papi-sdk';
 import { AddTypeDialogComponent } from './dialogs/add-type-dialog/add-type-dialog.component';
-import { Injectable, ElementRef } from '@angular/core';
+import { Injectable, ElementRef, Component } from '@angular/core';
 import { Http, RequestOptions, Headers } from '@angular/http';
 
 //@ts-ignore
@@ -24,6 +24,7 @@ import { type } from 'os';
 
 @Injectable({ providedIn: 'root' })
 export class PluginService {
+
   subscription: any;
   accessToken = '';
   parsedToken: any
@@ -56,7 +57,7 @@ export class PluginService {
   ngOnInit() {
   }
 
-  getAdditionalData() {
+  async getAdditionalData(): Promise<AdditionalData> {
     // let additionalData = new AdditionalData();
     // let scheduledTypes = new Array<ScheduledType>();
 
@@ -68,30 +69,40 @@ export class PluginService {
     // scheduledTypes.push(new ScheduledType(256288, 'matrix eyewear', 6, 200));
 
     // console.log(JSON.stringify(scheduledTypes));
-    return new Promise<AdditionalData>((resolve,reject) => this.addonService.httpGetApiCall('/addons/installed_addons/'+ this.pluginUUID, (res) => {
-      if(res && res.AdditionalData) {
-        resolve(JSON.parse(res.AdditionalData));
-        //Promise.resolve(JSON.parse(res.AdditionalData));
-      }
-      else {
-        reject(new Error('Could not get additional data!'));
-      }
-    }, (error) => {
-      Promise.reject(error);
-    }));
+    // return new Promise<AdditionalData>((resolve,reject) => this.addonService.httpGetApiCall('/addons/installed_addons/'+ this.pluginUUID, (res) => {
+    //   if(res && res.AdditionalData) {
+    //     resolve(JSON.parse(res.AdditionalData));
+    //     //Promise.resolve(JSON.parse(res.AdditionalData));
+    //   }
+    //   else {
+    //     reject(new Error('Could not get additional data!'));
+    //   }
+    // }, (error) => {
+    //   Promise.reject(error);
+    // }));
     
     
     // additionalData.ScheduledTypes = scheduledTypes;
-
+    const installedAddon = await this.papiClient.addons.installedAddons.addonUUID(this.pluginUUID).get();
+    const additionalData: AdditionalData = JSON.parse(installedAddon.AdditionalData);
+    if(typeof additionalData.ScheduledTypes == 'undefined' || typeof additionalData.DraftScheduledTypes == 'undefined') {
+        additionalData.ScheduledTypes = [];
+        additionalData.DraftScheduledTypes = [];
+    }
+    return additionalData;
   }
 
 
   updateAdditionalData(additionalData: any, successFunc, errorFunc = null) {
-    let body = ({
-      "Addon": {"UUID": this.pluginUUID},
-      "AdditionalData": JSON.stringify(additionalData)
-    });
-    this.addonService.httpPostApiCall('/addons/installed_addons', body, successFunc, errorFunc);
+    // let body = ({
+    //   "Addon": {"UUID": this.pluginUUID},
+    //   "AdditionalData": JSON.stringify(additionalData)
+    // });
+    // this.addonService.httpPostApiCall('/addons/installed_addons', body, successFunc, errorFunc);
+    this.papiClient.addons.installedAddons.upsert({
+        Addon: {UUID: this.pluginUUID},
+        AdditionalData: JSON.stringify(additionalData)
+    })
   }
 
   updateSystemData(body: any, successFunc, errorFunc = null) {
