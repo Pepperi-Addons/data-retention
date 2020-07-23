@@ -24,26 +24,26 @@ export class ListViewComponent implements OnInit {
           ScreenSize: 'Landscape'
         },
         Type: 'Grid',
-        Title: translates ? translates['Archive_Addon_TypesTableTitle'] : '',
+        Title: translates ? translates['Archive_TypesTable_Title'] : '',
         Fields: [
           {
             FieldID: 'ActivityType.Value',
             Type: 'TextBox',
-            Title: translates ? translates['Archive_Addon_TypesActivityColumnTitle'] : '',
+            Title: translates ? translates['Archive_TypesTable_ActivityColumnTitle'] : '',
             Mandatory: false,
             ReadOnly: true
           },
           {
             FieldID: 'NumOfMonths',
             Type: 'TextBox',
-            Title: translates ? translates['Archive_Addon_TypesMonthsColumnTitle'] : '',
+            Title: translates ? translates['Archive_TypesTable_MonthsColumnTitle'] : '',
             Mandatory: false,
             ReadOnly: true
           },
           {
             FieldID: 'MinItems',
             Type: 'TextBox',
-            Title: translates ? translates['Archive_Addon_TypesItemsColumnTitle'] : '',
+            Title: translates ? translates['Archive_TypesTable_ItemsColumnTitle'] : '',
             Mandatory: false,
             ReadOnly: true
           },
@@ -64,11 +64,11 @@ export class ListViewComponent implements OnInit {
       }
     },
 
-    getActions: () => {
+    getActions: (translates) => {
       return [
         {
           Key: 'Edit',
-          Title: 'Edit',
+          Title: translates ? translates['Archive_TypesTable_EditAction'] : '',
           Filter: (obj) => true,
           Action: (obj) => { 
             this.actionClicked.emit({ApiName:'Edit', SelectedItem:obj});
@@ -76,7 +76,7 @@ export class ListViewComponent implements OnInit {
         },
         {
           Key: 'Delete',
-          Title: 'Delete',
+          Title: translates ? translates['Archive_TypesTable_DeleteAction'] : '',
           Filter: (obj) => true,
           Action: (obj) => { 
             this.actionClicked.emit({ApiName:'Delete', SelectedItem:obj});
@@ -88,7 +88,7 @@ export class ListViewComponent implements OnInit {
     rightButtons: (translates) => {
       return [
         {
-          Title: translates ? translates['Archive_Addon_AddType'] : '',
+          Title: translates ? translates['Archive_TypesTable_AddAction'] : '',
           Icon: 'number-plus',
           Action: () => this.actionClicked.emit({ApiName:'Add'})
         }

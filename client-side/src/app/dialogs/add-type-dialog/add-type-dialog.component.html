@@ -1,4 +1,3 @@
-<div>
 <div class="dialog">
     <h2 mat-dialog-title class="mat-dialog-title pepperi-border-bottom">
         <span *ngIf="title?.length">{{ title }}</span>
@@ -19,7 +18,7 @@
                 (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectObjectTypeInputs', 'pepperiSelectObjectTypeOutputs',
                                     'ObjectSelect', 'Select an object type', activityTypes, this['selectedActivity'] );">
             </ndc-dynamic> -->
-            <pepperi-select [(value)]="dialogData.selectedActivity" [disabled]="mode == 'Edit'" [options]="activityTypes" [label]="'Archive_Addon_ObjectTypeTitle' | translate"></pepperi-select>
+            <pepperi-select [(value)]="dialogData.selectedActivity" [disabled]="mode == 'Edit'" [options]="activityTypes" [label]="'Archive_TypesModal_ActivityTypeTitle' | translate"></pepperi-select>
         </div>
         <div>
         <!-- <label class="">Max history (Months)</label>
@@ -27,16 +26,15 @@
         [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.maxHistory ? dialogData.maxHistory = $event : null" />
             <br>
             <br> -->
-            <pepperi-textbox [label]="'Archive_Addon_HistoryTitle' | translate" [(value)]="dialogData.numOfMonths" [type]="'number'"></pepperi-textbox>
+            <pepperi-textbox [label]="'Archive_TypesModal_HistoryTitle' | translate" [(value)]="dialogData.numOfMonths" [type]="'int'"></pepperi-textbox>
             
         </div>
-        <div>
         <div class="minItems">
         <!-- <label class="">Min items </label>
         <input class="pepperi-input" type="text" [(ngModel)]="dialogData.minItems"   name="resourceTitle"
         [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.minItems ? dialogData.minItems = $event : null" />
         <br> -->
-        <pepperi-textbox [label]="'Archive_Addon_MinItemsTitle' | translate" [(value)]="dialogData.minItems" [type]="'number'" [disabled]="dialogData.Boolean"></pepperi-textbox>
+        <pepperi-textbox [label]="'Archive_TypesModal_MinItemsTitle' | translate" [(value)]="dialogData.minItems" [type]="'int'" [disabled]="dialogData.Boolean"></pepperi-textbox>
         <mat-label class="body-xs">
             {{'Archive_TypesModal_MinItemsDisclaimer' | translate}}
         </mat-label>
@@ -56,14 +54,14 @@
         <div class="spacing-element-negative">
             <button class="spacing-element pepperi-button md weak mat-button" mat-button [mat-dialog-close]="dialogData">
                 <span class="mat-button-wrapper">
-                    {{ 'Addon_Archive_Cancel' | translate }}
+                    {{ 'Archive_Cancel' | translate }}
                 </span>
                 <div class="mat-button-ripple mat-ripple" matripple></div>
                 <div class="mat-button-focus-overlay"></div>
             </button>
             <button class="spacing-element pepperi-button md strong mat-button" mat-button [mat-dialog-close]="dialogData" >
                 <span class="mat-button-wrapper">
-                    {{ (mode == 'Add' ? 'Addon_Archive_Add' : 'Addon_Archive_Update') | translate }}
+                    {{ (mode == 'Add' ? 'Archive_Add' : 'Archive_Update') | translate }}
                 </span>
                 <div class="mat-button-ripple mat-ripple" matripple></div>
                 <div class="mat-button-focus-overlay"></div>

@@ -362,7 +362,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 //     //    }
 //     if (topRightButtons.length === 0) {
 //       const btn = new TopBarButton(
-//         self.translate.instant("Archive_Addon_AddType"),
+//         self.translate.instant("Archive_AddType"),
 //         () => self.openTypeDialog("add"),
 //         "number-plus",
 //         ICON_POSITION.End,
@@ -382,7 +382,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 //       showTotals: false,
 //       showSideLayout: false,
 //       showListActions: false,
-//       topbarTitle: self.translate.instant("Archive_Addon_TypesTableTitle"),
+//       topbarTitle: self.translate.instant("Archive_TypesTableTitle"),
 //       standalone: true,
 //     };
 
@@ -526,10 +526,10 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     showRunMessage() {
-        const title = this.translate.instant('Addon_Archive_ExecuteModal_Title');
-        const content = this.translate.instant('Addon_Archive_ExecuteModal_Paragraph');
+        const title = this.translate.instant('Archive_ExecuteModal_Title');
+        const content = this.translate.instant('Archive_ExecuteModal_Paragraph');
         const buttons = [{
-            title: this.translate.instant("Addon_Archive_Confirm"),
+            title: this.translate.instant("Archive_Confirm"),
             callback: res => {
                 this.runJob();
             },
@@ -537,7 +537,7 @@ export class PluginComponent implements OnInit, OnDestroy {
             icon: null
         },
         {
-            title: this.translate.instant("Addon_Archive_Cancel"),
+            title: this.translate.instant("Archive_Cancel"),
             callback: res => {
             },
             className: "",
@@ -549,12 +549,12 @@ export class PluginComponent implements OnInit, OnDestroy {
     runJob() {
         this.pluginService.papiClient.codeJobs.async().uuid(this.additionalData.CodeJobUUID).execute().then(value => {
             const executionLogLink = `${this.schedulerURL}?jobID=${this.additionalData.CodeJobUUID}&ExecutionUUID=${value.ExecutionUUID}`;
-            const title = this.translate.instant('Addon_Archive_ExecuteModal_Title');
-            const content = this.translate.instant('Addon_Archive_Executing_Paragraph', {
+            const title = this.translate.instant('Archive_ExecuteModal_Title');
+            const content = this.translate.instant('Archive_Executing_Paragraph', {
                 ExecutionLogLink: executionLogLink
             });
             const buttons = [{
-                title: this.translate.instant("Addon_Archive_Close"),
+                title: this.translate.instant("Archive_Close"),
                 callback: res => {                    
                 },
                 className: "",
@@ -618,16 +618,16 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     this.translate.get([
-        'Addon_Archive_Menu_Report',
-        'Addon_Archive_Menu_Execution',
-        'Addon_Archive_Menu_Audit',
-        'Addon_Archive_Menu_RunNow'
+        'Archive_Menu_Report',
+        'Archive_Menu_Execution',
+        'Archive_Menu_Audit',
+        'Archive_Menu_RunNow'
     ]).subscribe(texts => {
         self.menuOptions = [
-            {Key:'Report', Value:texts['Addon_Archive_Menu_Report']},
-            {Key:'Executions', Value:texts['Addon_Archive_Menu_Execution']},
-            {Key:'Audit', Value:texts['Addon_Archive_Menu_Audit']},
-            {Key:'Run', Value:texts['Addon_Archive_Menu_RunNow']},
+            {Key:'Report', Value:texts['Archive_Menu_Report']},
+            {Key:'Executions', Value:texts['Archive_Menu_Execution']},
+            {Key:'Audit', Value:texts['Archive_Menu_Audit']},
+            {Key:'Run', Value:texts['Archive_Menu_RunNow']},
         ]
     })
   }
@@ -647,26 +647,26 @@ export class PluginComponent implements OnInit, OnDestroy {
                 AdditionalData: JSON.stringify(this.additionalData)
             })
             const actionButton = {
-                title: this.translate.instant("Addon_Archive_Confirm"),
+                title: this.translate.instant("Archive_Confirm"),
                 callback: res => {
                 },
                 className: "",
                 icon: null
             };
-            const title = this.translate.instant("Addon_Archive_PublishModal_Title");
-            const content = this.translate.instant("Addon_Archive_PublishModal_Success");
+            const title = this.translate.instant("Archive_PublishModal_Title");
+            const content = this.translate.instant("Archive_PublishModal_Success");
             this.pluginService.openTextDialog(title, content, [actionButton]);
         }
         catch(error) {
             const actionButton = {
-                title: this.translate.instant("Addon_Archive_Confirm"),
+                title: this.translate.instant("Archive_Confirm"),
                 callback: res => {
                 },
                 className: "",
                 icon: null
             };
-            const title = this.translate.instant("Addon_Archive_PublishModal_Title");
-            const content = this.translate.instant("Addon_Archive_PublishModal_Failure", {
+            const title = this.translate.instant("Archive_PublishModal_Title");
+            const content = this.translate.instant("Archive_PublishModal_Failure", {
                  message : ('message' in error) ? error.message : 'Unknown error occured'
             });
             this.pluginService.openTextDialog(title, content, [actionButton]);
@@ -680,7 +680,7 @@ export class PluginComponent implements OnInit, OnDestroy {
         return self.additionalData.ScheduledTypes.findIndex(type => type.ActivityType.Key == item.Key) == -1 || (selectedObj ? selectedObj.ActivityType.Key == item.Key : false)
     }) : self.activityTypes;
     self.pluginService.openDialog(
-        operation == 'Add' ? this.translate.instant('Addon_Archive_ModalTitle_Add') : this.translate.instant('Addon_Archive_ModalTitle_Update'),
+        operation == 'Add' ? this.translate.instant('Archive_TypesModalTitle_Add') : this.translate.instant('Archive_TypesModalTitle_Update'),
       AddTypeDialogComponent,
       [],
       {
@@ -744,7 +744,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 
   deleteType(selectedObj) {
         const actionButton = {
-        title: this.translate.instant("Addon_Archive_Confirm"),
+        title: this.translate.instant("Archive_Confirm"),
         callback: res => {
             if(selectedObj) {
                 const index = this.additionalData.ScheduledTypes.findIndex(item => item.ActivityType.Key == selectedObj.ActivityType.Key);
@@ -755,8 +755,8 @@ export class PluginComponent implements OnInit, OnDestroy {
         className: "",
         icon: null
       };
-      const title = this.translate.instant("Addon_Archive_DeleteModal_Title");
-      const content = this.translate.instant("Addon_Archive_DeleteModal_Paragraph");
+      const title = this.translate.instant("Archive_DeleteModal_Title");
+      const content = this.translate.instant("Archive_DeleteModal_Paragraph");
       this.pluginService.openTextDialog(title, content, [actionButton]);
       //this.pluginService.openDialog(data);
         

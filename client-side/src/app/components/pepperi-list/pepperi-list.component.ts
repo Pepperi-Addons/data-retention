@@ -28,7 +28,7 @@ import { PluginJsonFilter } from 'src/app/plugin.model';
 export interface PepperiListService {
   getDataView(translates): GridDataView;
   getList(): Promise<any[]>;
-  getActions(): {
+  getActions(translates): {
     Key: string;
     Title: string;
     Filter: (obj: any) => boolean;
@@ -96,24 +96,30 @@ export class PepperiListContComponent implements OnInit {
   }
 
   pepperiListOnInit(compRef: ComponentRef<any>, apiEndpoint) {
-    this.pepperiListInputs = {
-      selectionTypeForActions: 1,
-      firstFieldAsLink: false,
-      listType: '',
-      supportSorting: false,
-      supportResizing: false,
-      noDataFoundMsg: 'No Data Found',
-      parentScroll: this.pepperiListCont ? this.pepperiListCont.nativeElement : null,
-      top: 0
-    };
-    this.pepperiListOutputs = {
-      notifyListChanged: event => this.onListChange(event),
-      notifySortingChanged: event => this.onListSortingChange(event),
-      notifyFieldClicked: event => this.onCustomizeFieldClick(event),
-      notifySelectedItemsChanged: event => this.selectedRowsChanged(event)
-    };
+      this.translate.get([
+        'Archive_TypesTable_NoItems',
+        'Archive_TypesTable_EditAction',
+        'Archive_TypesTable_DeleteAction'
+        ]).subscribe(translates => {
+        this.pepperiListInputs = {
+        selectionTypeForActions: 1,
+        firstFieldAsLink: false,
+        listType: '',
+        supportSorting: false,
+        supportResizing: false,
+        noDataFoundMsg: translates['Archive_TypesTable_NoItems'],
+        parentScroll: this.pepperiListCont ? this.pepperiListCont.nativeElement : null,
+        top: 0
+        };
+        this.pepperiListOutputs = {
+        notifyListChanged: event => this.onListChange(event),
+        notifySortingChanged: event => this.onListSortingChange(event),
+        notifyFieldClicked: event => this.onCustomizeFieldClick(event),
+        notifySelectedItemsChanged: event => this.selectedRowsChanged(event, translates)
+        };
 
-    this.loadlist(apiEndpoint);
+        this.loadlist(apiEndpoint);
+    });
   }
 
   onListChange(event) {
@@ -127,7 +133,7 @@ export class PepperiListContComponent implements OnInit {
     // debugger;
   }
 
-  selectedRowsChanged(selectedRowsCount) {
+  selectedRowsChanged(selectedRowsCount, translates) {
     const selectData = this.pepperiListComp.componentRef.instance.getSelectedItemsData(true);
     let rowData = '';
     if (selectData && selectData.rows && selectData.rows[0] !== '' && selectData.rows.length == 1) {
@@ -136,7 +142,7 @@ export class PepperiListContComponent implements OnInit {
       rowData = this.pepperiListComp.componentRef.instance.getItemDataByID(uid);
     }
 
-    this.listActions = this.topBarComp && selectedRowsCount > 0 ? this.getListActions(rowData) : null;
+    this.listActions = this.topBarComp && selectedRowsCount > 0 ? this.getListActions(rowData, translates) : null;
     this.topBarComp.componentRef.instance.listActionsData = this.listActions;
     this.topBarComp.componentRef.instance.showListActions = this.listActions && this.listActions.length ? true : false;
 
@@ -145,11 +151,13 @@ export class PepperiListContComponent implements OnInit {
 
   topBarOnInit(compRef: ComponentRef<any>) {
     this.translate.get([
-        'Archive_Addon_TypesTableTitle', 
-        'Archive_Addon_TypesActivityColumnTitle', 
-        'Archive_Addon_TypesMonthsColumnTitle',
-        'Archive_Addon_TypesItemsColumnTitle',
-        'Archive_Addon_AddType'
+        'Archive_TypesTable_Title', 
+        'Archive_TypesTable_ActivityColumnTitle', 
+        'Archive_TypesTable_MonthsColumnTitle',
+        'Archive_TypesTable_ItemsColumnTitle',
+        'Archive_TypesTable_AddAction',
+        'Archive_TypesTable_EditAction',
+        'Archive_TypesTable_DeleteAction'
     ]).subscribe((translates) => {
         const topRightButtons = [];
         const topLeftButtons = [];
@@ -160,7 +168,7 @@ export class PepperiListContComponent implements OnInit {
         return new TopBarButton(action.Title, () => action.Action(), action.Icon, ICON_POSITION.End, true, null, 'pepperi-button mat-button strong color-main lg');
         })
 
-        this.listActions = this.getListActions();
+        this.listActions = this.getListActions(null, translates);
         this.topBarInputs = {
         showSearch: false,
         selectedList: '',
@@ -175,16 +183,16 @@ export class PepperiListContComponent implements OnInit {
         };
 
         this.topBarOutputs = {
-        actionClicked: event => this.onActionClicked(event),
+        actionClicked: event => this.onActionClicked(event,translates),
         jsonDateFilterChanged: event =>  this.onJsonDateFilterChanged(event),
         searchStringChanged: event => this.searchChanged(event)
         };
     });
   }
 
-  getListActions(rowData = null): Array<ListActionsItem> {
+  getListActions(rowData = null, translates): Array<ListActionsItem> {
     let obj = rowData ? this.list.find(item => item.UUID === rowData.UID) : undefined;
-    return this.service.getActions().filter(action => action.Filter(obj)).map(action => {
+    return this.service.getActions(translates).filter(action => action.Filter(obj)).map(action => {
       return new ListActionsItem(action.Key, action.Title, false);
     })
   }
@@ -210,11 +218,11 @@ export class PepperiListContComponent implements OnInit {
 
   async loadlist(apiEndpoint) {
     this.translate.get([
-        'Archive_Addon_TypesTableTitle', 
-        'Archive_Addon_TypesActivityColumnTitle', 
-        'Archive_Addon_TypesMonthsColumnTitle',
-        'Archive_Addon_TypesItemsColumnTitle',
-        'Archive_Addon_AddType'
+        'Archive_TypesTable_Title', 
+        'Archive_TypesTable_ActivityColumnTitle', 
+        'Archive_TypesTable_MonthsColumnTitle',
+        'Archive_TypesTable_ItemsColumnTitle',
+        'Archive_AddType'
     ]).subscribe(async (translates) => {
         const dataView = this.service.getDataView(translates);
         this.list = await this.service.getList();
@@ -249,7 +257,7 @@ export class PepperiListContComponent implements OnInit {
     });
   }
 
-  onActionClicked(event) {
+  onActionClicked(event, translates) {
 
     const selectData = this.pepperiListComp.componentRef.instance.getSelectedItemsData(true);
     if (selectData.rows.length == 1) {
@@ -257,7 +265,7 @@ export class PepperiListContComponent implements OnInit {
       const uid = selectData.rows[0];
       const rowData = this.pepperiListComp.componentRef.instance.getItemDataByID( uid );
       const obj = rowData ? this.list.find(item => item.UUID === rowData.UID) : undefined;
-      this.service.getActions().find(action => action.Key === event.ApiName).Action(obj);
+      this.service.getActions(translates).find(action => action.Key === event.ApiName).Action(obj);
     }
   }
 
