@@ -61,6 +61,7 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
         this.activityTypes = incoming.data.activityTypes;
         this.svgIcons = incoming.data.svgIcons;
         this.maxHistory = this.dialogData.numOfMonths = incoming.data.maxHistory; 
+        this.dialogData.minItems = '';
         if (incoming.data.selectedType){
             let current = incoming.data.selectedType;
             this.dialogData.numOfMonths = current.NumOfMonths;

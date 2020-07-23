@@ -1,85 +1,118 @@
 <!-- <div *ngIf="!installing" id="archive-main-container"> -->
-    <div id="archive-main-container" class="plugin-container">
-
-        <div id="archiveHeader" class="header-content">
-            <div class="content pepperi-border-bottom">
-                <div class="left-container spacing-element-negative pull-left flip">
-                    <div class="spacing-element title">
-                        {{ 'Archive_Addon_Title' | translate }}
-                    </div>
-                </div>
-                <div class="right-container spacing-element-negative pull-right flip">
-                    <button mat-button *ngIf="latestReport" class="pepperi-button icon-button md weak pull-left flip spacing-element" (click)="viewReport()">
-                        <mat-icon class="mat-icon">
-                            <svg class="svg-icon"><use attr.xlink:href="{{ pluginService.userService.svgIcons }}system-doc"></use></svg>
-                        </mat-icon>
-                    </button>
-                    <pepperi-menu class="menu spacing-element pull-left flip" [label]="'Archive_Menu_Title' | translate" [options]="menuOptions" (menuItemClicked)="onMenuItemClicked($event)"></pepperi-menu>
-                    <button mat-button class="mat-button pepperi-button strong md spacing-element" (click)="publishPlugin()">
-                        {{ 'Addon_Archive_Publish' | translate }}
-                    </button>
-                </div>
-            </div>
+<div id="archive-main-container" class="plugin-container">
+  <div id="archiveHeader" class="header-content">
+    <div class="pepperi-border-bottom content">
+      <div
+        class="left-container spacing-element-negative pull-left flip"
+      >
+        <div class="spacing-element body-lg ellipsis">
+          {{ "Archive_Title" | translate }}
         </div>
-    
-        <div id="archiveBody">
-        <br />
-        <p class="p3">
-            {{ 'Archive_Addon_Paragraph' | translate }}
-        </p>
-        <br />
-        <div id="main-container">
-    
-            <div id="schedule-container">
-                <div>
-              <h4>
-                {{ 'Archive_Addon_Header1' | translate }}
-                <hr>
-              </h4>
-                </div>
-                <p class="p3">{{ 'Archive_Addon_Schedule_Paragraph' | translate }}</p>
-                <div class="pep-row field1">
-              <!-- <ndc-dynamic class="pepperi" #pepperiSelectDayComp
+      </div>
+      <div class="right-container spacing-element-negative pull-right flip">
+        <button
+          mat-button
+          *ngIf="latestReport"
+          class="pepperi-button icon-button md weak pull-left flip spacing-element"
+          (click)="viewReport()"
+        >
+          <mat-icon class="mat-icon">
+            <svg class="svg-icon">
+              <use
+                attr.xlink:href="{{
+                  pluginService.userService.svgIcons
+                }}system-doc"
+              ></use>
+            </svg>
+          </mat-icon>
+        </button>
+        <pepperi-menu
+          class="menu spacing-element pull-left flip"
+          [label]="'Archive_Menu_Title' | translate"
+          [options]="menuOptions"
+          (menuItemClicked)="onMenuItemClicked($event)"
+        ></pepperi-menu>
+        <button
+          mat-button
+          class="mat-button pepperi-button strong md spacing-element"
+          (click)="publishPlugin()"
+        >
+          {{ "Archive_Publish" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="archiveBody">
+    <p class="p3">
+      {{ "Archive_Paragraph" | translate }}
+    </p>
+    <div id="main-container">
+      <div id="schedule-container">
+        <div class="pepperi-border-bottom">
+          <h4>
+            {{ "Archive_Header1" | translate }}
+          </h4>
+        </div>
+        <p class="p3">{{ "Archive_Schedule_Paragraph" | translate }}</p>
+        <div class="pep-row field1">
+          <!-- <ndc-dynamic class="pepperi" #pepperiSelectDayComp
                 [ndcDynamicComponent]="pepperiSelect"
                 [ndcDynamicInputs]="pepperiSelectDayInputs"
                 [ndcDynamicOutputs]="pepperiSelectDayOutputs"
                 (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectDayInputs', 'pepperiSelectDayOutputs',
                                      'DaySelect', 'Select a day of the week', dayOptions);">
               </ndc-dynamic> -->
-              <pepperi-select [required]="true" [label]="'Archive_Addon_SelectDaysTitle' | translate" [(value)]="selectedDay" [options]="dayOptions"></pepperi-select>
-
-                </div>
-                <div class="pep-row field2">
-              <!-- <ndc-dynamic class="pepperi" #pepperiSelectTimeComp
+          <pepperi-select
+            [required]="true"
+            [label]="'Archive_SelectDaysTitle' | translate"
+            [(value)]="selectedDay"
+            [options]="dayOptions"
+          ></pepperi-select>
+        </div>
+        <div class="pep-row field2">
+          <!-- <ndc-dynamic class="pepperi" #pepperiSelectTimeComp
                 [ndcDynamicComponent]="pepperiSelect"  [ndcDynamicInputs]="pepperiSelectTimeInputs"
                 [ndcDynamicOutputs]="pepperiSelectTimeOutputs"
                 (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectTimeInputs', 'pepperiSelectTimeOutputs',
                                      'TimeSelect', 'Time (UTC)', timeOptions);">
               </ndc-dynamic> -->
-              <pepperi-select [required]="true" [label]="'Archive_Addon_SelectTimeTitle' | translate" [(value)]="selectedHour" [options]="timeOptions"></pepperi-select>
-                </div>
-            </div>
-    
-            <div id="data-retention-policy">
-    
-                <div><h4>{{ 'Archive_Addon_Header2' | translate }}<hr></h4></div>
-            
-                <p class="p3">{{ 'Archive_Addon_Policy_Paragraph' | translate }}</p>
-            
-                <div class="pep-row">
-                    <!-- <ndc-dynamic class="pepperi" #pepperiInputComp
+          <pepperi-select
+            [required]="true"
+            [label]="'Archive_SelectTimeTitle' | translate"
+            [(value)]="selectedHour"
+            [options]="timeOptions"
+          ></pepperi-select>
+        </div>
+      </div>
+
+      <div id="data-retention-policy">
+        <div class="pepperi-border-bottom">
+          <h4>
+            {{ "Archive_Header2" | translate }}
+          </h4>
+        </div>
+
+        <p class="p3">{{ "Archive_Policy_Paragraph" | translate }}</p>
+
+        <div class="pep-row">
+          <!-- <ndc-dynamic class="pepperi" #pepperiInputComp
                         [ndcDynamicComponent]="pepperiInput"
                         [ndcDynamicInputs]="pepperiInputInputs"
                         [ndcDynamicOutputs]="pepperiInputOutputs"
                         (ndcDynamicCreated)="pepperiFieldOnInit($event, 'pepperiInputInputs', 'pepperiInputOutputs',
                                          'MonthsInput', 'Months of data retention', '');">
                     </ndc-dynamic> -->
-                    <pepperi-textbox [required]="true" [label]="'Archive_Addon_MonthsTitle' | translate" [(value)]="defaultNumofMonths" [type]="'number'"></pepperi-textbox>
-                </div>
-            
-                <div id="retentionPreview">
-                    <!-- <h4 id="retentionPreviewHeader">
-                        <span>{{ 'Archive_Addon_Header3' | translate }}</span>
+          <pepperi-textbox
+            [required]="true"
+            [label]="'Archive_MonthsTitle' | translate"
+            [(value)]="defaultNumofMonths"
+            [type]="'int'"
+          ></pepperi-textbox>
+        </div>
+
+        <div id="retentionPreview">
+          <!-- <h4 id="retentionPreviewHeader">
+                        <span>{{ 'Archive_Header3' | translate }}</span>
                         <div class="pull-right flip">
                         <button matButton class="pepperi-button md strong" (click)="openTypeDialog('add');" >
                             <span>Add Type</span>
@@ -101,8 +134,8 @@
                         </button>
                         </div>
                     </h4> -->
-    
-                    <!-- <div #genericCont id="genericCont">
+
+          <!-- <div #genericCont id="genericCont">
     
                         <ndc-dynamic #topBarComp
                             [ndcDynamicComponent]="topBar"
@@ -119,27 +152,21 @@
                         </ndc-dynamic>
     
                     </div> -->
-                    <app-list-view #typesList [scheduledTypes]="this.additionalData?.ScheduledTypes" (actionClicked)="onActionClicked($event)"></app-list-view>
-                    <ng-template #addType>
-                        <p class="p3">{{ 'Archive_Addon_Policy_Paragraph' | translate }}</p>
-                    </ng-template>
-                </div>
-    
-            </div>
-    
-    
-    
-    
+          <app-list-view
+            #typesList
+            [scheduledTypes]="this.additionalData?.DraftScheduledTypes"
+            (actionClicked)="onActionClicked($event)"
+          ></app-list-view>
+          <ng-template #addType>
+            <p class="p3">{{ "Archive_Policy_Paragraph" | translate }}</p>
+          </ng-template>
         </div>
-    
-        </div>
-    
+      </div>
     </div>
-    
-    
-    
-    
-    <!-- <table *ngIf="scheduledList?.length > 0; else addType;" mat-table [dataSource]="dataSource">
+  </div>
+</div>
+
+<!-- <table *ngIf="scheduledList?.length > 0; else addType;" mat-table [dataSource]="dataSource">
     
                     <ng-container *ngIf="true" matColumnDef="Selection">
                         <th mat-header-cell *matHeaderCellDef>
@@ -171,13 +198,3 @@
                     <tr mat-header-row *matHeaderRowDef="scheduledListColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: scheduledListColumns;"></tr>
                     </table> -->
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

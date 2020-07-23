@@ -20,13 +20,21 @@
         .content{
             margin-left: 0;
             margin-right: 0;
-            display: block;
+            align-items: center;
         }
     }
 
     #archiveBody {
         position: relative;
         top: 100px;
+        #main-container {
+            #schedule-container {
+                margin:25px 0;
+            }
+            .p3 {
+                margin-top:25px;
+            }
+        }
     }
 
     // #retentionPreview{
