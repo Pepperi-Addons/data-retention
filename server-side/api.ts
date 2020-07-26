@@ -6,8 +6,9 @@ export async function archive(client:Client, request:Request) {
     try {
         const service = new MyService(client);
         //const final = await get_archive_report(client, request);
-        const archiveData = (await service.getAdditionalData()).ScheduledTypes;
-        const report = await service.prepareReport(processAccount, archiveData);
+        const addonData = await service.getAdditionalData();
+
+        const report = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths);
         const final = GenerateReport(report, x=>x.ActivityType.Key);
         const jobsIds: MaintenanceJobResult[] = await service.archiveData(final);
         return {
@@ -29,9 +30,9 @@ export async function archive(client:Client, request:Request) {
 export async function get_archive_report(client:Client, request: Request) {
     try {
         const service = new MyService(client);
-        const archiveData = (await service.getAdditionalData()).DraftScheduledTypes;
-        console.log("Archive data is:", archiveData);
-        const report = await service.prepareReport(processAccount, archiveData);
+        const addonData = await service.getAdditionalData();
+        console.log("Archive data is:", addonData.ScheduledTypes_Draft);
+        const report = await service.prepareReport(processAccount, addonData.ScheduledTypes_Draft, addonData.DefaultNumofMonths_Draft);
         const final = GenerateReport(report, x=>x.ActivityType.Key);
         
         return {
@@ -50,11 +51,11 @@ export async function get_archive_report(client:Client, request: Request) {
 
 }
 
-async function processAccount(service: MyService, accountID: number, archiveData) : Promise<ReportTuple[]>{
+async function processAccount(service: MyService, accountID: number, archiveData, defaultNumOfMonths) : Promise<ReportTuple[]>{
     const activities :(GeneralActivity | Transaction)[] = await service.getActivitiesForAccount(accountID);
     let retVal:ReportTuple[] = [];
     let activitiesByType = groupBy(activities, x=>x.ActivityTypeID);
-    console.log("after group by type: ", activitiesByType);
+    //console.log("after group by type: ", activitiesByType);
     activitiesByType.forEach((items:(GeneralActivity | Transaction)[]) => {
         if(items.length > 0) { 
             let type: ScheduledType = archiveData.find(x=> x.ActivityType.Key == items[0].ActivityTypeID) || 
@@ -63,7 +64,7 @@ async function processAccount(service: MyService, accountID: number, archiveData
                     Key: items[0].ActivityTypeID || -1, 
                     Value:items[0].Type || ""
                 },
-                NumOfMonths: 24,
+                NumOfMonths: defaultNumOfMonths,
                 MinItems: -1
             };
             let tuple:(ReportTuple & {AccountID?:number})= ProcessActivitiesByType(items, type);
@@ -72,7 +73,7 @@ async function processAccount(service: MyService, accountID: number, archiveData
             retVal.push(tuple);
         }
     });
-    console.log('report for account id: ', accountID, 'is: ', retVal);
+    //console.log('report for account id: ', accountID, 'is: ', retVal);
     return retVal;
 }
 

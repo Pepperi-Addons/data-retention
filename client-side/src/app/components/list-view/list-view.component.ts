@@ -122,7 +122,7 @@ export class ListViewComponent implements OnInit {
   }
 
   ngOnChanges() {
-    this.reload();
+    //this.reload();
   }
 
   reload() {

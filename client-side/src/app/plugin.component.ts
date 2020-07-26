@@ -81,10 +81,10 @@ export class PluginComponent implements OnInit, OnDestroy {
   scheduledList = [];
   selectedDay: string = "";
   selectedHour: string = "";
-  defaultNumofMonths: number = 24;
   latestReport = undefined;
   //selection = new SelectionModel<ScheduledType>(false, []);
   listActions = [];
+  defaultNumOfMonths = 24;
   // Data sent from webapp
   @Input() queryParams: any;
   @Input() routerData: any;
@@ -428,6 +428,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     switch (event.apiName) {
         case 'Report': {
+            this.latestReport = undefined;
             this.generateReport();
             break;
         }
@@ -600,6 +601,7 @@ export class PluginComponent implements OnInit, OnDestroy {
     const self = this;
     this.getActivityTypes();
     this.additionalData = await this.pluginService.getAdditionalData();
+    this.defaultNumOfMonths = this.additionalData.DefaultNumofMonths_Draft;
     this.codeJob = await this.pluginService.papiClient.codeJobs
       .uuid(this.additionalData.CodeJobUUID)
       .find();
@@ -630,7 +632,8 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     async publishPlugin() {
         const cronExpression = '0 ' + this.selectedHour + ' * * ' + this.selectedDay
-        this.additionalData.ScheduledTypes = this.additionalData.DraftScheduledTypes;
+        this.additionalData.ScheduledTypes = [...this.additionalData.ScheduledTypes_Draft];
+        this.additionalData.DefaultNumofMonths = this.defaultNumOfMonths;
         try {
             await this.pluginService.papiClient.codeJobs.upsert({
                 UUID: this.codeJob.UUID,
@@ -673,8 +676,8 @@ export class PluginComponent implements OnInit, OnDestroy {
 
   openTypeDialog(operation, selectedObj = undefined) {
     const self = this;
-    const types = self.additionalData.DraftScheduledTypes ? self.activityTypes.filter((item) => {
-        return self.additionalData.DraftScheduledTypes.findIndex(type => type.ActivityType.Key == item.Key) == -1 || (selectedObj ? selectedObj.ActivityType.Key == item.Key : false)
+    const types = self.additionalData.ScheduledTypes_Draft ? self.activityTypes.filter((item) => {
+        return self.additionalData.ScheduledTypes_Draft.findIndex(type => type.ActivityType.Key == item.Key) == -1 || (selectedObj ? selectedObj.ActivityType.Key == item.Key : false)
     }) : self.activityTypes;
     self.pluginService.openDialog(
         operation == 'Add' ? this.translate.instant('Archive_TypesModalTitle_Add') : this.translate.instant('Archive_TypesModalTitle_Update'),
@@ -685,7 +688,7 @@ export class PluginComponent implements OnInit, OnDestroy {
         svgIcons: self.pluginService.userService.svgIcons,
         activityTypes: types,
         selectedType: selectedObj,
-        maxHistory: self.defaultNumofMonths
+        maxHistory: self.additionalData.DefaultNumofMonths_Draft
       },
       (data) => {
         // callback from dialog with input data
@@ -697,25 +700,26 @@ export class PluginComponent implements OnInit, OnDestroy {
   }
 
   typeCallback(data, selectedType) {
-    const exist = this.additionalData.DraftScheduledTypes ?
-      this.additionalData.DraftScheduledTypes.filter(
+    const exist = this.additionalData.ScheduledTypes_Draft ?
+      this.additionalData.ScheduledTypes_Draft.filter(
         (type) =>
           data.selectedActivity && type.ActivityType.Key == data.selectedActivity
       ).length == 1 : false;
     if (exist) {
-      const index = this.additionalData.DraftScheduledTypes.findIndex(
+      const index = this.additionalData.ScheduledTypes_Draft.findIndex(
         (type) => type.ActivityType.Key === data.selectedActivity
       );
-      this.additionalData.DraftScheduledTypes[index].NumOfMonths = data.numOfMonths;
-      this.additionalData.DraftScheduledTypes[index].MinItems = data.minItems;
+      this.additionalData.ScheduledTypes_Draft[index].NumOfMonths = data.numOfMonths;
+      this.additionalData.ScheduledTypes_Draft[index].MinItems = data.minItems;
     } else {
         const type = this.activityTypes.find(item => item.Key == data.selectedActivity);
         if(type) {
-            this.additionalData.DraftScheduledTypes.push(
+            this.additionalData.ScheduledTypes_Draft.push(
                 new ScheduledType(type.Key, type.Value, data.numOfMonths, data.minItems)
             );
         }
     }
+    this.pluginService.updateAdditionalData(this.additionalData);
     this.typesList ? this.typesList.reload(): null;
   }
 
@@ -744,8 +748,9 @@ export class PluginComponent implements OnInit, OnDestroy {
         title: this.translate.instant("Archive_Confirm"),
         callback: res => {
             if(selectedObj) {
-                const index = this.additionalData.DraftScheduledTypes.findIndex(item => item.ActivityType.Key == selectedObj.ActivityType.Key);
-                index > -1 ? this.additionalData.DraftScheduledTypes.splice(index, 1) : null;
+                const index = this.additionalData.ScheduledTypes_Draft.findIndex(item => item.ActivityType.Key == selectedObj.ActivityType.Key);
+                index > -1 ? this.additionalData.ScheduledTypes_Draft.splice(index, 1) : null;
+                this.pluginService.updateAdditionalData(this.additionalData);
                 this.typesList? this.typesList.reload(): null;
             }
         },

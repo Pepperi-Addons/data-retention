@@ -24,13 +24,19 @@ export class MyService {
         return this.papiClient.addons.installedAddons.find({});
     }
 
-    async prepareReport(callbackFunc, archiveData): Promise<ReportTuple[]> {
+    async prepareReport(callbackFunc, archiveData, defaultNumOfMonths): Promise<ReportTuple[]> {
         let results: Promise<ReportTuple[]>[] = [];
+        let i = 0;
         for await (let account of this.papiClient.accounts.iter({fields:['InternalID'], page_size:1000, include_deleted:true})){
-            results.push(callbackFunc(this, account.InternalID, archiveData));
+            if(i++ % 10 == 0) {
+                results.push(await callbackFunc(this, account.InternalID, archiveData, defaultNumOfMonths));
+            }
+            else {
+                results.push(callbackFunc(this, account.InternalID, archiveData, defaultNumOfMonths));
+            }
         }
         let retVal = (await Promise.all(results));
-        console.log("all accounts:", retVal);
+        //console.log("all accounts:", retVal);
         return retVal.flat();
     }
 
@@ -43,7 +49,7 @@ export class MyService {
             orderBy:"ActionDateTime desc",
             include_deleted:true}).toArray();
         
-        console.log("activities for account ", accountID, " are: ", retVal);
+        //console.log("activities for account ", accountID, " are: ", retVal);
         return retVal;
     }
 
@@ -51,14 +57,16 @@ export class MyService {
         let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID(this.addonUUID).get();
         let retVal = {
             ScheduledTypes: [],
-            DraftScheduledTypes: []
+            ScheduledTypes_Draft: [],
+            DefaultNumofMonths:24,
+            DefaultNumofMonths_Draft:24
         };
         if(addon?.AdditionalData) {
             retVal = JSON.parse(addon.AdditionalData);
         }
-        if(typeof retVal.ScheduledTypes == 'undefined' || typeof retVal.DraftScheduledTypes == 'undefined') {
+        if(typeof retVal.ScheduledTypes == 'undefined' || typeof retVal.ScheduledTypes_Draft == 'undefined') {
             retVal.ScheduledTypes = [];
-            retVal.DraftScheduledTypes = [];
+            retVal.ScheduledTypes_Draft = [];
         }
 
         return retVal;

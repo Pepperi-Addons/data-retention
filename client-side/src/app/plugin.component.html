@@ -1,5 +1,5 @@
 <!-- <div *ngIf="!installing" id="archive-main-container"> -->
-<div id="archive-main-container" class="plugin-container">
+<div id="archive-main-container" class="plugin-container" *ngIf="this.additionalData">
   <div id="archiveHeader" class="header-content">
     <div class="pepperi-border-bottom content">
       <div
@@ -46,7 +46,7 @@
     <p class="p3">
       {{ "Archive_Paragraph" | translate }}
     </p>
-    <div id="main-container">
+    <div id="main-container" >
       <div id="schedule-container">
         <div class="pepperi-border-bottom">
           <h4>
@@ -102,11 +102,12 @@
                         (ndcDynamicCreated)="pepperiFieldOnInit($event, 'pepperiInputInputs', 'pepperiInputOutputs',
                                          'MonthsInput', 'Months of data retention', '');">
                     </ndc-dynamic> -->
-          <pepperi-textbox
+          <pepperi-textbox 
             [required]="true"
             [label]="'Archive_MonthsTitle' | translate"
-            [(value)]="defaultNumofMonths"
+            [(value)]="this.additionalData.DefaultNumofMonths_Draft"
             [type]="'int'"
+            (valueChange)="pluginService.updateAdditionalData(additionalData)"
           ></pepperi-textbox>
         </div>
 
@@ -154,7 +155,7 @@
                     </div> -->
           <app-list-view
             #typesList
-            [scheduledTypes]="this.additionalData?.DraftScheduledTypes"
+            [scheduledTypes]="additionalData?.ScheduledTypes_Draft"
             (actionClicked)="onActionClicked($event)"
           ></app-list-view>
           <ng-template #addType>

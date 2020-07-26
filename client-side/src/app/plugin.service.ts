@@ -85,15 +85,18 @@ export class PluginService {
     // additionalData.ScheduledTypes = scheduledTypes;
     const installedAddon = await this.papiClient.addons.installedAddons.addonUUID(this.pluginUUID).get();
     const additionalData: AdditionalData = JSON.parse(installedAddon.AdditionalData);
-    if(typeof additionalData.ScheduledTypes == 'undefined' || typeof additionalData.DraftScheduledTypes == 'undefined') {
+    if(typeof additionalData.ScheduledTypes == 'undefined') {
         additionalData.ScheduledTypes = [];
-        additionalData.DraftScheduledTypes = [];
+        additionalData.ScheduledTypes_Draft = [];
+    }
+    if(typeof additionalData.DefaultNumofMonths_Draft == 'undefined') {
+        additionalData.DefaultNumofMonths_Draft = 24;
     }
     return additionalData;
   }
 
 
-  updateAdditionalData(additionalData: any, successFunc, errorFunc = null) {
+  updateAdditionalData(additionalData: any) {
     // let body = ({
     //   "Addon": {"UUID": this.pluginUUID},
     //   "AdditionalData": JSON.stringify(additionalData)

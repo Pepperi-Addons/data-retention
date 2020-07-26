@@ -1,11 +1,14 @@
 .dialog {
-    max-width:400px;
+    max-width:450px;
 
     .minItems  {
         padding-bottom:1rem;
         pepperi-textbox.pepperi-field {
             margin-bottom:0.5rem;
         }
+    }
+    .mat-dialog-actions {
+        margin-bottom:0;
     }
 }
 

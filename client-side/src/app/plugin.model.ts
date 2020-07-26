@@ -43,8 +43,10 @@ export class ReportTuple {
 
 export class AdditionalData {
     CodeJobUUID?: string;
-    ScheduledTypes: ScheduledType[];
-    DraftScheduledTypes: ScheduledType[];
+    ScheduledTypes?: ScheduledType[];
+    ScheduledTypes_Draft?: ScheduledType[];
+    DefaultNumofMonths?: number = 24;
+    DefaultNumofMonths_Draft?: number = 24;
 }
 
 export class DialogModel {
