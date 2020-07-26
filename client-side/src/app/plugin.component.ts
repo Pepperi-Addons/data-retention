@@ -432,17 +432,17 @@ export class PluginComponent implements OnInit, OnDestroy {
             this.generateReport();
             break;
         }
-        case 'Audit': {
-            this.router.navigate([
-                this.schedulerURL
-            ], {
-                queryParams: {
-                    view: 'audit',
-                    job_id: this.additionalData.CodeJobUUID
-                }
-            });
-            break;
-        }
+        // case 'Audit': {
+        //     this.router.navigate([
+        //         this.schedulerURL
+        //     ], {
+        //         queryParams: {
+        //             view: 'audit',
+        //             job_id: this.additionalData.CodeJobUUID
+        //         }
+        //     });
+        //     break;
+        // }
         case 'Executions': {
             this.router.navigate([
                 this.schedulerURL
@@ -624,7 +624,7 @@ export class PluginComponent implements OnInit, OnDestroy {
         self.menuOptions = [
             {Key:'Report', Value:texts['Archive_Menu_Report']},
             {Key:'Executions', Value:texts['Archive_Menu_Execution']},
-            {Key:'Audit', Value:texts['Archive_Menu_Audit']},
+//            {Key:'Audit', Value:texts['Archive_Menu_Audit']},
             {Key:'Run', Value:texts['Archive_Menu_RunNow']},
         ]
     })
