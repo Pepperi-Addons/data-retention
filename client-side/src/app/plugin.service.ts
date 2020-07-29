@@ -96,13 +96,13 @@ export class PluginService {
   }
 
 
-  updateAdditionalData(additionalData: any) {
+  async updateAdditionalData(additionalData: any) {
     // let body = ({
     //   "Addon": {"UUID": this.pluginUUID},
     //   "AdditionalData": JSON.stringify(additionalData)
     // });
     // this.addonService.httpPostApiCall('/addons/installed_addons', body, successFunc, errorFunc);
-    this.papiClient.addons.installedAddons.upsert({
+    await this.papiClient.addons.installedAddons.upsert({
         Addon: {UUID: this.pluginUUID},
         AdditionalData: JSON.stringify(additionalData)
     })
@@ -170,7 +170,7 @@ export class PluginService {
     }
 
     async getExecutionLog(executionUUID): Promise<AuditLog> {
-        return await this.papiClient.auditLogs.uuid(executionUUID).get()
+        return await this.papiClient.auditLogs.uuid(executionUUID).get();
     }
 
 }
