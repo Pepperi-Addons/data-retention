@@ -562,15 +562,14 @@ export class PluginComponent implements OnInit, OnDestroy {
         this.pluginService.openTextDialog(title, content, buttons);
     }
 
-    runJob() {
     async runJob() {
         this.additionalData.ScheduledTypes = [...this.additionalData.ScheduledTypes_Draft];
         this.additionalData.DefaultNumofMonths = this.defaultNumOfMonths;
         await this.pluginService.updateAdditionalData(this.additionalData);
         this.pluginService.papiClient.codeJobs.async().uuid(this.additionalData.CodeJobUUID).execute().then(value => {
-            const executionLogLink = `${this.schedulerURL}?jobID=${this.additionalData.CodeJobUUID}&ExecutionUUID=${value.ExecutionUUID}`;
+            const executionLogLink = `${this.schedulerURL}?view=executions&execution_id=${value.ExecutionUUID}&job_id=${this.additionalData.CodeJobUUID}`;
             const title = this.translate.instant('Archive_ExecuteModal_Title');
-            const content = this.translate.instant('Archive_Executing_Paragraph', {
+            const content = this.translate.instant('Archive_ExecutingModal_Paragraph', {
                 ExecutionLogLink: executionLogLink
             });
             const buttons = [{
@@ -659,12 +658,7 @@ export class PluginComponent implements OnInit, OnDestroy {
                 CodeJobName: this.codeJob.CodeJobName,
                 CronExpression: cronExpression
             });
-            await this.pluginService.papiClient.addons.installedAddons.upsert({
-                Addon: {
-                    UUID:this.pluginService.pluginUUID,
-                },
-                AdditionalData: JSON.stringify(this.additionalData)
-            })
+            await this.pluginService.updateAdditionalData(this.additionalData);
             const actionButton = {
                 title: this.translate.instant("Archive_Confirm"),
                 callback: res => {
