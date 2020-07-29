@@ -580,7 +580,6 @@ export class PluginComponent implements OnInit, OnDestroy {
                 icon: null
             }]
             this.pluginService.openTextDialog(title, content, buttons);
-            console.log(value);
         });
     }
 
@@ -640,7 +639,7 @@ export class PluginComponent implements OnInit, OnDestroy {
         'Archive_Menu_RunNow'
     ]).subscribe(texts => {
         self.menuOptions = [
-            {Key:'Report', Value:texts['Archive_Menu_Report']},
+            {Key:'Report', Value:texts['Archive_Menu_Report'], disabled: this.disablePublish},
             {Key:'Executions', Value:texts['Archive_Menu_Execution']},
 //            {Key:'Audit', Value:texts['Archive_Menu_Audit']},
             {Key:'Run', Value:texts['Archive_Menu_RunNow']},

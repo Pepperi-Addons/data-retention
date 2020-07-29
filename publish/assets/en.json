@@ -13,7 +13,7 @@
     "Archive_TypesTable_ActivityColumnTitle": "Activity",
     "Archive_TypesTable_MonthsColumnTitle": "Months",
     "Archive_TypesTable_ItemsColumnTitle": "Min Records",
-    "Archive_TypesTable_NoItems": "Click Add activity to define a date retention policy.",
+    "Archive_TypesTable_NoItems": "Click Add activity to define a data retention policy.",
     "Archive_SelectDaysTitle": "Day",
     "Archive_SelectTimeTitle": "Time (UTC)",
     "Archive_MonthsTitle": "Months of Data Retention",
@@ -48,7 +48,6 @@
     "Archive_ReportModal_TableHeader_AfterCount": "Total (current)",
     "Archive_ReportModal_TableHeader_ArchiveCount": "To be archived",
     "Archive_ReportModal_TableHeader_BeforeCount": "Operational",
-    "Archive_ReportModal_NoItems": "Something went wrong. Your report is empty."
     "Archive_ReportModal_NoItems": "Something went wrong. Your report is empty.",
     "Archive_InvalidFormModal_Title": "Cannot perform action",
     "Archive_InvalidFormModal_Paragraph": "Please correct errors before performing this action"
