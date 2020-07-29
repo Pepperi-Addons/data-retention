@@ -43,11 +43,14 @@
             ></pepperi-textbox>
             
         </div>
-        <div class="minItems">
+        <div class="minItems pepperi-border-top">
         <!-- <label class="">Min items </label>
         <input class="pepperi-input" type="text" [(ngModel)]="dialogData.minItems"   name="resourceTitle"
         [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.minItems ? dialogData.minItems = $event : null" />
         <br> -->
+        <h4>
+            {{'Archive_TypesModal_MinItemsTitle' | translate}}
+        </h4>
         <mat-label class="body-xs">
             {{'Archive_TypesModal_MinItemsDisclaimer' | translate}}
         </mat-label>
