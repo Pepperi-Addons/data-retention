@@ -13,11 +13,12 @@ exports.install = async (Client, Request) => {
     const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
     const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
 
-    if(apiVersion > 236) {
+    if(apiVersion > 242) {
         try {
 
             const codeJob: CodeJob = await papiClient.codeJobs.upsert({
                 CodeJobName: "Data Retention",
+                Description: "Data Retention",
                 Type: "AddonJob",
                 IsScheduled: true,
                 CronExpression: getCronExpression(),
@@ -39,7 +40,7 @@ exports.install = async (Client, Request) => {
         }
     }
     else {
-        errorMessage = "Cannot install addon. upgrade api version to 237 minimum.";
+        errorMessage = "Cannot install addon. upgrade api version to 243 minimum.";
         success = false;
     }
 
