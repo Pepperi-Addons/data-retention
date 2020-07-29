@@ -22,6 +22,9 @@ export class PepperiSelectComponent implements OnInit, OnChanges {
     valueChanged: (event: any) => {
       this.value = event.value; //this.options.find(item => item.Key === event.value)
       this.valueChange.emit(this.value);
+    },
+    formValidationChanged: (event: boolean) => {
+        this.formValidationChanged.emit(event);
     }
   }
 
@@ -51,6 +54,9 @@ export class PepperiSelectComponent implements OnInit, OnChanges {
 
   @Output()
   valueChange = new EventEmitter<any>();
+
+  @Output()
+  formValidationChanged = new EventEmitter<boolean>();
 
   @Input()
   options: any = {}

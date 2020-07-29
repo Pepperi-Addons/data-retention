@@ -85,6 +85,7 @@ export class PluginComponent implements OnInit, OnDestroy {
   //selection = new SelectionModel<ScheduledType>(false, []);
   listActions = [];
   defaultNumOfMonths = 24;
+  disablePublish = false;
   // Data sent from webapp
   @Input() queryParams: any;
   @Input() routerData: any;
@@ -425,43 +426,57 @@ export class PluginComponent implements OnInit, OnDestroy {
   }
 
   onMenuItemClicked(event) {
-
-    switch (event.apiName) {
-        case 'Report': {
-            this.latestReport = undefined;
-            this.generateReport();
-            break;
+    if(this.disablePublish) {
+        const title = this.translate.instant('Archive_InvalidFormModal_Title');
+        const content = this.translate.instant('Archive_InvalidFormModal_Paragraph');
+        const buttons = [{
+            title: this.translate.instant("Archive_Confirm"),
+            callback: res => { 
+            },
+            className: "",
+            icon: null
+        }]
+        this.pluginService.openTextDialog(title, content, buttons);
+    }
+    else {
+        switch (event.apiName) {
+            case 'Report': {
+                
+                this.latestReport = undefined;
+                this.generateReport();
+                break;
+            }
+            // case 'Audit': {
+            //     this.router.navigate([
+            //         this.schedulerURL
+            //     ], {
+            //         queryParams: {
+            //             view: 'audit',
+            //             job_id: this.additionalData.CodeJobUUID
+            //         }
+            //     });
+            //     break;
+            // }
+            case 'Executions': {
+                this.router.navigate([
+                    this.schedulerURL
+                ], {
+                    queryParams: {
+                        view: 'executions',
+                        job_id: this.additionalData.CodeJobUUID
+                    }
+                });
+                break;
+            }
+            case 'Run': {
+                this.showRunMessage();
+                break;
+            }
+            default: {
+            alert(event.apiName + " is not supported");
+            }
         }
-        // case 'Audit': {
-        //     this.router.navigate([
-        //         this.schedulerURL
-        //     ], {
-        //         queryParams: {
-        //             view: 'audit',
-        //             job_id: this.additionalData.CodeJobUUID
-        //         }
-        //     });
-        //     break;
-        // }
-        case 'Executions': {
-            this.router.navigate([
-                this.schedulerURL
-            ], {
-                queryParams: {
-                    view: 'executions',
-                    job_id: this.additionalData.CodeJobUUID
-                }
-            });
-            break;
-        }
-        case 'Run': {
-            this.showRunMessage();
-            break;
-        }
-        default: {
-          alert(event.apiName + " is not supported");
-        }
-      }
+    }
   }
     async generateReport() {
         const self = this;
@@ -848,4 +863,11 @@ export class PluginComponent implements OnInit, OnDestroy {
 //   }
 
   ngOnDestroy() {}
+
+  valueChanged($event) {
+    if($event && $event > 0 && $event < 25) {
+        this.additionalData.DefaultNumofMonths_Draft = $event;
+        this.pluginService.updateAdditionalData(this.additionalData);
+    }
+  }
 }

@@ -49,4 +49,7 @@
     "Archive_ReportModal_TableHeader_ArchiveCount": "To be archived",
     "Archive_ReportModal_TableHeader_BeforeCount": "Operational",
     "Archive_ReportModal_NoItems": "Something went wrong. Your report is empty."
+    "Archive_ReportModal_NoItems": "Something went wrong. Your report is empty.",
+    "Archive_InvalidFormModal_Title": "Cannot perform action",
+    "Archive_InvalidFormModal_Paragraph": "Please correct errors before performing this action"
 }

@@ -35,7 +35,8 @@
         <button
           mat-button
           class="mat-button pepperi-button strong md spacing-element"
-          (click)="publishPlugin()"
+          (click)="publishPlugin()" [disabled]="disablePublish"
+          [ngClass]="{ disabled: disablePublish }"
         >
           {{ "Archive_Publish" | translate }}
         </button>
@@ -63,7 +64,6 @@
                                      'DaySelect', 'Select a day of the week', dayOptions);">
               </ndc-dynamic> -->
           <pepperi-select
-            [required]="true"
             [label]="'Archive_SelectDaysTitle' | translate"
             [(value)]="selectedDay"
             [options]="dayOptions"
@@ -77,7 +77,6 @@
                                      'TimeSelect', 'Time (UTC)', timeOptions);">
               </ndc-dynamic> -->
           <pepperi-select
-            [required]="true"
             [label]="'Archive_SelectTimeTitle' | translate"
             [(value)]="selectedHour"
             [options]="timeOptions"
@@ -105,10 +104,13 @@
           <pepperi-textbox 
             [required]="true"
             [label]="'Archive_MonthsTitle' | translate"
-            [(value)]="this.additionalData.DefaultNumofMonths_Draft"
+            [value]="this.additionalData.DefaultNumofMonths_Draft"
             [type]="'int'"
-            (valueChange)="pluginService.updateAdditionalData(additionalData)"
-          ></pepperi-textbox>
+            (valueChange)="valueChanged($event)"
+            [minValue] = 1 
+            [maxValue] = 24
+            (formValidationChanged)="this.disablePublish = $event == false"
+            ></pepperi-textbox>
         </div>
 
         <div id="retentionPreview">

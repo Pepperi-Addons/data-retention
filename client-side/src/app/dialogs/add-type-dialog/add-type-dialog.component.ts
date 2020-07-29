@@ -43,7 +43,6 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
     // pepperiCheckboxOutputs;
 
     title;
-    form: FormGroup;
     dialogData;
     svgIcons;
     NumOfMonths;
@@ -51,9 +50,11 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
     selectedActivity;
     mode = 'Add';
     maxHistory: number = 24;
+    isNumOfMonthsValid = true;
+    isMinItemsValid = true;
+    isActivityValid = this.mode == 'Edit';
 
-    constructor(private fb: FormBuilder,
-        public dialogRef: MatDialogRef<AddTypeDialogComponent>,
+    constructor( public dialogRef: MatDialogRef<AddTypeDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public incoming: DialogModel) {
 
         this.title = incoming.title;
@@ -73,11 +74,6 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.form = this.fb.group({
-            numOfMonths: [this.NumOfMonths, []],
-            minItems: [this.minItems, []],
-            selectedActivity: [this.selectedActivity, []]
-        });
     }
 
     // onAdd() {

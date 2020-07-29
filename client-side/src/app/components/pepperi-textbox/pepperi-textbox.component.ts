@@ -22,6 +22,9 @@ export class PepperiTextboxComponent implements OnInit, OnChanges {
     valueChanged: (event: any) => {
       this.value = event.value;
       this.valueChange.emit(this.value);
+    }, 
+    formValidationChanged: (event: boolean) => {
+        this.formValidationChanged.emit(event);
     }
   }
 
@@ -41,7 +44,9 @@ export class PepperiTextboxComponent implements OnInit, OnChanges {
       label: this.label,
       required: this.required,
       disabled: this.disabled,
-      readonly: this.readonly
+      readonly: this.readonly,
+      minValue: this.minValue,
+      maxValue: this.maxValue
     }
   }
  
@@ -51,7 +56,11 @@ export class PepperiTextboxComponent implements OnInit, OnChanges {
   @Input() required: boolean = false;
   @Input() disabled: boolean = false;
   @Input() readonly: boolean = false;
-
+  @Input() minValue: number = NaN;
+  @Input() maxValue: number = NaN;
+  
   @Output()
   valueChange = new EventEmitter<string>();
+  @Output()
+  formValidationChanged = new EventEmitter<boolean>();
 }

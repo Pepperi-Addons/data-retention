@@ -9,7 +9,7 @@
             </mat-icon>
         </button> -->
     </h2>
-    <div mat-dialog-content class="mat-dialog-content" [formGroup]="form">
+    <div mat-dialog-content class="mat-dialog-content">
         <div>
             <!-- <ndc-dynamic class="pepperi" #pepperiSelectTypeComp
                 [ndcDynamicComponent]="pepperiSelect"
@@ -18,7 +18,13 @@
                 (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectObjectTypeInputs', 'pepperiSelectObjectTypeOutputs',
                                     'ObjectSelect', 'Select an object type', activityTypes, this['selectedActivity'] );">
             </ndc-dynamic> -->
-            <pepperi-select [(value)]="dialogData.selectedActivity" [disabled]="mode == 'Edit'" [options]="activityTypes" [label]="'Archive_TypesModal_ActivityTypeTitle' | translate"></pepperi-select>
+            <pepperi-select 
+            [required]="true" 
+            [(value)]="dialogData.selectedActivity" 
+            [disabled]="mode == 'Edit'" 
+            [options]="activityTypes" 
+            [label]="'Archive_TypesModal_ActivityTypeTitle' | translate"
+            (formValidationChanged)="isActivityValid = $event"></pepperi-select>
         </div>
         <div>
         <!-- <label class="">Max history (Months)</label>
@@ -26,7 +32,15 @@
         [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.maxHistory ? dialogData.maxHistory = $event : null" />
             <br>
             <br> -->
-            <pepperi-textbox [label]="'Archive_TypesModal_HistoryTitle' | translate" [(value)]="dialogData.numOfMonths" [type]="'int'"></pepperi-textbox>
+            <pepperi-textbox 
+            [label]="'Archive_TypesModal_HistoryTitle' | translate" 
+            [(value)]="dialogData.numOfMonths" 
+            [minValue]=1 
+            [maxValue]="dialogData.maxHistory" 
+            [type]="'int'"
+            (formValidationChanged)="isNumOfMonthsValid = $event"
+            [required]="true"
+            ></pepperi-textbox>
             
         </div>
         <div class="minItems">
@@ -34,10 +48,16 @@
         <input class="pepperi-input" type="text" [(ngModel)]="dialogData.minItems"   name="resourceTitle"
         [ngModelOptions]="{standalone: true}" (ngModelChange)="dialogData.minItems ? dialogData.minItems = $event : null" />
         <br> -->
-        <pepperi-textbox [label]="'Archive_TypesModal_MinItemsTitle' | translate" [(value)]="dialogData.minItems" [type]="'int'" [disabled]="dialogData.Boolean"></pepperi-textbox>
         <mat-label class="body-xs">
             {{'Archive_TypesModal_MinItemsDisclaimer' | translate}}
         </mat-label>
+        <pepperi-textbox 
+        [label]="" 
+        [(value)]="dialogData.minItems" 
+        [type]="'int'" 
+        [minValue]=1
+        [maxValue]=9999
+        (formValidationChanged)="isMinItemsValid = $event"></pepperi-textbox>
         </div>
         <!-- <div class="pep-row spacing-element">
             <ndc-dynamic class="pepperi" #pepperiCheckboxComp
@@ -59,7 +79,7 @@
                 <div class="mat-button-ripple mat-ripple" matripple></div>
                 <div class="mat-button-focus-overlay"></div>
             </button>
-            <button class="spacing-element pepperi-button md strong mat-button" mat-button [mat-dialog-close]="dialogData" >
+            <button class="spacing-element pepperi-button md strong mat-button" mat-button [mat-dialog-close]="dialogData" [ngClass]="{ disabled: isNumOfMonthsValid == false || isMinItemsValid == false || isActivityValid == false }" [disabled]="isNumOfMonthsValid == false || isMinItemsValid == false || isActivityValid == false">
                 <span class="mat-button-wrapper">
                     {{ (mode == 'Add' ? 'Archive_Add' : 'Archive_Update') | translate }}
                 </span>
