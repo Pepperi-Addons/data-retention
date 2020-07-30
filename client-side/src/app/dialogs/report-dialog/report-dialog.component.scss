@@ -4,7 +4,8 @@
 }
 
 .mat-dialog-content {
-
+    margin: 0;
+    padding: 0;
     // .mat-form-field {
     //     font-size: 14px;
     //     width: 100%;
@@ -62,6 +63,10 @@
             font-family: segoeuib, sans-serif;
             padding: 0 1%;
 
+        }
+
+        td.mat-column-ActivityType {
+            max-width:300px;
         }
     }
 

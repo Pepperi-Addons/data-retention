@@ -52,7 +52,7 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
     maxHistory: number = 24;
     isNumOfMonthsValid = true;
     isMinItemsValid = true;
-    isActivityValid = this.mode == 'Edit';
+    isActivityValid = false;
 
     constructor( public dialogRef: MatDialogRef<AddTypeDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public incoming: DialogModel) {
@@ -69,7 +69,9 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
             this.dialogData.minItems = current.MinItems;
             this.dialogData.selectedActivity = current.ActivityType.Key;
             this.selectedActivity = current.ActivityType.Key;
-            this.mode = 'Edit'
+            this.mode = 'Edit';
+            this.isActivityValid = true;
+            this.isNumOfMonthsValid = current.NumOfMonths > this.maxHistory;
         }
     }
 

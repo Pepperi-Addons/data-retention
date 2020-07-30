@@ -750,7 +750,8 @@ export class PluginComponent implements OnInit, OnDestroy {
     this.activityTypes = [];
     this.pluginService.getTypes((types) => {
       if (types) {
-        this.activityTypes = this.activityTypes.concat(types);
+        types.sort((a, b) => a.Value.localeCompare(b.Value))
+        this.activityTypes = [...types];
       }
     });
   }
