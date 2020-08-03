@@ -36,7 +36,7 @@
     "Archive_PublishModal_Failure": "Publish has failed. Error message: {{message}}",
     "Archive_ExecuteModal_Title": "Run Data Retention",
     "Archive_ExecuteModal_Paragraph": "Are you sure? Keep in mind that it is not recommended to archive data during peak business hours. <br /> If you confirm, any updated data retention settings will be applied and archiving will run.",
-    "Archive_ExecutingModal_Paragraph": "Data retention is running. <br><br> <a href='{{ExecutionLogLink}}' target='_blank'>View execution log</a> <br/> It can take up to several minutes for the log to appear.",
+    "Archive_ExecutingModal_Paragraph": "Data retention is running. <br><br> <a href='{{ExecutionLogLink}}' target='_blank'>View execution log</a> <br/><br/> It can take up to several minutes for the log to appear.",
     "Archive_Menu_Report": "Report",
     "Archive_Menu_Execution": "Execution Log",
     "Archive_Menu_Audit": "Audit Trail",
