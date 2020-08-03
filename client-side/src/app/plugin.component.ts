@@ -48,6 +48,7 @@ import { DataSource, SelectionModel } from "@angular/cdk/collections";
 import {
   MatTableDataSource,
   MatExpansionPanelActionRow,
+  MatGridTileHeaderCssMatStyler,
 } from "@angular/material";
 // @ts-ignore
 import { ObjectSingleData, PepperiRowData, FIELD_TYPE} from "pepperi-main-service";
@@ -409,14 +410,33 @@ export class PluginComponent implements OnInit, OnDestroy {
 //   }
 
   onActionClicked(event) {
+      const self = this;
     switch (event.ApiName) {
-      case "Add":
+      case "Add": {
+        self.openTypeDialog(event.ApiName, event.SelectedItem);
+          break;
+      }
       case "Edit": {
-        this.openTypeDialog(event.ApiName, event.SelectedItem);
+          if(event.SelectedItem && self.activityTypes.includes(event.SelectedItem)) {
+            self.openTypeDialog(event.ApiName, event.SelectedItem);
+          }
+          else {
+            const title = self.translate.instant('Archive_MissingActivityModal_Title');
+            const content = self.translate.instant('Archive_MissingActivityModal_Paragraph', {Type: event.SelectedItem.ActivityType.Value});
+            const buttons = [{
+                title: self.translate.instant("Archive_Confirm"),
+                callback: res => { 
+                    self.deleteType(event.SelectedItem);
+                },
+                className: "",
+                icon: null
+            }]
+            self.pluginService.openTextDialog(title, content, buttons);
+          }
         break;
       }
       case "Delete": {
-        this.deleteType(event.SelectedItem);
+        self.deleteTypeDialog(event.SelectedItem);
         break;
       }
       default: {
@@ -756,23 +776,27 @@ export class PluginComponent implements OnInit, OnDestroy {
     });
   }
 
-  deleteType(selectedObj) {
-        const actionButton = {
+  deleteTypeDialog(selectedObj) {
+      const self = this;
+        const actionButton = [{
         title: this.translate.instant("Archive_Confirm"),
         callback: res => {
-            if(selectedObj) {
-                const index = this.additionalData.ScheduledTypes_Draft.findIndex(item => item.ActivityType.Key == selectedObj.ActivityType.Key);
-                index > -1 ? this.additionalData.ScheduledTypes_Draft.splice(index, 1) : null;
-                this.pluginService.updateAdditionalData(this.additionalData);
-                this.typesList? this.typesList.reload(): null;
-            }
+            self.deleteType(selectedObj);
         },
         className: "",
         icon: null
-      };
+      },
+      {
+        title: this.translate.instant("Archive_Cancel"),
+        callback: res => {
+            
+        },
+        className: "",
+        icon: null
+      }];
       const title = this.translate.instant("Archive_DeleteModal_Title");
       const content = this.translate.instant("Archive_DeleteModal_Paragraph");
-      this.pluginService.openTextDialog(title, content, [actionButton]);
+      this.pluginService.openTextDialog(title, content, actionButton);
       //this.pluginService.openDialog(data);
         
     // if (this.selection.selected.length > 0) {
@@ -780,6 +804,15 @@ export class PluginComponent implements OnInit, OnDestroy {
     //         .filter(scheduledType => scheduledType.ActivityType.Key !== this.selection.selected[0].ActivityType.Key);
     //     this.dataSource = new MatTableDataSource(this.scheduledList);
     // }
+  }
+
+  deleteType(selectedObj) {
+    if(selectedObj) {
+        const index = this.additionalData.ScheduledTypes_Draft.findIndex(item => item.ActivityType.Key == selectedObj.ActivityType.Key);
+        index > -1 ? this.additionalData.ScheduledTypes_Draft.splice(index, 1) : null;
+        this.pluginService.updateAdditionalData(this.additionalData);
+        this.typesList? this.typesList.reload(): null;
+    }
   }
 
 //   loadlist() {

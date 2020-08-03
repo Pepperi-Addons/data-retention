@@ -50,5 +50,7 @@
     "Archive_ReportModal_TableHeader_BeforeCount": "Operational",
     "Archive_ReportModal_NoItems": "Something went wrong. Your report is empty.",
     "Archive_InvalidFormModal_Title": "Cannot perform action",
-    "Archive_InvalidFormModal_Paragraph": "Please correct errors before performing this action"
+    "Archive_InvalidFormModal_Paragraph": "Please correct errors before performing this action",
+    "Archive_MissingActivityModal_Title": "Missing Activity",
+    "Archive_MissingActivityModal_Paragraph": "Activity '{{Type}}' has been deleted from the system and will be removed"
 }
