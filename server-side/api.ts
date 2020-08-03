@@ -1,6 +1,6 @@
 import { Client, Request } from '@pepperi-addons/debug-server'
-import { GeneralActivity, Transaction, MaintenanceJobResult } from '@pepperi-addons/papi-sdk';
-import { ReportTuple, MyService, ScheduledType } from './my.service';
+import { GeneralActivity, Transaction } from '@pepperi-addons/papi-sdk';
+import { ReportTuple, MyService, ScheduledType, ArchiveReturnObject } from './my.service';
 
 export async function archive(client:Client, request:Request) {
     try {
@@ -10,7 +10,7 @@ export async function archive(client:Client, request:Request) {
 
         const report = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths);
         const final = GenerateReport(report, x=>x.ActivityType.Key);
-        const jobsIds: MaintenanceJobResult[] = await service.archiveData(final);
+        const jobsIds: ArchiveReturnObject[] = await service.archiveData(final);
         return {
             Success: true,
             ErrorMessage:'',
@@ -51,8 +51,8 @@ export async function get_archive_report(client:Client, request: Request) {
 
 }
 
-async function processAccount(service: MyService, accountID: number, archiveData, defaultNumOfMonths) : Promise<ReportTuple[]>{
-    const activities :(GeneralActivity | Transaction)[] = await service.getActivitiesForAccount(accountID);
+async function processAccount(service: MyService, accountIDs: number[], archiveData, defaultNumOfMonths) : Promise<ReportTuple[]>{
+    const activities :(GeneralActivity | Transaction)[] = await service.getActivitiesForAccount(accountIDs);
     let retVal:ReportTuple[] = [];
     let activitiesByType = groupBy(activities, x=>x.ActivityTypeID);
     //console.log("after group by type: ", activitiesByType);
@@ -68,7 +68,7 @@ async function processAccount(service: MyService, accountID: number, archiveData
                 MinItems: -1
             };
             let tuple:(ReportTuple & {AccountID?:number})= ProcessActivitiesByType(items, type);
-            tuple.AccountID = accountID;
+            //tuple.AccountID = accountIDs;
             //console.log('ProcessActivitiesByType: ', type.ActivityType.Value, 'returned: ', tuple);
             retVal.push(tuple);
         }
