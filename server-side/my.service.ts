@@ -92,7 +92,7 @@ export class MyService {
 
     async archiveData(data: ReportTuple[]): Promise<ArchiveReturnObject[]> {
         let maintenanceJobs: Promise<ArchiveReturnObject>[] = [];
-        maintenanceJobs = data.filter(item => item.AfterCount > 0).map((row) => {
+        maintenanceJobs = data.filter(item => item.ArchiveCount > 0).map((row) => {
             return new Promise((resolve,reject) => {
                 const ids = row.Activities.join(',');
                 this.papiClient.maintenance.type('all_activities').archive({where:`InternalID in (${ids})`}).then((value) => {
