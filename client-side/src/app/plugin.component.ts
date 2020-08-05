@@ -417,7 +417,7 @@ export class PluginComponent implements OnInit, OnDestroy {
           break;
       }
       case "Edit": {
-          if(event.SelectedItem && self.activityTypes.includes(event.SelectedItem)) {
+          if(event.SelectedItem && self.activityTypes.find(item => event.SelectedItem.ActivityType.Key == item.Key)) {
             self.openTypeDialog(event.ApiName, event.SelectedItem);
           }
           else {
