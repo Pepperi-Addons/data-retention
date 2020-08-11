@@ -93,21 +93,42 @@ export class MyService {
 
     async archiveData(data: ReportTuple[]): Promise<ArchiveReturnObject[]> {
         let maintenanceJobs: Promise<ArchiveReturnObject>[] = [];
-        maintenanceJobs = data.filter(item => item.ArchiveCount > 0).map((row) => {
+        maintenanceJobs = data.filter(item => item.ArchiveCount > 0).map((row):Promise<ArchiveReturnObject> => {
             return new Promise((resolve,reject) => {
-                const ids = row.Activities.join(',');
-                this.papiClient.maintenance.type('all_activities').archive({where:`InternalID in (${ids})`}).then((value) => {
-                    resolve({
-                        ActivityType: row.ActivityType.Value,
-                        ArchiveCount: row.ArchiveCount,
-                        ArchiveJobResult: value
-                    })
-                }, (reason)=>{
-                    reject(reason);
+                this.getArchiveBody(row.ActivityType.Key, row.Activities).then(body => {
+                    this.papiClient.maintenance.archive(body).then((value) => {
+                        resolve({
+                            ActivityType: row.ActivityType.Value,
+                            ArchiveCount: row.ArchiveCount,
+                            ArchiveJobResult: value
+                        })
+                    }, (reason)=>{
+                        reject(reason);
+                    });
                 });
             });
         })
         return await (Promise.all(maintenanceJobs));
+    }
+
+    async getArchiveBody(activityType:number, activitiesIDs:number[]):Promise<ArchiveBody> {
+        try {
+            await this.papiClient.metaData.type('activities').types.subtype(activityType.toString());
+            return {
+                activities: activitiesIDs
+            }
+        }
+        catch(error) {
+            if('message' in error &&
+            error.message.contains("Activity Type Definition ID: " + activityType + " doesn't exist.") ) {
+                return {
+                    transactions: activitiesIDs
+                }
+            }
+            else {
+                throw("could not determine type for activity type definition with ID: " + activityType);
+            }
+        }
     }
 }
 
