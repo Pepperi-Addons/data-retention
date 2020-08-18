@@ -13,7 +13,7 @@ exports.install = async (Client, Request) => {
     const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
     const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
 
-    if(apiVersion > 242) {
+    if(apiVersion > 274) {
         try {
 
             const codeJob: CodeJob = await papiClient.codeJobs.upsert({
@@ -40,7 +40,7 @@ exports.install = async (Client, Request) => {
         }
     }
     else {
-        errorMessage = "Cannot install addon. upgrade api version to 243 minimum.";
+        errorMessage = "Cannot install addon. upgrade api version to 275 minimum.";
         success = false;
     }
 
@@ -81,7 +81,28 @@ exports.uninstall = async (Client, Request) => {
     }
 }
 exports.upgrade = async (Client, Request) => {
-    return {success:true,resultObject:{}}
+    const papiClient = new PapiClient({
+        baseURL: Client.BaseURL,
+        token: Client.OAuthAccessToken,
+        addonUUID: Client.AddonUUID
+    });
+    const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
+    const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
+
+    if(apiVersion > 274) {
+        return {
+            success:true,
+            errorMessage:'',
+            resultObject:{}
+        }
+    }
+    else {
+        return {
+            success: false,
+            errorMessage: "Cannot install addon. upgrade api version to 275 minimum.",
+            resultObject: {}
+        }
+    }
 }
 exports.downgrade = async (Client, Request) => {
     return {success:true,resultObject:{}}
