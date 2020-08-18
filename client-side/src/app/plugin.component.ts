@@ -524,7 +524,7 @@ export class PluginComponent implements OnInit, OnDestroy {
                     if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress') {
                         window.clearInterval(interval);
                         const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
-                        if(resultObj.Success == true) {
+                        if(resultObj.success == true) {
                             self.latestReport = resultObj.resultObject;
                             console.log('latest report is:', self.latestReport);
                             if(self.pluginService.userService.userServiceDialogRef.componentInstance) {

@@ -17,8 +17,8 @@ export async function archive(client:Client, request:Request) {
             const resultObj = await PollArchiveJobs(service, executionData)
             if(resultObj) {
                 return {
-                    Success:true,
-                    ErrorMessage:'',
+                    success:true,
+                    errorMessage:'',
                     resultObject: resultObj
                 }
             }
@@ -36,9 +36,9 @@ export async function archive(client:Client, request:Request) {
                 }
                 client.Retry(1000);
                 return {
-                    Success: true,
-                    ErrorMessage:'',
-                    ArchiveJobs: jobsIds,
+                    success: true,
+                    errorMessage:'',
+                    archiveJobs: jobsIds,
                 }
             }
             else {
@@ -54,9 +54,9 @@ export async function archive(client:Client, request:Request) {
     }
     catch (err) {
         return {
-            Success: false,
-            ErrorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
-            ArchiveJobs: [],
+            success: false,
+            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            archiveJobs: [],
         }
     }
 
@@ -66,7 +66,7 @@ export async function get_archive_report(client:Client, request: Request) {
     try {
         const service = new MyService(client);
         const addonData = await service.getAdditionalData();
-        console.debug("Archive data is:", addonData.ScheduledTypes_Draft);
+        console.log("Archive data is:", addonData.ScheduledTypes_Draft);
         let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
         const {report, isDone, pageIndex}  = await service.prepareReport(processAccount, addonData.ScheduledTypes_Draft, addonData.DefaultNumofMonths_Draft, executionData);
         if(isDone) {
@@ -74,8 +74,8 @@ export async function get_archive_report(client:Client, request: Request) {
             await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, final);
             
             return {
-                Success:true,
-                ErrorMessage:'',
+                success:true,
+                errorMessage:'',
                 resultObject: final.map(item=> {
                     return {
                         ActivityType: item.ActivityType.Value,
@@ -98,8 +98,8 @@ export async function get_archive_report(client:Client, request: Request) {
     }
     catch (err) {
         return {
-            Success: false,
-            ErrorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            success: false,
+            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
             resultObject: []
         }
     }
@@ -211,7 +211,7 @@ function groupBy(list, keyGetter) {
 }
 
 async function GetPreviousExecutionsData(client: Client, request:Request):Promise<ExecutionData> {
-    console.debug('request.body is:', request.body);
+    console.log('request.body is:', request.body);
     const service = new MyService(client);
     let retVal: ExecutionData = {
         PageIndex: 1,
@@ -226,7 +226,7 @@ async function GetPreviousExecutionsData(client: Client, request:Request):Promis
     if(request.body) {
         try {
             retVal.ArchiveReportURL = 'archiveDataFileURL' in request.body ? request.body.archiveDataFileURL : await service.papiClient.fileStorage.temporaryUploadUrl();
-            console.debug('temporary file url is:', retVal.ArchiveReportURL);
+            console.log('temporary file url is:', retVal.ArchiveReportURL);
             if('archiveDataFileURL' in request.body && request.body.archiveDataFileURL.PublicUrl != '' ) {
                 retVal.PreviousRunReport = await service.getReportFromS3(retVal.ArchiveReportURL.PublicUrl);
             }
