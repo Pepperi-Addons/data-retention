@@ -185,3 +185,8 @@ export class Guid {
     }
   }
   
+export interface TypeDialogData {
+    numOfMonths: number;
+    minItems: number;
+    selectedActivity: number;
+}

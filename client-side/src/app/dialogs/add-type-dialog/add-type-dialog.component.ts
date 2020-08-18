@@ -5,9 +5,10 @@ import { Component, OnInit, Inject, ViewChild, OnDestroy, Injectable } from '@an
 import { PepperiSelectComponent} from 'pepperi-select';
 // @ts-ignore
 import { PepperiCheckboxComponent} from 'pepperi-checkbox';
-import { DialogModel } from 'src/app/plugin.model';
+import { DialogModel, TypeDialogData, ScheduledType } from 'src/app/plugin.model';
 import { DynamicComponent } from 'ng-dynamic-component';
 import { BehaviorSubject } from 'rxjs';
+import { ɵNullViewportScroller } from '@angular/common';
 
 
 @Injectable({ providedIn: 'root' })
@@ -42,17 +43,17 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
     // pepperiCheckboxInputs;
     // pepperiCheckboxOutputs;
 
-    title;
-    dialogData;
+    title: string;
+    dialogData: TypeDialogData;
     svgIcons;
-    NumOfMonths;
-    minItems;
-    selectedActivity;
+    NumOfMonths: number;
+    minItems: number;
+    selectedActivity: number;
     mode = 'Add';
     maxHistory: number = 24;
-    isNumOfMonthsValid = true;
-    isMinItemsValid = true;
-    isActivityValid = false;
+    isNumOfMonthsValid: boolean = true;
+    isMinItemsValid: boolean = true;
+    isActivityValid: boolean = false;
 
     constructor( public dialogRef: MatDialogRef<AddTypeDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public incoming: DialogModel) {
@@ -62,9 +63,9 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
         this.activityTypes = incoming.data.activityTypes;
         this.svgIcons = incoming.data.svgIcons;
         this.maxHistory = this.dialogData.numOfMonths = incoming.data.maxHistory; 
-        this.dialogData.minItems = '';
+        this.dialogData.minItems = undefined;
         if (incoming.data.selectedType){
-            let current = incoming.data.selectedType;
+            let current: ScheduledType  = incoming.data.selectedType;
             this.dialogData.numOfMonths = current.NumOfMonths;
             this.dialogData.minItems = current.MinItems;
             this.dialogData.selectedActivity = current.ActivityType.Key;
