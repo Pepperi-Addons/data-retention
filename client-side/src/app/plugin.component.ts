@@ -525,14 +525,7 @@ export class PluginComponent implements OnInit, OnDestroy {
                         window.clearInterval(interval);
                         const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
                         if(resultObj.Success == true) {
-                            self.latestReport = resultObj.resultObject.map(item=> {
-                                return {
-                                    ActivityType: item.ActivityType.Value,
-                                    BeforeCount: item.BeforeCount,
-                                    ArchiveCount: item.ArchiveCount,
-                                    AfterCount: item.AfterCount
-                                }
-                            });
+                            self.latestReport = resultObj.resultObject;
                             console.log('latest report is:', self.latestReport);
                             if(self.pluginService.userService.userServiceDialogRef.componentInstance) {
                                 self.pluginService.userService.userServiceDialogRef.close();
