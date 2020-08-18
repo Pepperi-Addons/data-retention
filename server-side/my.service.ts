@@ -37,14 +37,14 @@ export class MyService {
         let retVal: ReportTuple[][] = currentExecutionData.PreviousRunReport.length > 0 ? [currentExecutionData.PreviousRunReport] : [];
         let hasAccounts = true;
         do {
-            //console.debug("processing accounts. page number is:", currentExecutionData.PageIndex);
+            console.log("processing accounts. page number is:", currentExecutionData.PageIndex);
             accountIDs = (await this.papiClient.accounts.find({fields:['InternalID'], page_size:100, include_deleted:true, page:  currentExecutionData.PageIndex++})).map(item => item.InternalID ? item.InternalID : -1);
             hasAccounts = accountIDs.length > 0;
             if(hasAccounts) {
                 callbackResults.push(callbackFunc(this, accountIDs, archiveData, defaultNumOfMonths));
             }
             if(currentExecutionData.PageIndex % 10 == 1) {
-                //console.debug("waiting for calls to finish");
+                console.log("waiting for calls to finish");
                 retVal.push(await (await Promise.all(callbackResults)).flat());
                 callbackResults = [];
             }
