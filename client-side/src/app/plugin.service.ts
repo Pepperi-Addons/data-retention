@@ -37,7 +37,8 @@ export class PluginService {
     return new PapiClient({
         baseURL: this.papiBaseURL,
         token: this.addonService.getUserToken(),
-        addonUUID: this.pluginUUID
+        addonUUID: this.pluginUUID,
+        suppressLogging:true
     })
 }
 
