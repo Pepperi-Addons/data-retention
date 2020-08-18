@@ -71,7 +71,7 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
             this.selectedActivity = current.ActivityType.Key;
             this.mode = 'Edit';
             this.isActivityValid = true;
-            this.isNumOfMonthsValid = current.NumOfMonths > this.maxHistory;
+            this.isNumOfMonthsValid = Number(current.NumOfMonths) <= Number(this.maxHistory);
         }
     }
 
