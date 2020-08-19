@@ -1,6 +1,5 @@
 import { Component, OnInit, Input,  ComponentRef, ViewChild, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { PluginService } from './../../plugin.service';
-import { Subscription, SubscriptionLike } from 'rxjs';
 import { DynamicComponent } from 'ng-dynamic-component';
 
 // @ts-ignore
@@ -14,12 +13,7 @@ import { ListActionsItem } from 'pepperi-list-actions';
 // @ts-ignore
 import { JsonFilter } from 'pepperi-json-filter';
 // @ts-ignore
-import { PepperiTextareaComponent } from 'pepperi-textarea';
-// @ts-ignore
 import { TranslateService } from '@ngx-translate/core';
-
-// @ts-ignore
-import { __values } from 'tslib';
 
 // @ts-ignore
 import { GridDataView, DataViewFieldTypes } from '@pepperi-addons/papi-sdk'

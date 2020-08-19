@@ -1,7 +1,5 @@
 // @ts-ignore
 import { DialogDataType} from 'pepperi-dialog';
-import { AbstractFormGroupDirective } from '@angular/forms';
-
 
 export class KeyValuePair<T> {
     Key: number;
@@ -144,9 +142,6 @@ export class Addon {
     Name: string;
     Description: string;
     SystemData: any;
-
-    // CreationDate: string;
-    // ModificationDate: string;
     Hidden: boolean;
     Type: number;
     constructor(uuid = '', name: any = '', description = '', systemData =  {Versions: []}) {
@@ -163,8 +158,6 @@ export class InstalledAddon {
     Addon: Addon;
     Version?: string;
     SystemData?: SystemData;
-    // CreationDate: string;
-    // ModificationDate: string;
     AdditionalData: string;
     Hidden: string;
     constructor(uuid = '', addon: Addon = null, additionalData = '{}', systemData =  {Versions: []}) {

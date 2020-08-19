@@ -1,24 +1,21 @@
 import { Client, Request } from '@pepperi-addons/debug-server'
-import { GeneralActivity, Transaction, TempUrlResponse, MaintenanceJobResult } from '@pepperi-addons/papi-sdk';
-import { ReportTuple, MyService, ScheduledType,ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj } from './my.service';
-import { resolve } from 'dns';
-import { transpileModule } from 'typescript';
+import { GeneralActivity, Transaction } from '@pepperi-addons/papi-sdk';
+import { ReportTuple, MyService, ScheduledType, ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj } from './my.service';
 
-export const PageSize:number = 5000;
+export const PageSize: number = 5000;
 
-export async function archive(client:Client, request:Request) {
+export async function archive(client: Client, request: Request) {
     try {
         const service = new MyService(client);
-        
-        //const final = await get_archive_report(client, request);
         const addonData = await service.getAdditionalData();
         let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
-        if(executionData.ArchivingReport && executionData.ArchivingReport.length > 0) {
+        if (executionData.ArchivingReport && executionData.ArchivingReport.length > 0) {
             const resultObj = await PollArchiveJobs(service, executionData)
-            if(resultObj) {
+            if (resultObj) {
+                const failedJobs = resultObj.archiveResultObject.filter(item => HasFailedJobs(item));
                 return {
-                    success:true,
-                    errorMessage:'',
+                    success: failedJobs.length == 0,
+                    errorMessage: failedJobs.length == 0 ? '' : 'One or more archive jobs has failed',
                     resultObject: resultObj
                 }
             }
@@ -27,17 +24,20 @@ export async function archive(client:Client, request:Request) {
             }
         }
         else {
-            const {report, isDone, pageIndex} = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths, executionData);
-            if(isDone) {
-                const final = GenerateReport(report, x=>x.ActivityType.Key);
+            const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths, executionData);
+            if (isDone) {
+                const final = GenerateReport(report, x => x.ActivityType.Key);
+                await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, final);
                 const jobsIds: ArchiveReport[] = await service.archiveData(final);
-                request.body = {
-                    archivingReport: jobsIds,
+                if(jobsIds.length > 0) {
+                    request.body = {
+                        archivingReport: jobsIds,
+                    }
+                    client.Retry(1000);
                 }
-                client.Retry(1000);
                 return {
                     success: true,
-                    errorMessage:'',
+                    errorMessage: '',
                     archiveJobs: jobsIds,
                 }
             }
@@ -62,21 +62,21 @@ export async function archive(client:Client, request:Request) {
 
 }
 
-export async function get_archive_report(client:Client, request: Request) {
+export async function get_archive_report(client: Client, request: Request) {
     try {
         const service = new MyService(client);
         const addonData = await service.getAdditionalData();
         console.log("Archive data is:", addonData.ScheduledTypes_Draft);
         let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
-        const {report, isDone, pageIndex}  = await service.prepareReport(processAccount, addonData.ScheduledTypes_Draft, addonData.DefaultNumofMonths_Draft, executionData);
-        if(isDone) {
-            const final = GenerateReport(report, x=>x.ActivityType.Key);
+        const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes_Draft, addonData.DefaultNumofMonths_Draft, executionData);
+        if (isDone) {
+            const final = GenerateReport(report, x => x.ActivityType.Key);
             await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, final);
-            
+
             return {
-                success:true,
-                errorMessage:'',
-                resultObject: final.map(item=> {
+                success: true,
+                errorMessage: '',
+                resultObject: final.map(item => {
                     return {
                         ActivityType: item.ActivityType.Value,
                         BeforeCount: item.BeforeCount,
@@ -97,6 +97,7 @@ export async function get_archive_report(client:Client, request: Request) {
         }
     }
     catch (err) {
+        console.error('an error has occured. exception is:', JSON.stringify(err));
         return {
             success: false,
             errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
@@ -106,50 +107,46 @@ export async function get_archive_report(client:Client, request: Request) {
 
 }
 
-async function processAccount(service: MyService, accountIDs: number[], archiveData, defaultNumOfMonths) : Promise<ReportTuple[]>{
-    const activities :(GeneralActivity | Transaction)[] = await service.getActivitiesForAccount(accountIDs);
-    let retVal:ReportTuple[] = [];
-    let activitiesByType = groupBy(activities, x=>x.ActivityTypeID);
-    //console.debug("after group by type: ", activitiesByType);
-    activitiesByType.forEach((items:(GeneralActivity | Transaction)[]) => {
-        if(items.length > 0) { 
-            let type: ScheduledType = archiveData.find(x=> x.ActivityType.Key == items[0].ActivityTypeID) || 
+async function processAccount(service: MyService, accountIDs: number[], archiveData, defaultNumOfMonths): Promise<ReportTuple[]> {
+    const activities: (GeneralActivity | Transaction)[] = await service.getActivitiesForAccount(accountIDs);
+    let retVal: ReportTuple[] = [];
+    let activitiesByType = groupBy(activities, x => x.ActivityTypeID);
+    activitiesByType.forEach((items: (GeneralActivity | Transaction)[]) => {
+        if (items.length > 0) {
+            let type: ScheduledType = archiveData.find(x => x.ActivityType.Key == items[0].ActivityTypeID) ||
             {
                 ActivityType: {
-                    Key: items[0].ActivityTypeID || -1, 
-                    Value:items[0].Type || ""
+                    Key: items[0].ActivityTypeID || -1,
+                    Value: items[0].Type || ""
                 },
                 NumOfMonths: defaultNumOfMonths,
                 MinItems: -1
             };
-            let tuple:(ReportTuple & {AccountID?:number})= ProcessActivitiesByType(items, type);
-            //tuple.AccountID = accountIDs;
-            //console.debug('ProcessActivitiesByType: ', type.ActivityType.Value, 'returned: ', tuple);
+            let tuple: (ReportTuple & { AccountID?: number }) = ProcessActivitiesByType(items, type);
             retVal.push(tuple);
         }
     });
-    //console.debug('report for account id: ', accountIDs, 'is: ', retVal);
     return retVal;
 }
 
-function shouldArchiveActivity(activityDate:Date, numOfMonths:number) : boolean{
-    let retVal:boolean = false
+function shouldArchiveActivity(activityDate: Date, numOfMonths: number): boolean {
+    let retVal: boolean = false
     let today = new Date();
 
     today = new Date(today.setMonth(today.getMonth() - numOfMonths));
-    if(activityDate < today){
+    if (activityDate < today) {
         retVal = true;
     }
 
     return retVal;
 }
 
-function ProcessActivitiesByType(items:(GeneralActivity | Transaction)[], type:ScheduledType):ReportTuple {
-    let activitiesToArchive:number[] = [];
-    items.forEach((activity:(GeneralActivity | Transaction)) => {
+function ProcessActivitiesByType(items: (GeneralActivity | Transaction)[], type: ScheduledType): ReportTuple {
+    let activitiesToArchive: number[] = [];
+    items.forEach((activity: (GeneralActivity | Transaction)) => {
         const activityDate = new Date(activity.ActionDateTime || activity.ModificationDateTime || '')
         const activityID = activity.InternalID || -1;
-        if(shouldArchiveActivity(activityDate, type.NumOfMonths)) {
+        if (shouldArchiveActivity(activityDate, type.NumOfMonths)) {
             activitiesToArchive.push(activityID);
         }
     });
@@ -157,7 +154,7 @@ function ProcessActivitiesByType(items:(GeneralActivity | Transaction)[], type:S
     if (remainingActivitiesNum < type.MinItems) {
         let diff = type.MinItems - remainingActivitiesNum;
         if (diff < activitiesToArchive.length) {
-            while(diff > 0) {
+            while (diff > 0) {
                 activitiesToArchive.pop();
                 diff--;
             }
@@ -166,32 +163,32 @@ function ProcessActivitiesByType(items:(GeneralActivity | Transaction)[], type:S
             activitiesToArchive = [];
         }
     }
-    return  {
+    return {
         ActivityType: {
             Key: type.ActivityType.Key,
             Value: type.ActivityType.Value
         },
-        BeforeCount: items.length, 
-        ArchiveCount: activitiesToArchive.length, 
-        AfterCount: items.length - activitiesToArchive.length, 
-        Activities :activitiesToArchive
+        BeforeCount: items.length,
+        ArchiveCount: activitiesToArchive.length,
+        AfterCount: items.length - activitiesToArchive.length,
+        Activities: activitiesToArchive
     };
 
 }
 
-function GenerateReport(list:ReportTuple[], keyGetter) {
+function GenerateReport(list: ReportTuple[], keyGetter) {
     const map = new Map<number, ReportTuple>();
     list.forEach((item) => {
-         const key = keyGetter(item);
-         const collection = map.get(key);
-         if (!collection) {
-             map.set(key, item);
-         } else {
-             collection.BeforeCount += item.BeforeCount;
-             collection.AfterCount += item.AfterCount;
-             collection.ArchiveCount += item.ArchiveCount;
-             collection.Activities = collection.Activities.concat(item.Activities);
-         }
+        const key = keyGetter(item);
+        const collection = map.get(key);
+        if (!collection) {
+            map.set(key, item);
+        } else {
+            collection.BeforeCount += item.BeforeCount;
+            collection.AfterCount += item.AfterCount;
+            collection.ArchiveCount += item.ArchiveCount;
+            collection.Activities = collection.Activities.concat(item.Activities);
+        }
     });
     return [...map.values()];
 }
@@ -199,18 +196,18 @@ function GenerateReport(list:ReportTuple[], keyGetter) {
 function groupBy(list, keyGetter) {
     const map = new Map();
     list.forEach((item) => {
-         const key = keyGetter(item);
-         const collection = map.get(key);
-         if (!collection) {
-             map.set(key, [item]);
-         } else {
-             collection.push(item);
-         }
+        const key = keyGetter(item);
+        const collection = map.get(key);
+        if (!collection) {
+            map.set(key, [item]);
+        } else {
+            collection.push(item);
+        }
     });
     return map;
 }
 
-async function GetPreviousExecutionsData(client: Client, request:Request):Promise<ExecutionData> {
+async function GetPreviousExecutionsData(client: Client, request: Request): Promise<ExecutionData> {
     console.log('request.body is:', request.body);
     const service = new MyService(client);
     let retVal: ExecutionData = {
@@ -223,11 +220,11 @@ async function GetPreviousExecutionsData(client: Client, request:Request):Promis
         ArchivingReport: [],
         ArchiveResultObject: [],
     }
-    if(request.body) {
+    if (request.body) {
         try {
             retVal.ArchiveReportURL = 'archiveDataFileURL' in request.body ? request.body.archiveDataFileURL : await service.papiClient.fileStorage.temporaryUploadUrl();
-            console.log('temporary file url is:', retVal.ArchiveReportURL);
-            if('archiveDataFileURL' in request.body && request.body.archiveDataFileURL.PublicUrl != '' ) {
+            console.debug('temporary file url is:', retVal.ArchiveReportURL);
+            if ('archiveDataFileURL' in request.body && request.body.archiveDataFileURL.PublicUrl != '') {
                 retVal.PreviousRunReport = await service.getReportFromS3(retVal.ArchiveReportURL.PublicUrl);
             }
             retVal.PageIndex = 'pageIndex' in request.body ? request.body.pageIndex : 1;
@@ -238,15 +235,18 @@ async function GetPreviousExecutionsData(client: Client, request:Request):Promis
             console.error("could not get execution data. reseting...\n request.body recieved:", request.body, '\nerror message is: ', 'message' in error ? error.message : '');
         }
     }
+    else {
+        retVal.ArchiveReportURL = await service.papiClient.fileStorage.temporaryUploadUrl();
+    }
     return retVal;
 }
 
-async function PollArchiveJobs(service: MyService, executionData: ExecutionData) {
+async function PollArchiveJobs(service: MyService, executionData: ExecutionData): Promise<{ archiveResultObject: ArchiveReturnObj[] }> {
     return new Promise((resolve) => {
         let numOfTries = 1;
-        const interval = setInterval(async ()=> {
-            const pollingJobsPromises = executionData.ArchivingReport.map((item) :Promise<ArchiveReturnObj> => {
-                const promises = item.ArchiveJobResult.map((job):Promise<ArchiveJobResult> => {
+        const interval = setInterval(async () => {
+            const pollingJobsPromises = executionData.ArchivingReport.map((item): Promise<ArchiveReturnObj> => {
+                const promises = item.ArchiveJobResult.map((job): Promise<ArchiveJobResult> => {
                     return new Promise((resolve) => {
                         service.papiClient.get(job.URI).then((jobResult) => {
                             resolve({
@@ -255,7 +255,7 @@ async function PollArchiveJobs(service: MyService, executionData: ExecutionData)
                                 RecordsAffected: jobResult.RecordsCount,
                                 ErrorMessage: jobResult.ErrorMessage
                             });
-                        }, (reason)=> {
+                        }, (reason) => {
                             resolve({
                                 URI: job.URI,
                                 Status: "Failed",
@@ -277,8 +277,8 @@ async function PollArchiveJobs(service: MyService, executionData: ExecutionData)
 
             });
             const pollingJobs = await Promise.all(pollingJobsPromises.flat());
-            if(pollingJobs.filter(poll => !poll.Finished).length == 0) {
-                resolve ({
+            if (pollingJobs.filter(poll => !poll.Finished).length == 0) {
+                resolve({
                     archiveResultObject: pollingJobs.map(item => {
                         return {
                             ActivityType: item.ActivityType,
@@ -288,10 +288,14 @@ async function PollArchiveJobs(service: MyService, executionData: ExecutionData)
                 });
                 clearInterval(interval);
             }
-            else if(numOfTries++ > 600) { 
+            else if (numOfTries++ > 600) {
                 resolve(undefined);
                 clearInterval(interval);
             }
         }, 10000);
     });
+}
+
+function HasFailedJobs(item: ArchiveReturnObj): boolean {
+    return item.Jobs.find(job => job.Status == "Failed") != undefined
 }

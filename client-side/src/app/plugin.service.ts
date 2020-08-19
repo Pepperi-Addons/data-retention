@@ -1,26 +1,20 @@
 import jwt from 'jwt-decode';
 import { CodeJob, PapiClient, AuditLog } from '@pepperi-addons/papi-sdk';
-import { AddTypeDialogComponent } from './dialogs/add-type-dialog/add-type-dialog.component';
-import { Injectable, ElementRef, Component } from '@angular/core';
-import { Http, RequestOptions, Headers } from '@angular/http';
+import { Injectable } from '@angular/core';
+import { Http } from '@angular/http';
 
 //@ts-ignore
 import { UserService } from 'pepperi-user-service';
 //@ts-ignore
 import {AddonService} from 'pepperi-addon-service';
 //@ts-ignore
-import { PepperiRowData, PepperiFieldData, FIELD_TYPE } from 'pepperi-main-service';
-//@ts-ignore
 import {PepperiDataConverterService} from 'pepperi-data-converter';
 
 import { MatDialogConfig, MatDialog } from '@angular/material';
-import {AdditionalData, ScheduledType, KeyValuePair } from './plugin.model';
+import {AdditionalData, KeyValuePair } from './plugin.model';
 // @ts-ignore
-import { ActionButton, DialogDataType, DialogData } from 'pepperi-dialog';
+import { DialogDataType, DialogData } from 'pepperi-dialog';
 import {DialogModel} from './plugin.model';
-import { callbackify } from 'util';
-import { type } from 'os';
-// import {EnvVariables} from 'pepperi-environment-variables';
 
 @Injectable({ providedIn: 'root' })
 export class PluginService {
@@ -31,7 +25,6 @@ export class PluginService {
   papiBaseURL = ''
   version;
   pluginUUID;
-  FIELD_TYPE = FIELD_TYPE;
 
   get papiClient(): PapiClient {
     return new PapiClient({
@@ -48,7 +41,6 @@ export class PluginService {
               ,public userService: UserService
               ,public dialog: MatDialog
               ,public pepperiDataConverter: PepperiDataConverterService
-            //   ,public el: ElementRef
     ) {
       const accessToken = this.addonService.getUserToken();
         this.parsedToken = jwt(accessToken);
@@ -59,31 +51,6 @@ export class PluginService {
   }
 
   async getAdditionalData(): Promise<AdditionalData> {
-    // let additionalData = new AdditionalData();
-    // let scheduledTypes = new Array<ScheduledType>();
-
-    // scheduledTypes.push(new ScheduledType(36373, 'Visit', 3, 50));
-    // scheduledTypes.push(new ScheduledType(264076, 'Store Score', 6, 150));
-    // scheduledTypes.push(new ScheduledType(139672, 'go to store', 3, 500));
-    // scheduledTypes.push(new ScheduledType(36372, 'Sales Order', 2, 1500));
-    // scheduledTypes.push(new ScheduledType(144157, 'Buyer', 8, 500));
-    // scheduledTypes.push(new ScheduledType(256288, 'matrix eyewear', 6, 200));
-
-    // console.log(JSON.stringify(scheduledTypes));
-    // return new Promise<AdditionalData>((resolve,reject) => this.addonService.httpGetApiCall('/addons/installed_addons/'+ this.pluginUUID, (res) => {
-    //   if(res && res.AdditionalData) {
-    //     resolve(JSON.parse(res.AdditionalData));
-    //     //Promise.resolve(JSON.parse(res.AdditionalData));
-    //   }
-    //   else {
-    //     reject(new Error('Could not get additional data!'));
-    //   }
-    // }, (error) => {
-    //   Promise.reject(error);
-    // }));
-    
-    
-    // additionalData.ScheduledTypes = scheduledTypes;
     const installedAddon = await this.papiClient.addons.installedAddons.addonUUID(this.pluginUUID).get();
     const additionalData: AdditionalData = JSON.parse(installedAddon.AdditionalData);
     if(typeof additionalData.ScheduledTypes == 'undefined') {
@@ -98,11 +65,6 @@ export class PluginService {
 
 
   async updateAdditionalData(additionalData: any) {
-    // let body = ({
-    //   "Addon": {"UUID": this.pluginUUID},
-    //   "AdditionalData": JSON.stringify(additionalData)
-    // });
-    // this.addonService.httpPostApiCall('/addons/installed_addons', body, successFunc, errorFunc);
     await this.papiClient.addons.installedAddons.upsert({
         Addon: {UUID: this.pluginUUID},
         AdditionalData: JSON.stringify(additionalData)
@@ -173,9 +135,4 @@ export class PluginService {
     async getExecutionLog(executionUUID): Promise<AuditLog> {
         return await this.papiClient.auditLogs.uuid(executionUUID).get();
     }
-
 }
-
-
-
-

@@ -33,7 +33,6 @@ export class PepperiMenuComponent implements OnInit, OnChanges {
   }
 
   setInputs() {
-    //const value = this.options.find(item => item.Key === this.value);
     this.inputs = {
       key: '',
       label: this.label,

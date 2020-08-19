@@ -1,10 +1,7 @@
 import {
     Component,
     OnInit,
-    ViewChild,
-    Input,
     OnChanges,
-    Output,
     Inject,
     Injectable
 } from "@angular/core";
@@ -37,26 +34,12 @@ export class ReportDialogComponent implements OnInit, OnChanges {
     title: string;
     svgIcons: any;
 
-    // @Output() emitClose: EventEmitter<any> = new EventEmitter<any>();
-
     dataSource: MatTableDataSource<any>;
     displayedColumns: string[];
     operationTypes: any;
 
     private paginator: MatPaginator;
     private sort: MatSort;
-
-    // ----------- Uncomment to enable Sorting -----------
-    // @ViewChild(MatSort) set matSort(ms: MatSort) {
-    //     if (this.data.Rows && this.data.Rows.length > 0) {
-    //         this.sort = ms;
-    //         this.setDataSourceAttributes();
-    //     }
-    // }
-
-    // setDataSourceAttributes() {
-    //     this.dataSource.sort = this.sort;
-    // }
 
     constructor( public dialogRef: MatDialogRef<ReportDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public incoming: DialogModel) {
@@ -73,11 +56,5 @@ export class ReportDialogComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges() {
-        // if (this.reportRows && this.reportRows.length > 0) {
-        //     this.displayedColumns = Object.keys(this.reportRows[0]);
-        //     this.dataSource = new MatTableDataSource(this.data);
-        //     // ----------- Uncomment to enable Sorting -----------
-        //     //this.dataSource.sort = this.sort;
-        // }
     }
 }

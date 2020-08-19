@@ -1,8 +1,6 @@
 import { AdditionalData } from './../client-side/src/app/plugin.model';
 import { PapiClient, InstalledAddon, MaintenanceJobResult, ArchiveBody, TempUrlResponse } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
-import config from './../addon.config.json'
-import { isExportDeclaration } from 'typescript';
 import fetch from 'node-fetch';
 import { PageSize } from './api';
 import chunk from 'lodash.chunk';
@@ -51,7 +49,6 @@ export class MyService {
 
         } while (hasAccounts && currentExecutionData.PageIndex % 50 != 1)
         retVal.push(await (await Promise.all(callbackResults)).flat());
-        //retVal.push(currentExecutionData.PreviousRunReport); // Add the previos data run to aggregate report
         return {report: retVal.flat(), isDone: hasAccounts == false, pageIndex: currentExecutionData.PageIndex};
     }
 
@@ -64,8 +61,6 @@ export class MyService {
             where:`Account.InternalID in (${accounts})`,
             orderBy:"ActionDateTime desc",
             include_deleted:true}).toArray();
-        
-        //console.log("activities for account ", accountID, " are: ", retVal);
         return retVal;
     }
 
@@ -137,15 +132,11 @@ export class MyService {
         const atdType = await this.getAtdType(activityType);
         let jobsResults: Promise<MaintenanceJobResult>[] = []
         const chunks: number[][] = chunk(activitiesIds, PageSize);
-        // while(activitiesIds.length > 0) {
-        //     const numofItems = activitiesIds.length > PageSize ? PageSize : activitiesIds.length;
-        //     const ids = activitiesIds.splice(0, numofItems - 1);
         chunks.forEach(items => {
             const body: ArchiveBody = atdType == 'transactions' ? { transactions: items } : { activities: items };
             console.debug("activity Type is:", activityType, "\ntype got from meta data is:", atdType, "\n archive body is:", body);
             jobsResults.push(this.papiClient.maintenance.archive(body));
         })
-        // }
         return await (Promise.all(jobsResults));
     }
 

@@ -1,4 +1,3 @@
-<!-- <div *ngIf="!installing" id="archive-main-container"> -->
 <div id="archive-main-container" class="plugin-container" *ngIf="this.additionalData">
   <div id="archiveHeader" class="header-content">
     <div class="pepperi-border-bottom content">
@@ -56,13 +55,6 @@
         </div>
         <p class="p3">{{ "Archive_Schedule_Paragraph" | translate }}</p>
         <div class="pep-row field1">
-          <!-- <ndc-dynamic class="pepperi" #pepperiSelectDayComp
-                [ndcDynamicComponent]="pepperiSelect"
-                [ndcDynamicInputs]="pepperiSelectDayInputs"
-                [ndcDynamicOutputs]="pepperiSelectDayOutputs"
-                (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectDayInputs', 'pepperiSelectDayOutputs',
-                                     'DaySelect', 'Select a day of the week', dayOptions);">
-              </ndc-dynamic> -->
           <pepperi-select
             [label]="'Archive_SelectDaysTitle' | translate"
             [(value)]="selectedDay"
@@ -70,12 +62,6 @@
           ></pepperi-select>
         </div>
         <div class="pep-row field2">
-          <!-- <ndc-dynamic class="pepperi" #pepperiSelectTimeComp
-                [ndcDynamicComponent]="pepperiSelect"  [ndcDynamicInputs]="pepperiSelectTimeInputs"
-                [ndcDynamicOutputs]="pepperiSelectTimeOutputs"
-                (ndcDynamicCreated)="pepperiSelectOnInit($event, 'pepperiSelectTimeInputs', 'pepperiSelectTimeOutputs',
-                                     'TimeSelect', 'Time (UTC)', timeOptions);">
-              </ndc-dynamic> -->
           <pepperi-select
             [label]="'Archive_SelectTimeTitle' | translate"
             [(value)]="selectedHour"
@@ -94,13 +80,6 @@
         <p class="p3">{{ "Archive_Policy_Paragraph" | translate }}</p>
 
         <div class="pep-row">
-          <!-- <ndc-dynamic class="pepperi" #pepperiInputComp
-                        [ndcDynamicComponent]="pepperiInput"
-                        [ndcDynamicInputs]="pepperiInputInputs"
-                        [ndcDynamicOutputs]="pepperiInputOutputs"
-                        (ndcDynamicCreated)="pepperiFieldOnInit($event, 'pepperiInputInputs', 'pepperiInputOutputs',
-                                         'MonthsInput', 'Months of data retention', '');">
-                    </ndc-dynamic> -->
           <pepperi-textbox 
             [required]="true"
             [label]="'Archive_MonthsTitle' | translate"
@@ -114,47 +93,6 @@
         </div>
 
         <div id="retentionPreview">
-          <!-- <h4 id="retentionPreviewHeader">
-                        <span>{{ 'Archive_Header3' | translate }}</span>
-                        <div class="pull-right flip">
-                        <button matButton class="pepperi-button md strong" (click)="openTypeDialog('add');" >
-                            <span>Add Type</span>
-                            <mat-icon>
-                                <svg class="svgIcon"><use attr.xlink:href="{{ pluginService.userService.svgIcons }}number-plus"></use></svg>
-                            </mat-icon>
-                        </button>
-                        <button matButton class="pepperi-button md " (click)="openTypeDialog('edit');" >
-                            <span>Edit Type</span>
-                            <mat-icon>
-                                <svg class="svgIcon"><use attr.xlink:href="{{ pluginService.userService.svgIcons }}system-edit"></use></svg>
-                            </mat-icon>
-                        </button>
-                        <button matButton class="pepperi-button md strong caution" (click)="deleteType();" >
-                            <span>Add Type</span>
-                            <mat-icon>
-                                <svg class="svgIcon"><use attr.xlink:href="{{ pluginService.userService.svgIcons }}number-minus"></use></svg>
-                            </mat-icon>
-                        </button>
-                        </div>
-                    </h4> -->
-
-          <!-- <div #genericCont id="genericCont">
-    
-                        <ndc-dynamic #topBarComp
-                            [ndcDynamicComponent]="topBar"
-                            [ndcDynamicInputs]="topBarInputs"
-                            [ndcDynamicOutputs]="topBarOutputs"
-                            (ndcDynamicCreated)="topBarOnInit($event)">
-                        </ndc-dynamic>
-    
-                        <ndc-dynamic  #pepperiListComp
-                            [ndcDynamicComponent]="pepperiList"
-                            [ndcDynamicInputs]="pepperiListInputs"
-                            [ndcDynamicOutputs]="pepperiListOutputs"
-                            (ndcDynamicCreated)="pepperiListOnInit($event)">
-                        </ndc-dynamic>
-    
-                    </div> -->
           <app-list-view
             #typesList
             [scheduledTypes]="additionalData?.ScheduledTypes_Draft"
@@ -168,36 +106,3 @@
     </div>
   </div>
 </div>
-
-<!-- <table *ngIf="scheduledList?.length > 0; else addType;" mat-table [dataSource]="dataSource">
-    
-                    <ng-container *ngIf="true" matColumnDef="Selection">
-                        <th mat-header-cell *matHeaderCellDef>
-                            <mat-checkbox (change)="$event ? masterToggle() : null"
-                                [checked]="selection.hasValue() && isAllSelected()"
-                                [indeterminate]="selection.hasValue() && !isAllSelected()">
-                            </mat-checkbox>
-                        </th>
-                        <td mat-cell *matCellDef="let row">
-                            <mat-checkbox (click)="$event.stopPropagation()"
-                                (change)="$event ? selection.toggle(row) : null"
-                                [checked]="selection.isSelected(row)">
-                            </mat-checkbox>
-                        </td>
-                    </ng-container>
-    
-                    <ng-container matColumnDef="Value">
-                      <th mat-header-cell *matHeaderCellDef> Activity Type </th>
-                      <td mat-cell *matCellDef="let element"> {{element?.ActivityType.Value}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="NumOfMonths">
-                      <th mat-header-cell *matHeaderCellDef> Num of months </th>
-                      <td mat-cell *matCellDef="let element"> {{element?.NumOfMonths}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="MinItems">
-                      <th mat-header-cell *matHeaderCellDef> Min items </th>
-                      <td mat-cell *matCellDef="let element"> {{element?.MinItems}} </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="scheduledListColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: scheduledListColumns;"></tr>
-                    </table> -->

@@ -1,18 +1,11 @@
 import { NgModule  } from '@angular/core';
 import { PluginComponent } from './plugin.component';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Routes } from '@angular/router';
 import { MatTabsModule, MatIconModule, MatInputModule, MatCheckboxModule, MatFormFieldModule, MatDialogModule, MatCardModule, MatTableModule } from '@angular/material';
 import { TranslateService, TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-// @ts-ignore
-// import { PepperiTextareaComponent } from 'pepperi-textarea';
 import { DynamicModule, DynamicComponent } from 'ng-dynamic-component';
-import { ignoreElements } from 'rxjs/operators';
-//@ts-ignore
-import {EnvVariables} from 'pepperi-environment-variables';
-
 //@ts-ignore
 import {AddonService} from 'pepperi-addon-service';
 
