@@ -67,7 +67,7 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
         if (incoming.data.selectedType){
             let current: ScheduledType  = incoming.data.selectedType;
             this.dialogData.numOfMonths = current.NumOfMonths;
-            this.dialogData.minItems = current.MinItems;
+            this.dialogData.minItems = current.MinItems.toString();
             this.dialogData.selectedActivity = current.ActivityType.Key;
             this.selectedActivity = current.ActivityType.Key;
             this.mode = 'Edit';
