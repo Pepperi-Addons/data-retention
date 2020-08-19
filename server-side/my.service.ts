@@ -37,14 +37,14 @@ export class MyService {
         let retVal: ReportTuple[][] = currentExecutionData.PreviousRunReport.length > 0 ? [currentExecutionData.PreviousRunReport] : [];
         let hasAccounts = true;
         do {
-            console.log("processing accounts. page number is:", currentExecutionData.PageIndex);
+            console.debug("processing accounts. page number is:", currentExecutionData.PageIndex);
             accountIDs = (await this.papiClient.accounts.find({fields:['InternalID'], page_size:100, include_deleted:true, page:  currentExecutionData.PageIndex++})).map(item => item.InternalID ? item.InternalID : -1);
             hasAccounts = accountIDs.length > 0;
             if(hasAccounts) {
                 callbackResults.push(callbackFunc(this, accountIDs, archiveData, defaultNumOfMonths));
             }
             if(currentExecutionData.PageIndex % 10 == 1) {
-                console.log("waiting for calls to finish");
+                console.debug("waiting for calls to finish");
                 retVal.push(await (await Promise.all(callbackResults)).flat());
                 callbackResults = [];
             }
@@ -108,16 +108,27 @@ export class MyService {
 
     async getAtdType(activityType:number):Promise<string> {
         try {
-            await this.papiClient.metaData.type('activities').types.subtype(activityType.toString());
-            return 'activities';
-        }
-        catch(error) {
-            if('message' in error &&
-            error.message.contains("Activity Type Definition ID: " + activityType + " doesn't exist.") ) {
-                return 'transactions';
+            const activity = await this.papiClient.metaData.type('activities').types.subtype(activityType.toString()).get();
+            if(activity) {
+                return 'activities';
             }
             else {
-                throw("could not determine type for activity type definition with ID: " + activityType);
+                return 'transactions';
+            }
+        }
+        catch(error) {
+            try {
+                const transaction = await this.papiClient.metaData.type('activities').types.subtype(activityType.toString()).get(); 
+                if(transaction) {
+                    return 'transactions';
+                }
+                else {
+                    return 'activities';
+                }
+            }
+            catch(err) {
+                console.error("Could not determine type for ATD with number", activityType, 'assuming activity');
+                throw(err);
             }
         }
     }
@@ -131,6 +142,7 @@ export class MyService {
         //     const ids = activitiesIds.splice(0, numofItems - 1);
         chunks.forEach(items => {
             const body: ArchiveBody = atdType == 'transactions' ? { transactions: items } : { activities: items };
+            console.debug("activity Type is:", activityType, "\ntype got from meta data is:", atdType, "\n archive body is:", body);
             jobsResults.push(this.papiClient.maintenance.archive(body));
         })
         // }
@@ -208,7 +220,7 @@ export interface ArchiveJobResult {
 export interface ArchiveReturnObj {
     ActivityType: string;
     Jobs: ArchiveJobResult[];
-    Finished: boolean;
+    Finished?: boolean;
 }
 
 export interface ExecutionData {
