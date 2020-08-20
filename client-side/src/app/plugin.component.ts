@@ -250,7 +250,7 @@ export class PluginComponent implements OnInit, OnDestroy {
             this.pluginService.openTextDialog(title, content, buttons);
             let interval = window.setInterval(() => {
                 this.pluginService.getExecutionLog(token).then(logRes => {
-                    if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress') {
+                    if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress' && logRes.Status.Name !== 'InRetry') {
                         window.clearInterval(interval);
                         const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
                         if (resultObj.success == true) {
@@ -330,6 +330,7 @@ export class PluginComponent implements OnInit, OnDestroy {
         this.getActivityTypes();
         this.additionalData = await this.pluginService.getAdditionalData();
         this.defaultNumOfMonths = this.additionalData.DefaultNumofMonths_Draft;
+        this.latestReport = this.additionalData.LatestReportURL ? await this.getLatestReport() : undefined;
         this.codeJob = await this.pluginService.papiClient.codeJobs
             .uuid(this.additionalData.CodeJobUUID)
             .find();
@@ -492,6 +493,24 @@ export class PluginComponent implements OnInit, OnDestroy {
         if ($event && $event > 0 && $event < 25) {
             this.additionalData.DefaultNumofMonths_Draft = $event;
             this.pluginService.updateAdditionalData(this.additionalData);
+        }
+    }
+
+    async getLatestReport(): Promise<any> {
+        try {
+            return this.pluginService.apiCall('GET', this.additionalData.LatestReportURL)
+            .then((res) => res.text())
+            .then((res) => (res ? JSON.parse(res) : '').map(item => {
+                return {
+                    ActivityType: item.ActivityType.Value,
+                    BeforeCount: item.BeforeCount,
+                    ArchiveCount: item.ArchiveCount,
+                    AfterCount: item.AfterCount
+                }
+            }));
+        }
+        catch {
+            return undefined;
         }
     }
 }

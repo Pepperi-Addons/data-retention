@@ -45,6 +45,7 @@ export class AdditionalData {
     ScheduledTypes_Draft?: ScheduledType[];
     DefaultNumofMonths?: number = 24;
     DefaultNumofMonths_Draft?: number = 24;
+    LatestReportURL?: string = '';
 }
 
 export class DialogModel {

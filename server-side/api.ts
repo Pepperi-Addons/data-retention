@@ -72,6 +72,8 @@ export async function get_archive_report(client: Client, request: Request) {
         if (isDone) {
             const final = GenerateReport(report, x => x.ActivityType.Key);
             await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, final);
+            addonData.LatestReportURL = executionData.ArchiveReportURL.PublicUrl;
+            await service.updateAdditionalData(addonData);
 
             return {
                 success: true,

@@ -83,6 +83,13 @@ export class MyService {
         return retVal;
     }
 
+    async updateAdditionalData(additionalData: any) {
+        await this.papiClient.addons.installedAddons.upsert({
+            Addon: {UUID: this.addonUUID},
+            AdditionalData: JSON.stringify(additionalData)
+        })
+      }   
+
     async archiveData(data: ReportTuple[]): Promise<ArchiveReport[]> {
         let maintenanceJobs: Promise<ArchiveReport>[] = [];
         maintenanceJobs = data.filter(item => item.ArchiveCount > 0).map((row):Promise<ArchiveReport> => {

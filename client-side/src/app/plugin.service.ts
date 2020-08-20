@@ -135,4 +135,30 @@ export class PluginService {
     async getExecutionLog(executionUUID): Promise<AuditLog> {
         return await this.papiClient.auditLogs.uuid(executionUUID).get();
     }
+
+    async apiCall(method: string, url: string, body: any = undefined ) {
+        
+        const options: any = {
+            method: method,
+        };
+
+        if(body) {
+            options.body = JSON.stringify(body);
+        }
+
+        const res = await fetch(url, options);
+
+
+        if (!res.ok) {
+            // try parsing error as json
+            let error = '';
+            try {
+                error = JSON.stringify(await res.json());
+            } catch {}
+
+            throw new Error(`${url} failed with status: ${res.status} - ${res.statusText} error: ${error}`);
+        }
+
+        return res;
+    }
 }
