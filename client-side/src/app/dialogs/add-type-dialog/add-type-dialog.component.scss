@@ -1,13 +1,45 @@
+.pepperi-standalone {
+    .mat-dialog-content{
+        min-width: 26rem;
+    }
+}
+
+.mat-dialog-container {
+    padding:1rem 1rem .5rem 1rem;
+}
+
 .dialog {
-    max-width:450px;
+    max-width:26rem;
+    p {
+        margin:0;
+    }
+
+    .mat-dialog-title {
+        margin-bottom: 1rem;
+    }
+
+    .mat-dialog-content {
+        margin: 0 -1rem;
+        padding: 0 1rem;
+    }
+
+    .mat-form-title {
+        .required {
+            display: none;
+        }
+    }
 
     .minItems  {
-        padding-bottom:1rem;
+        pepperi-field-title {
+            display:none;
+        }
         pepperi-textbox.pepperi-field {
             margin-bottom:0.5rem;
         }
     }
+
     .mat-dialog-actions {
         margin-bottom:0;
+        padding-top:1rem;
     }
 }

@@ -1,97 +1,43 @@
-#archive-main-container{
-    padding: 0 32px;
-
-    pepperi-button pepperi-field-title{
-        display: none !important;
+#pluginBody {
+    p {
+        margin:0;
+    }
+        
+    .required {
+        display: none;
     }
 
-    hr {
-        border-color: #ccc;
-    }
-
-    #archiveHeader {
-        width: calc(100% - 19rem);
-        margin: 0 auto;
-        padding-left: 0;
-        .content{
-            margin-left: 0;
-            margin-right: 0;
-            align-items: center;
+    .section-title {
+        margin-top: 1.75rem;
+        margin-bottom: 1.5rem;
+        h4 {
+            margin-bottom:.75rem;
+            margin-top: 0;
         }
     }
 
-    #archiveBody {
-        position: relative;
-        top: 100px;
-        #main-container {
-            #schedule-container {
-                margin:25px 0;
+    .narrow {
+        max-width:34rem;
+    }
+    
+    .wide {
+        max-width: 52rem;
+    }
+
+    #schedule-container {
+        .pep-row { 
+            &.first {
+                margin-right:2rem;
             }
-            .p3 {
-                margin-top:25px;
-            }
         }
     }
-}
+    .pep-row{
+        margin-top:1.5rem;
+        display: inline-block;
+        min-width: 16rem;
+    }
 
-#genericCont {
-    margin-top: 1rem;
-    clear:both !important;
-    height: auto;
-
-    .table-body{
-        height: 150px;
-        overflow-y: auto;
+    #retentionPreview {
+        margin-top: .5rem;
     }
 }
-
-
-
-
-
-
-
-
-.pep-row{
-  display: inline-block;
-  min-width: 20rem;
-  /* padding-left: .25rem; */
-}
-
-.pep-row.field1{
-    margin-right: .5rem;
-}
-
-.pep-row.field2{
-    margin-left: .5rem;
-}
-
-
-
-@media (min-width: 1024px) {
-
-    #archive-main-container{
-
-        #retentionPreview{
-            max-width: 800px;
-        }
-    }
-}
-// */deep/ .top-bar-container{
-//     .header-content{
-//         padding-left: 0 !important;
-//         padding-right: 0 !important;
-//         .main-layout{
-
-//             background: white;
-//             .content {
-//                 margin-left: 0 !important;
-//                 margin-right: 0 !important;
-//             }
-//         }
-//     }
-// }
-
-
-
-

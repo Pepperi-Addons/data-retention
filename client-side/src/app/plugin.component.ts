@@ -306,7 +306,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     async runJob() {
         this.additionalData.ScheduledTypes = [...this.additionalData.ScheduledTypes_Draft];
-        this.additionalData.DefaultNumofMonths = this.defaultNumOfMonths;
+        this.additionalData.DefaultNumofMonths = this.additionalData.DefaultNumofMonths_Draft;
         await this.pluginService.updateAdditionalData(this.additionalData);
         this.pluginService.papiClient.codeJobs.async().uuid(this.additionalData.CodeJobUUID).execute().then(value => {
             const executionLogLink = `${this.schedulerURL}?view=executions&execution_id=${value.ExecutionUUID}&job_id=${this.additionalData.CodeJobUUID}`;

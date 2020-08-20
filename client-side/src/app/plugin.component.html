@@ -1,108 +1,80 @@
-<div id="archive-main-container" class="plugin-container" *ngIf="this.additionalData">
-  <div id="archiveHeader" class="header-content">
-    <div class="pepperi-border-bottom content">
-      <div
-        class="left-container spacing-element-negative pull-left flip"
-      >
-        <div class="spacing-element body-lg ellipsis">
-          {{ "Archive_Title" | translate }}
+<div id="plugin-page-container" *ngIf="this.additionalData">
+    <div id="pluginHeader" class="header-content">
+        <div class="pepperi-border-bottom content">
+            <div class="left-container spacing-element-negative pull-left flip">
+                <div class="spacing-element title">
+                    {{ "Archive_Title" | translate }}
+                </div>
+            </div>
+            <div class="right-container spacing-element-negative pull-right flip">
+                <button  *ngIf="latestReport"
+                    class="mat-button pepperi-button md weak pull-left flip spacing-element" (click)="viewReport()">
+                    <span class="mat-button-wrapper">
+                        <span class="pull-left flip">
+                            <span>&nbsp;</span>
+                            {{ "Archive_ReportPreview" | translate }}
+                        </span>
+                        <mat-icon class="mat-icon">
+                            <svg class="svg-icon">
+                                <use attr.xlink:href="{{
+                    pluginService.userService.svgIcons
+                    }}system-doc"></use>
+                            </svg>
+                        </mat-icon>
+                    </span>
+                </button>
+                <pepperi-menu class="menu spacing-element pull-left flip" [label]="'Archive_Menu_Title' | translate"
+                    [options]="menuOptions" (menuItemClicked)="onMenuItemClicked($event)"></pepperi-menu>
+                <button mat-button class="mat-button pepperi-button strong md spacing-element" (click)="publishPlugin()"
+                    [disabled]="disablePublish" [ngClass]="{ disabled: disablePublish }">
+                    {{ "Archive_Publish" | translate }}
+                </button>
+            </div>
         </div>
-      </div>
-      <div class="right-container spacing-element-negative pull-right flip">
-        <button
-          mat-button
-          *ngIf="latestReport"
-          class="pepperi-button icon-button md weak pull-left flip spacing-element"
-          (click)="viewReport()"
-        >
-          <mat-icon class="mat-icon">
-            <svg class="svg-icon">
-              <use
-                attr.xlink:href="{{
-                  pluginService.userService.svgIcons
-                }}system-doc"
-              ></use>
-            </svg>
-          </mat-icon>
-        </button>
-        <pepperi-menu
-          class="menu spacing-element pull-left flip"
-          [label]="'Archive_Menu_Title' | translate"
-          [options]="menuOptions"
-          (menuItemClicked)="onMenuItemClicked($event)"
-        ></pepperi-menu>
-        <button
-          mat-button
-          class="mat-button pepperi-button strong md spacing-element"
-          (click)="publishPlugin()" [disabled]="disablePublish"
-          [ngClass]="{ disabled: disablePublish }"
-        >
-          {{ "Archive_Publish" | translate }}
-        </button>
-      </div>
     </div>
-  </div>
-  <div id="archiveBody">
-    <p class="p3">
-      {{ "Archive_Paragraph" | translate }}
-    </p>
-    <div id="main-container" >
-      <div id="schedule-container">
-        <div class="pepperi-border-bottom">
-          <h4>
-            {{ "Archive_Header1" | translate }}
-          </h4>
-        </div>
-        <p class="p3">{{ "Archive_Schedule_Paragraph" | translate }}</p>
-        <div class="pep-row field1">
-          <pepperi-select
-            [label]="'Archive_SelectDaysTitle' | translate"
-            [(value)]="selectedDay"
-            [options]="dayOptions"
-          ></pepperi-select>
-        </div>
-        <div class="pep-row field2">
-          <pepperi-select
-            [label]="'Archive_SelectTimeTitle' | translate"
-            [(value)]="selectedHour"
-            [options]="timeOptions"
-          ></pepperi-select>
-        </div>
-      </div>
+    <div id="pluginBody" class="main-content limit-max-width">
+        <div class="content">
+            <p class="body-md narrow">
+                {{ "Archive_Paragraph" | translate }}
+            </p>
+            <div id="schedule-container" class="narrow">
+                <div class="pepperi-border-bottom section-title">
+                    <h4>
+                        {{ "Archive_Header1" | translate }}
+                    </h4>
+                </div>
+                <p class="body-sm">{{ "Archive_Schedule_Paragraph" | translate }}</p>
+                <div class="pep-row first">
+                    <pepperi-select [label]="'Archive_SelectDaysTitle' | translate" [(value)]="selectedDay"
+                        [options]="dayOptions"></pepperi-select>
+                </div>
+                <div class="pep-row">
+                    <pepperi-select [label]="'Archive_SelectTimeTitle' | translate" [(value)]="selectedHour"
+                        [options]="timeOptions"></pepperi-select>
+                </div>
+            </div>
 
-      <div id="data-retention-policy">
-        <div class="pepperi-border-bottom">
-          <h4>
-            {{ "Archive_Header2" | translate }}
-          </h4>
-        </div>
+            <div id="data-retention-policy" class="narrow">
+                <div class="pepperi-border-bottom section-title">
+                    <h4>
+                        {{ "Archive_Header2" | translate }}
+                    </h4>
+                </div>
 
-        <p class="p3">{{ "Archive_Policy_Paragraph" | translate }}</p>
+                <p class="body-sm">{{ "Archive_Policy_Paragraph" | translate }}</p>
 
-        <div class="pep-row">
-          <pepperi-textbox 
-            [required]="true"
-            [label]="'Archive_MonthsTitle' | translate"
-            [value]="this.additionalData.DefaultNumofMonths_Draft"
-            [type]="'int'"
-            (valueChange)="valueChanged($event)"
-            [minValue] = 1 
-            [maxValue] = 24
-            (formValidationChanged)="this.disablePublish = $event == false"
-            ></pepperi-textbox>
-        </div>
+                <div class="pep-row">
+                    <pepperi-textbox [required]="true" [label]="'Archive_MonthsTitle' | translate"
+                        [value]="this.additionalData.DefaultNumofMonths_Draft" [type]="'int'"
+                        (valueChange)="valueChanged($event)" [minValue]=1 [maxValue]=24
+                        (formValidationChanged)="this.disablePublish = $event == false"></pepperi-textbox>
+                </div>
+            </div>
 
-        <div id="retentionPreview">
-          <app-list-view
-            #typesList
-            [scheduledTypes]="additionalData?.ScheduledTypes_Draft"
-            (actionClicked)="onActionClicked($event)"
-          ></app-list-view>
-          <ng-template #addType>
-            <p class="p3">{{ "Archive_Policy_Paragraph" | translate }}</p>
-          </ng-template>
+            <div id="retentionPreview" class="wide">
+                <app-list-view #typesList [scheduledTypes]="additionalData?.ScheduledTypes_Draft"
+                    (actionClicked)="onActionClicked($event)"></app-list-view>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>

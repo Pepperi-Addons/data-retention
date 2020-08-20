@@ -1,5 +1,5 @@
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { Component, OnInit, Inject, ViewChild, OnDestroy, Injectable } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, OnDestroy, Injectable, ViewEncapsulation } from '@angular/core';
 import { DialogModel, TypeDialogData, ScheduledType } from 'src/app/plugin.model';
 import { BehaviorSubject } from 'rxjs';
 
@@ -20,7 +20,8 @@ export class AddTypeDialogService {
 @Component({
   selector: 'app-add-type-dialog',
   templateUrl: './add-type-dialog.component.html',
-  styleUrls: ['./add-type-dialog.component.scss']
+  styleUrls: ['./add-type-dialog.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class AddTypeDialogComponent implements OnInit, OnDestroy {
 
