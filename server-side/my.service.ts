@@ -58,7 +58,7 @@ export class MyService {
             fields:['InternalID','ActivityTypeID','Type','ActionDateTime', 'ModificationDateTime'], 
             page:1, 
             page_size:-1, 
-            where:`Account.InternalID in (${accounts})`,
+            where:`Account.InternalID in (${accounts}) and ActivityTypeID is not null`,
             orderBy:"ActionDateTime desc",
             include_deleted:true}).toArray();
         return retVal;
@@ -113,7 +113,7 @@ export class MyService {
         }
         catch(error) {
             try {
-                const transaction = await this.papiClient.metaData.type('activities').types.subtype(activityType.toString()).get(); 
+                const transaction = await this.papiClient.metaData.type('transactions').types.subtype(activityType.toString()).get(); 
                 if(transaction) {
                     return 'transactions';
                 }
