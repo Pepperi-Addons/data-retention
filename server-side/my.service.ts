@@ -60,17 +60,18 @@ export class MyService {
             page_size:-1, 
             where:`Account.InternalID in (${accounts}) and ActivityTypeID is not null`,
             orderBy:"ActionDateTime desc",
-            include_deleted:true}).toArray();
+            include_deleted:false}).toArray();
         return retVal;
     }
 
     async getAdditionalData(): Promise<AdditionalData> {
         let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID(this.addonUUID).get();
-        let retVal = {
+        let retVal: AdditionalData = {
             ScheduledTypes: [],
             ScheduledTypes_Draft: [],
             DefaultNumofMonths:24,
-            DefaultNumofMonths_Draft:24
+            DefaultNumofMonths_Draft:24,
+            NumOfDaysForHidden:90
         };
         if(addon?.AdditionalData) {
             retVal = JSON.parse(addon.AdditionalData);
@@ -182,6 +183,53 @@ export class MyService {
         }
 
         return res;
+    }
+
+    async archiveHiddenActivities(type: 'Transaction' | 'GeneralActivity', tresholdDate: string ) {
+        let hasActivities = true;
+        let activityIDs: number[] = [];
+        let allActivities: number[] = [];
+        let archiveBody = {};
+        let activitiesBody = {
+            fields:['InternalID'], 
+            page_size:1000, 
+            include_deleted:true, 
+            page: 1,
+            where: 'Hidden=1 And ModificationDateTime <= \'' + tresholdDate + '\''
+        }
+        
+        do {
+            if(type == 'Transaction') { 
+                activityIDs = (await this.papiClient.transactions.find(activitiesBody)).map(item => item.InternalID ? item.InternalID : -1);
+            }
+            else {
+                activityIDs = (await this.papiClient.activities.find(activitiesBody)).map(item => item.InternalID ? item.InternalID : -1);
+            }
+            hasActivities = activityIDs.length > 0;
+            if(hasActivities) {
+                activitiesBody.page++;
+                allActivities = allActivities.concat(activityIDs);
+            }
+            if(activitiesBody.page % 10 == 1) {
+                archiveBody = this.getArchiveBody(type, allActivities);
+                await this.papiClient.maintenance.archive(archiveBody);
+                allActivities = [];
+            }
+            
+        } while (hasActivities)
+        if(allActivities.length > 0) {
+            archiveBody = this.getArchiveBody(type, allActivities);
+            await this.papiClient.maintenance.archive(archiveBody);
+        }
+    }
+
+    getArchiveBody(type:'Transaction' | 'GeneralActivity', ids:number[]) {
+        if(type == 'Transaction') { 
+            return {transactions: ids};
+        }
+        else {
+            return {activities: ids};
+        }
     }
 }
 

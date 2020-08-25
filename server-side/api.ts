@@ -24,6 +24,12 @@ export async function archive(client: Client, request: Request) {
             }
         }
         else {
+            // On the first run of the archive function, first archive all the hidden activities
+            if(executionData.PageIndex == 1) { 
+                const response = await service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive_hidden_transactions').post();
+                const auditID = 'ExecutionUUID' in response ? response.ExecutionUUID : '';
+                console.log('Archive Hidden activitied audit log ID:', auditID);
+            }
             const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths, executionData);
             if (isDone) {
                 const final = GenerateReport(report, x => x.ActivityType.Key);
@@ -107,6 +113,34 @@ export async function get_archive_report(client: Client, request: Request) {
         }
     }
 
+}
+
+export async function archive_hidden_activities(client: Client, request: Request) {
+    const service = new MyService(client);
+    const addonData = await service.getAdditionalData();
+    const daysToSubstract: number = addonData.NumOfDaysForHidden ? addonData.NumOfDaysForHidden : 90;
+    const tresholdDate = new Date();
+    
+    tresholdDate.setDate(tresholdDate.getDate() - daysToSubstract);
+    const dateStr = tresholdDate.toISOString().split('.')[0]+"Z";
+    
+    try {
+        await service.archiveHiddenActivities('Transaction', dateStr);
+        await service.archiveHiddenActivities('GeneralActivity', dateStr);
+        return {
+            success: true,
+            errorMessage:'',
+            resultObject: {}
+        }
+    }
+    catch (err) {
+        console.error('an error has occured. exception is:', JSON.stringify(err));
+        return {
+            success: false,
+            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            resultObject: []
+        }
+    }    
 }
 
 async function processAccount(service: MyService, accountIDs: number[], archiveData, defaultNumOfMonths): Promise<ReportTuple[]> {
@@ -210,7 +244,7 @@ function groupBy(list, keyGetter) {
 }
 
 async function GetPreviousExecutionsData(client: Client, request: Request): Promise<ExecutionData> {
-    console.log('request.body is:', request.body);
+    console.log('request.body is:', request?.body);
     const service = new MyService(client);
     let retVal: ExecutionData = {
         PageIndex: 1,
@@ -222,7 +256,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
         ArchivingReport: [],
         ArchiveResultObject: [],
     }
-    if (request.body) {
+    if (request?.body) {
         try {
             retVal.ArchiveReportURL = 'archiveDataFileURL' in request.body ? request.body.archiveDataFileURL : await service.papiClient.fileStorage.temporaryUploadUrl();
             console.debug('temporary file url is:', retVal.ArchiveReportURL);

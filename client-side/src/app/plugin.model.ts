@@ -46,6 +46,7 @@ export class AdditionalData {
     DefaultNumofMonths?: number = 24;
     DefaultNumofMonths_Draft?: number = 24;
     LatestReportURL?: string = '';
+    NumOfDaysForHidden?: number = 90;
 }
 
 export class DialogModel {
