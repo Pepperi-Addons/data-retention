@@ -50,6 +50,7 @@ export class PluginComponent implements OnInit, OnDestroy {
     listActions = [];
     defaultNumOfMonths = 24;
     disablePublish = false;
+    reportInterval = undefined;
     // Data sent from webapp
     @Input() queryParams: any;
     @Input() routerData: any;
@@ -210,6 +211,8 @@ export class PluginComponent implements OnInit, OnDestroy {
                 case 'Report': {
 
                     this.latestReport = undefined;
+                    this.additionalData.LatestReportURL = '';
+                    this.pluginService.updateAdditionalData(this.additionalData);
                     this.generateReport();
                     break;
                 }
@@ -248,10 +251,10 @@ export class PluginComponent implements OnInit, OnDestroy {
                 icon: null
             }]
             this.pluginService.openTextDialog(title, content, buttons);
-            let interval = window.setInterval(() => {
+            this.reportInterval = window.setInterval(() => {
                 this.pluginService.getExecutionLog(token).then(logRes => {
                     if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress' && logRes.Status.Name !== 'InRetry') {
-                        window.clearInterval(interval);
+                        window.clearInterval(this.reportInterval);
                         const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
                         if (resultObj.success == true) {
                             self.latestReport = resultObj.resultObject;
@@ -489,7 +492,11 @@ export class PluginComponent implements OnInit, OnDestroy {
         }
     }
 
-    ngOnDestroy() { }
+    ngOnDestroy() { 
+        if (this.reportInterval) {
+            window.clearInterval(this.reportInterval);
+        }
+    }
 
     valueChanged($event) {
         if ($event && $event > 0 && $event < 25) {

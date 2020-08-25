@@ -13,7 +13,7 @@ exports.install = async (Client, Request) => {
     const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
     const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
 
-    if(apiVersion > 274) {
+    if(apiVersion > 277) {
         try {
 
             const codeJob: CodeJob = await papiClient.codeJobs.upsert({
@@ -25,7 +25,7 @@ exports.install = async (Client, Request) => {
                 AddonPath: "api",
                 FunctionName: "archive",
                 AddonUUID: Client.AddonUUID,
-                NumberOfTries: 3,
+                NumberOfTries: 20,
             })
 
             console.log("result object recieved from Code jobs is: " + JSON.stringify(codeJob));
@@ -40,7 +40,7 @@ exports.install = async (Client, Request) => {
         }
     }
     else {
-        errorMessage = "Cannot install addon. upgrade api version to 275 minimum.";
+        errorMessage = "Cannot install addon. upgrade api version to 278 minimum first.";
         success = false;
     }
 
@@ -89,7 +89,15 @@ exports.upgrade = async (Client, Request) => {
     const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
     const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
 
-    if(apiVersion > 274) {
+    if(apiVersion > 277) {
+        let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
+        if(uuid != '') {
+            await papiClient.codeJobs.upsert({
+                UUID:uuid,
+                CodeJobName: "Data Retention",
+                NumberOfTries: 20,
+            });
+        }
         return {
             success:true,
             errorMessage:'',
@@ -99,7 +107,7 @@ exports.upgrade = async (Client, Request) => {
     else {
         return {
             success: false,
-            errorMessage: "Cannot install addon. upgrade api version to 275 minimum.",
+            errorMessage: "Cannot upgrade addon. upgrade api version to version 278 minimum first.",
             resultObject: {}
         }
     }
