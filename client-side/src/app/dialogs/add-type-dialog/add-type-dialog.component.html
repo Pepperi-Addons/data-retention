@@ -16,12 +16,12 @@
         </div>
         <div class="minItems pepperi-border-top">
             <h4>
-                {{'Archive_TypesModal_MinItemsTitle' | translate}}
+                {{'Archive_TypesModal_MinItemsSectionTitle' | translate}}
             </h4>
             <p class="body-xs">
                 {{'Archive_TypesModal_MinItemsDisclaimer' | translate}}
             </p>
-            <pepperi-textbox [(value)]="dialogData.minItems" [type]="'int'" [minValue]=1 [maxValue]=9999
+            <pepperi-textbox [label]="'Archive_TypesModal_MinItemsTitle' | translate" [(value)]="dialogData.minItems" [type]="'int'" [minValue]=1 [maxValue]=9999
                 (formValidationChanged)="isMinItemsValid = $event"></pepperi-textbox>
         </div>
     </div>

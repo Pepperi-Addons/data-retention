@@ -286,21 +286,23 @@ export class PluginComponent implements OnInit, OnDestroy {
     showRunMessage() {
         const title = this.translate.instant('Archive_ExecuteModal_Title');
         const content = this.translate.instant('Archive_ExecuteModal_Paragraph');
-        const buttons = [{
+        const buttons = [
+            {
+                title: this.translate.instant("Archive_Cancel"),
+                callback: res => {
+                },
+                className: "",
+                icon: null
+            },
+            {
             title: this.translate.instant("Archive_Confirm"),
             callback: res => {
                 this.runJob();
             },
-            className: "",
+            className: "strong",
             icon: null
-        },
-        {
-            title: this.translate.instant("Archive_Cancel"),
-            callback: res => {
-            },
-            className: "",
-            icon: null
-        }]
+        }
+        ]
         this.pluginService.openTextDialog(title, content, buttons);
     }
 
