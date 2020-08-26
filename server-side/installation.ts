@@ -25,7 +25,7 @@ exports.install = async (Client, Request) => {
                 AddonPath: "api",
                 FunctionName: "archive",
                 AddonUUID: Client.AddonUUID,
-                NumberOfTries: 20,
+                NumberOfTries: 25,
             })
 
             console.log("result object recieved from Code jobs is: " + JSON.stringify(codeJob));
@@ -95,7 +95,7 @@ exports.upgrade = async (Client, Request) => {
             await papiClient.codeJobs.upsert({
                 UUID:uuid,
                 CodeJobName: "Data Retention",
-                NumberOfTries: 20,
+                NumberOfTries: 25,
             });
         }
         return {
