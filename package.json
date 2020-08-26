@@ -6,14 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cd ./server-side && npm run build && cd .. && cd ./client-side && npm run build && cd ..",
-    "publish-addon": "npm run build && publish-addon"
+    "publish-addon": "npm run build && publish-addon --version-type"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@pepperi-addons/papi-sdk": "file:../papi-sdk",
-    "@pepperi-addons/scripts": "^1.0.10",
+    "@pepperi-addons/scripts": "^1.0.14",
     "npm-inspect": "^0.4.0"
   },
   "devDependencies": {}
