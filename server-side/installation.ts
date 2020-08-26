@@ -13,7 +13,7 @@ exports.install = async (Client, Request) => {
     const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
     const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
 
-    if(apiVersion > 277) {
+    if(apiVersion > 281) {
         try {
 
             const codeJob: CodeJob = await papiClient.codeJobs.upsert({
@@ -40,7 +40,7 @@ exports.install = async (Client, Request) => {
         }
     }
     else {
-        errorMessage = "Cannot install addon. upgrade api version to 278 minimum first.";
+        errorMessage = "Cannot install addon. upgrade api version to 282 minimum first.";
         success = false;
     }
 
@@ -89,7 +89,7 @@ exports.upgrade = async (Client, Request) => {
     const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
     const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
 
-    if(apiVersion > 277) {
+    if(apiVersion > 281) {
         let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
         if(uuid != '') {
             await papiClient.codeJobs.upsert({
@@ -107,7 +107,7 @@ exports.upgrade = async (Client, Request) => {
     else {
         return {
             success: false,
-            errorMessage: "Cannot upgrade addon. upgrade api version to version 278 minimum first.",
+            errorMessage: "Cannot upgrade addon. upgrade api version to version 282 minimum first.",
             resultObject: {}
         }
     }
