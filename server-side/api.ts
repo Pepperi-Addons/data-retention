@@ -30,14 +30,6 @@ export async function archive(client: Client, request: Request) {
                 const auditID = 'ExecutionUUID' in response ? response.ExecutionUUID : '';
                 console.log('Archive Hidden activitied audit log ID:', auditID);
             }
-            addonData.ScheduledTypes?.push({
-                ActivityType: {
-                    Key: 270115,
-                    Value: 'Sales_Order'
-                },
-                NumOfMonths:1,
-                MinItems: -1
-            })
             const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths, executionData);
             if (isDone) {
                 const final = GenerateReport(report, x => x.ActivityType.Key);
@@ -82,14 +74,6 @@ export async function get_archive_report(client: Client, request: Request) {
         const addonData = await service.getAdditionalData();
         console.log("Archive data is:", addonData.ScheduledTypes_Draft);
         let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
-        addonData.ScheduledTypes_Draft?.push({
-            ActivityType: {
-                Key: 270115,
-                Value: 'Sales_Order'
-            },
-            NumOfMonths:1,
-            MinItems: -1
-        })
         const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes_Draft, addonData.DefaultNumofMonths_Draft, executionData);
         if (isDone) {
             const final = GenerateReport(report, x => x.ActivityType.Key);
