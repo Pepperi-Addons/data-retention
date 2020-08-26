@@ -95,14 +95,17 @@ export class MyService {
         let maintenanceJobs: Promise<ArchiveReport>[] = [];
         maintenanceJobs = data.filter(item => item.ArchiveCount > 0).map((row):Promise<ArchiveReport> => {
             return new Promise((resolve,reject) => {
-                this.getArchiveJobsInfo(row.ActivityType.Key, row.Activities).then((jobsResults) => {
-                    resolve({
-                        ActivityType: row.ActivityType.Value,
-                        ArchiveCount: row.ArchiveCount,
-                        ArchiveJobResult: jobsResults
-                    })
-                }, (reason)=>{
-                    reject(reason);
+                this.getAtdType(row.ActivityType.Key).then((atdType) => {
+                    console.debug("activity Type is:", row.ActivityType.Key, "\ntype got from meta data is:", atdType);
+                    this.getArchiveJobsInfo(atdType, row.Activities).then((jobsResults) => {
+                        resolve({
+                            ActivityType: row.ActivityType.Value,
+                            ArchiveCount: row.ArchiveCount,
+                            ArchiveJobResult: jobsResults
+                        })
+                    }, (reason)=>{
+                        reject(reason);
+                    });
                 });
             });
         })
@@ -113,20 +116,20 @@ export class MyService {
         try {
             const activity = await this.papiClient.metaData.type('activities').types.subtype(activityType.toString()).get();
             if(activity) {
-                return 'activities';
+                return 'GeneralActivity';
             }
             else {
-                return 'transactions';
+                return 'Transaction';
             }
         }
         catch(error) {
             try {
                 const transaction = await this.papiClient.metaData.type('transactions').types.subtype(activityType.toString()).get(); 
                 if(transaction) {
-                    return 'transactions';
+                    return 'Transaction';
                 }
                 else {
-                    return 'activities';
+                    return 'GeneralActivity';
                 }
             }
             catch(err) {
@@ -136,13 +139,11 @@ export class MyService {
         }
     }
 
-    async getArchiveJobsInfo(activityType: number, activitiesIds: number[]): Promise<MaintenanceJobResult[]> {
-        const atdType = await this.getAtdType(activityType);
+    async getArchiveJobsInfo(atdType: string, activitiesIds: number[]): Promise<MaintenanceJobResult[]> {
         let jobsResults: Promise<MaintenanceJobResult>[] = []
         const chunks: number[][] = chunk(activitiesIds, PageSize);
         chunks.forEach(items => {
-            const body: ArchiveBody = atdType == 'transactions' ? { transactions: items } : { activities: items };
-            console.debug("activity Type is:", activityType, "\ntype got from meta data is:", atdType, "\n archive body is:", body);
+            const body: ArchiveBody = atdType == 'Transaction' ? { transactions: items } : { activities: items };
             jobsResults.push(this.papiClient.maintenance.archive(body));
         })
         return await (Promise.all(jobsResults));
@@ -185,11 +186,11 @@ export class MyService {
         return res;
     }
 
-    async archiveHiddenActivities(type: 'Transaction' | 'GeneralActivity', tresholdDate: string ) {
-        let hasActivities = true;
-        let activityIDs: number[] = [];
-        let allActivities: number[] = [];
-        let archiveBody = {};
+    async archiveHiddenActivities(type: 'Transaction' | 'GeneralActivity', tresholdDate: string ): Promise<{Jobs:MaintenanceJobResult[], Count:number}> {
+        let retVal: MaintenanceJobResult[][] = [];
+        let itemsCount: number = 0;
+        let items: number[] = [];
+        let aggregated: number[] = [];
         let activitiesBody = {
             fields:['InternalID'], 
             page_size:1000, 
@@ -200,36 +201,28 @@ export class MyService {
         
         do {
             if(type == 'Transaction') { 
-                activityIDs = (await this.papiClient.transactions.find(activitiesBody)).map(item => item.InternalID ? item.InternalID : -1);
+                items = (await this.papiClient.transactions.find(activitiesBody)).map(item => item.InternalID ? item.InternalID : -1);
             }
             else {
-                activityIDs = (await this.papiClient.activities.find(activitiesBody)).map(item => item.InternalID ? item.InternalID : -1);
+                items = (await this.papiClient.activities.find(activitiesBody)).map(item => item.InternalID ? item.InternalID : -1);
             }
-            hasActivities = activityIDs.length > 0;
-            if(hasActivities) {
+            if(items.length > 0) {
                 activitiesBody.page++;
-                allActivities = allActivities.concat(activityIDs);
+                itemsCount += items.length;
+                aggregated = aggregated.concat(items);
             }
-            if(activitiesBody.page % 10 == 1) {
-                archiveBody = this.getArchiveBody(type, allActivities);
-                await this.papiClient.maintenance.archive(archiveBody);
-                allActivities = [];
+            if(activitiesBody.page % 500 == 1) { // for performance reasons we limit number of activities to 500K activities
+                retVal.push(await this.getArchiveJobsInfo(type, aggregated));
+                aggregated = [];
             }
             
-        } while (hasActivities)
-        if(allActivities.length > 0) {
-            archiveBody = this.getArchiveBody(type, allActivities);
-            await this.papiClient.maintenance.archive(archiveBody);
-        }
-    }
+        } while (items.length > 0)
 
-    getArchiveBody(type:'Transaction' | 'GeneralActivity', ids:number[]) {
-        if(type == 'Transaction') { 
-            return {transactions: ids};
+        if(aggregated.length > 0) {
+            retVal.push(await this.getArchiveJobsInfo(type, aggregated));
         }
-        else {
-            return {activities: ids};
-        }
+
+        return {Jobs: retVal.flat(), Count: itemsCount};
     }
 }
 

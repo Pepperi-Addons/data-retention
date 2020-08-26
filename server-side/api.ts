@@ -26,10 +26,18 @@ export async function archive(client: Client, request: Request) {
         else {
             // On the first run of the archive function, first archive all the hidden activities
             if(executionData.PageIndex == 1) { 
-                const response = await service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive_hidden_transactions').post();
+                const response = await service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive_hidden_activities').post({retry:5});
                 const auditID = 'ExecutionUUID' in response ? response.ExecutionUUID : '';
                 console.log('Archive Hidden activitied audit log ID:', auditID);
             }
+            addonData.ScheduledTypes?.push({
+                ActivityType: {
+                    Key: 270115,
+                    Value: 'Sales_Order'
+                },
+                NumOfMonths:1,
+                MinItems: -1
+            })
             const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths, executionData);
             if (isDone) {
                 const final = GenerateReport(report, x => x.ActivityType.Key);
@@ -74,13 +82,21 @@ export async function get_archive_report(client: Client, request: Request) {
         const addonData = await service.getAdditionalData();
         console.log("Archive data is:", addonData.ScheduledTypes_Draft);
         let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
+        addonData.ScheduledTypes_Draft?.push({
+            ActivityType: {
+                Key: 270115,
+                Value: 'Sales_Order'
+            },
+            NumOfMonths:1,
+            MinItems: -1
+        })
         const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes_Draft, addonData.DefaultNumofMonths_Draft, executionData);
         if (isDone) {
             const final = GenerateReport(report, x => x.ActivityType.Key);
             await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, final);
             addonData.LatestReportURL = executionData.ArchiveReportURL.PublicUrl;
             await service.updateAdditionalData(addonData);
-
+            
             return {
                 success: true,
                 errorMessage: '',
@@ -112,25 +128,56 @@ export async function get_archive_report(client: Client, request: Request) {
             resultObject: []
         }
     }
-
+    
 }
 
 export async function archive_hidden_activities(client: Client, request: Request) {
-    const service = new MyService(client);
-    const addonData = await service.getAdditionalData();
-    const daysToSubstract: number = addonData.NumOfDaysForHidden ? addonData.NumOfDaysForHidden : 90;
-    const tresholdDate = new Date();
-    
-    tresholdDate.setDate(tresholdDate.getDate() - daysToSubstract);
-    const dateStr = tresholdDate.toISOString().split('.')[0]+"Z";
-    
     try {
-        await service.archiveHiddenActivities('Transaction', dateStr);
-        await service.archiveHiddenActivities('GeneralActivity', dateStr);
-        return {
-            success: true,
-            errorMessage:'',
-            resultObject: {}
+        const service = new MyService(client);
+        const addonData = await service.getAdditionalData();
+        const executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
+        if (executionData.ArchivingReport && executionData.ArchivingReport.length > 0) {
+            const resultObj = await PollArchiveJobs(service, executionData)
+            if (resultObj) {
+                const failedJobs = resultObj.archiveResultObject.filter(item => HasFailedJobs(item));
+                return {
+                    success: failedJobs.length == 0,
+                    errorMessage: failedJobs.length == 0 ? '' : 'One or more archive jobs has failed',
+                    resultObject: resultObj
+                }
+            }
+            else {
+                client.Retry(1000);
+            }
+        }
+        else {
+            const daysToSubstract: number = addonData.NumOfDaysForHidden ? addonData.NumOfDaysForHidden : 90;
+            const tresholdDate = new Date();
+            
+            tresholdDate.setDate(tresholdDate.getDate() - daysToSubstract);
+            const dateStr = tresholdDate.toISOString().split('.')[0]+"Z";
+            const transactionJobs = await service.archiveHiddenActivities('Transaction', dateStr);
+            const activitiesJobs = await service.archiveHiddenActivities('GeneralActivity', dateStr);
+            const jobsIds:ArchiveReport[] = [{
+                ActivityType:'Transactions',
+                ArchiveCount: transactionJobs.Count,
+                ArchiveJobResult: transactionJobs.Jobs,
+            },
+            {
+                ActivityType:'General Activities',
+                ArchiveCount: activitiesJobs.Count,
+                ArchiveJobResult: activitiesJobs.Jobs,
+            }]
+
+            request.body = {
+                archivingReport: jobsIds,
+            }
+            client.Retry(1000);
+            return {
+                success: true,
+                errorMessage: '',
+                archiveJobs: jobsIds,
+            }
         }
     }
     catch (err) {
