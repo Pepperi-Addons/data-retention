@@ -45,6 +45,7 @@
     "Archive_Menu_Title": "Menu",
     "Archive_ReportModal_Title": "Data retention report",
     "Archive_ReportModal_Paragraph": "Generating report... <br> This may take a few minutes. You may close this window and a link to the report will be added when ready.",
+    "Archive_ReportModal_Exception": "Generating Report failed, please try again later or contact support",
     "Archive_ReportModal_TableHeader_ActivityType": "Type",
     "Archive_ReportModal_TableHeader_AfterCount": "Operational",
     "Archive_ReportModal_TableHeader_ArchiveCount": "To be archived",

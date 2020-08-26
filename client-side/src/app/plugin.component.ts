@@ -265,6 +265,17 @@ export class PluginComponent implements OnInit, OnDestroy {
                             }
                         }
                     }
+                    else if(logRes && logRes.Status && logRes.Status.Name === 'InRetry') {
+                        const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
+                        if (resultObj.success == 'Exception') {
+                            window.clearInterval(this.reportInterval);
+                            console.log('Report generation failed! \n error message is:', resultObj.errorMessage);
+                            if (self.pluginService.userService.userServiceDialogRef.componentInstance) {
+                                const content = self.translate.instant("Archive_ReportModal_Exception");
+                                self.pluginService.userService.userServiceDialogRef.componentInstance.content = content;
+                            }
+                        }
+                    }
                 });
             }, 1500);
         }
