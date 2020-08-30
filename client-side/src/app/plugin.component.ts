@@ -518,18 +518,19 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     async getLatestReport(): Promise<any> {
         try {
-            return this.pluginService.apiCall('GET', this.additionalData.LatestReportURL)
-            .then((res) => res.text())
-            .then((res) => (res ? JSON.parse(res) : '').map(item => {
+            const response: Response = await this.pluginService.apiCall('GET', this.additionalData.LatestReportURL);
+            const responseText = await response.text();
+            return (responseText ? JSON.parse(responseText) : '').map(item => {
                 return {
                     ActivityType: item.ActivityType.Value,
                     BeforeCount: item.BeforeCount,
                     ArchiveCount: item.ArchiveCount,
                     AfterCount: item.AfterCount
                 }
-            }));
+            });
         }
-        catch {
+        catch(error) {
+            console.log('Cannot get report. error is:', JSON.stringify(error));
             return undefined;
         }
     }
