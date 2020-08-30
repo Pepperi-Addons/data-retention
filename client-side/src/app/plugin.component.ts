@@ -313,7 +313,7 @@ export class PluginComponent implements OnInit, OnDestroy {
             callback: res => {
                 this.runJob();
             },
-            className: "strong",
+            className: "pepperi-button md strong",
             icon: null
         }
         ]
@@ -474,19 +474,19 @@ export class PluginComponent implements OnInit, OnDestroy {
     deleteTypeDialog(selectedObj) {
         const self = this;
         const actionButton = [{
-            title: this.translate.instant("Archive_Confirm"),
+            title: this.translate.instant("Archive_Cancel"),
             callback: res => {
-                self.deleteType(selectedObj);
             },
             className: "",
             icon: null
         },
         {
-            title: this.translate.instant("Archive_Cancel"),
+            title: this.translate.instant("Archive_Confirm"),
             callback: res => {
-
+                self.deleteType(selectedObj);
+                
             },
-            className: "",
+            className: "pepperi-button md strong",
             icon: null
         }];
         const title = this.translate.instant("Archive_DeleteModal_Title");
