@@ -3,7 +3,8 @@ import {
     OnInit,
     OnChanges,
     Inject,
-    Injectable
+    Injectable,
+    ViewEncapsulation
 } from "@angular/core";
 import { MatPaginator, MatSort, MatTableDataSource, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
 import { DialogModel } from 'src/app/plugin.model';
@@ -26,7 +27,8 @@ export class AddTypeDialogService {
 @Component({
     selector: "report-dialog",
     templateUrl: "./report-dialog.component.html",
-    styleUrls: ["./report-dialog.component.scss"]
+    styleUrls: ["./report-dialog.component.scss"],
+    encapsulation: ViewEncapsulation.None
 })
 export class ReportDialogComponent implements OnInit, OnChanges {
     reportRows: any = [];

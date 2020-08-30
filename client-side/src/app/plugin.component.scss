@@ -1,8 +1,11 @@
+.view-mobile {
+    display: none;
+}
+
 #pluginBody {
     p {
         margin:0;
     }
-        
     .required {
         display: none;
     }
@@ -39,5 +42,25 @@
 
     #retentionPreview {
         margin-top: .5rem;
+    }
+    
+}
+
+@media (max-width:460px) {
+    .hide-mobile {
+        display:none;
+    }
+
+    .view-mobile {
+        display:inline-block;
+    }        
+
+    .pep-row{
+        width:100%;
+        min-width:unset;
+    }
+
+    #retentionPreview {
+        margin-bottom: 1.5rem;
     }
 }

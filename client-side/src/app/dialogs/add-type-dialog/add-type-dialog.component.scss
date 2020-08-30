@@ -43,3 +43,14 @@
         padding-top:1rem;
     }
 }
+
+@media (max-width:460px) {
+    .pepperi-standalone {
+        max-width:90vw !important;
+    
+        .mat-dialog-content{
+            min-width: unset;
+        }
+    }       
+    
+}

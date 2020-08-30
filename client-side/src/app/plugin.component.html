@@ -8,7 +8,7 @@
             </div>
             <div class="right-container spacing-element-negative pull-right flip">
                 <button  *ngIf="latestReport"
-                    class="mat-button pepperi-button md weak pull-left flip spacing-element" (click)="viewReport()">
+                    class="mat-button pepperi-button md weak pull-left flip spacing-element hide-mobile" (click)="viewReport()">
                     <span class="mat-button-wrapper">
                         <span class="pull-left flip">
                             <span>&nbsp;</span>
@@ -22,6 +22,16 @@
                             </svg>
                         </mat-icon>
                     </span>
+                </button>
+                <button  *ngIf="latestReport"
+                    class="mat-button pepperi-button md weak pull-left flip spacing-element view-mobile icon-button" (click)="viewReport()">
+                        <mat-icon class="mat-icon">
+                            <svg class="svg-icon">
+                                <use attr.xlink:href="{{
+                    pluginService.userService.svgIcons
+                    }}system-doc"></use>
+                            </svg>
+                        </mat-icon>
                 </button>
                 <pepperi-menu class="menu spacing-element pull-left flip" [label]="'Archive_Menu_Title' | translate"
                     [options]="menuOptions" (menuItemClicked)="onMenuItemClicked($event)"></pepperi-menu>

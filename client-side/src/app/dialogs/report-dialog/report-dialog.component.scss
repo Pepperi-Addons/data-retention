@@ -95,3 +95,20 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     padding: 0 .5rem;
     line-height: 3.4rem;
 }
+
+@media (max-width:460px) {
+    .mat-dialog-content {
+        &.reportContent {
+            width: 35rem;
+        }
+    }
+
+    .pepperi-standalone {
+        max-width:90vw !important;
+
+        .mat-dialog-content {
+            min-width: unset;
+        }
+    }
+    
+}
