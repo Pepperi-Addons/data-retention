@@ -36,7 +36,7 @@ export class MyService {
         let hasAccounts = true;
         do {
             console.debug("processing accounts. page number is:", currentExecutionData.PageIndex);
-            accountIDs = (await this.papiClient.accounts.find({fields:['InternalID'], page_size:100, include_deleted:true, page:  currentExecutionData.PageIndex++})).map(item => item.InternalID ? item.InternalID : -1);
+            accountIDs = (await this.papiClient.accounts.find({fields:['InternalID'], page_size:1000, include_deleted:true, page:  currentExecutionData.PageIndex++})).map(item => item.InternalID ? item.InternalID : -1);
             hasAccounts = accountIDs.length > 0;
             if(hasAccounts) {
                 callbackResults.push(callbackFunc(this, accountIDs, archiveData, defaultNumOfMonths));
