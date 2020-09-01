@@ -99,16 +99,15 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 @media (max-width:460px) {
     .mat-dialog-content {
         &.reportContent {
-            width: 35rem;
+            width:90vw;
+        }
+        .mat-table {
+            width: 40rem;
         }
     }
 
     .pepperi-standalone {
         max-width:90vw !important;
-
-        .mat-dialog-content {
-            min-width: unset;
-        }
     }
     
 }
