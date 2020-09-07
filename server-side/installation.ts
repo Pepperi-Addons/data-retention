@@ -1,6 +1,9 @@
 import { PapiClient, CodeJob } from "@pepperi-addons/papi-sdk";
 import { InstalledAddon } from "../client-side/src/app/plugin.model";
 
+const minimumAPIVersion: number = 286;
+const minimumSchedulerVersion: number[] = [1,0,53];
+
 exports.install = async (Client, Request) => {
     let success = true;
     let errorMessage = '';
@@ -10,10 +13,8 @@ exports.install = async (Client, Request) => {
         token: Client.OAuthAccessToken,
         addonUUID: Client.AddonUUID
     });
-    const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
-    const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
-
-    if(apiVersion > 281) {
+    const dependencies = await checkDependencies(papiClient, 'install');
+    if(dependencies.depedenciesMet) {
         try {
 
             const codeJob: CodeJob = await papiClient.codeJobs.upsert({
@@ -40,7 +41,7 @@ exports.install = async (Client, Request) => {
         }
     }
     else {
-        errorMessage = "Cannot install addon. upgrade api version to 282 minimum first.";
+        errorMessage = dependencies.errorMessage;
         success = false;
     }
 
@@ -86,10 +87,9 @@ exports.upgrade = async (Client, Request) => {
         token: Client.OAuthAccessToken,
         addonUUID: Client.AddonUUID
     });
-    const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
-    const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
+    const dependencies = await checkDependencies(papiClient, 'upgrade');
 
-    if(apiVersion > 281) {
+    if(dependencies.depedenciesMet) {
         let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
         if(uuid != '') {
             await papiClient.codeJobs.upsert({
@@ -107,7 +107,7 @@ exports.upgrade = async (Client, Request) => {
     else {
         return {
             success: false,
-            errorMessage: "Cannot upgrade addon. upgrade api version to version 282 minimum first.",
+            errorMessage: dependencies.errorMessage,
             resultObject: {}
         }
     }
@@ -203,3 +203,37 @@ function getRandomIndex(arrayLength:number): number {
     Math.floor(Math.random() * (arrayLength + 1))
     return index;
 }
+
+async function checkDependencies(papiClient:PapiClient, action: 'upgrade' | 'install'): Promise<{depedenciesMet:boolean, errorMessage:string}> {
+    let checkPassed = true;
+    let errorMessage = '';
+    try {
+    const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
+    const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
+    const schedulerAddon = await papiClient.addons.installedAddons.addonUUID('fcb7ced2-4c81-4705-9f2b-89310d45e6c7').get();
+    const schedulerVersion = schedulerAddon?.Version ? schedulerAddon.Version.split('.').map(item => {
+        return Number(item);
+    }) : []
+
+    if(apiVersion < minimumAPIVersion) {
+        checkPassed = false;
+        errorMessage = `Cannot ${action} addon. Please upgrade 'Services Framework' add-on to version V${minimumAPIVersion} or above and try again.`
+    }
+    else if (schedulerVersion?.length == 3 &&
+        (schedulerVersion[0] < minimumSchedulerVersion[0]) || 
+        (schedulerVersion[0] == minimumSchedulerVersion[0] && schedulerVersion[1] < minimumSchedulerVersion[1]) ||
+        (schedulerVersion[0] == minimumSchedulerVersion[0] && schedulerVersion[1] == minimumSchedulerVersion[1] && schedulerVersion[2] < minimumSchedulerVersion[2])) {      
+            checkPassed = false;
+            errorMessage = `Cannot ${action} addon. Please upgrade 'Automated Jobs' add-on to version ${minimumSchedulerVersion.join('.')} or above and try again.`
+        }
+    }
+    catch {
+        checkPassed = false;
+        errorMessage = `Cannot verify version for dependencies add-ons`
+    }
+    return {
+        depedenciesMet: checkPassed,
+        errorMessage: errorMessage
+    }
+}
+
