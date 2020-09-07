@@ -54,13 +54,13 @@ export class MyService {
 
     async getActivitiesForAccount(accountIDs: number[]) {
         let accounts = accountIDs.join(',');
-        let retVal =  await this.papiClient.allActivities.iter({
+        let retVal =  await this.papiClient.allActivities.find({
             fields:['InternalID','ActivityTypeID','Type','ActionDateTime', 'ModificationDateTime'], 
             page:1, 
             page_size:-1, 
             where:`Account.InternalID in (${accounts}) and ActivityTypeID is not null`,
             orderBy:"ActionDateTime desc",
-            include_deleted:false}).toArray();
+            include_deleted:false});
         return retVal;
     }
 
@@ -160,6 +160,17 @@ export class MyService {
             .then((res) => (res ? JSON.parse(res) : ''));
     }
 
+    async uploadArchivingReportToS3(url: string, report: ArchiveReport[]): Promise<any> {
+        return this.apiCall('PUT', url, report)
+            .then((res) => res.text());
+    }
+
+    async getArchivingReportFromS3(url: string): Promise<ArchiveReport[]> {
+        return this.apiCall('GET', url)
+            .then((res) => res.text())
+            .then((res) => (res ? JSON.parse(res) : ''));
+    }
+
     async apiCall(method: HttpMethod, url: string, body: any = undefined ) {
         
         const options: any = {
@@ -186,8 +197,9 @@ export class MyService {
         return res;
     }
 
-    async archiveHiddenActivities(type: 'Transaction' | 'GeneralActivity', tresholdDate: string ): Promise<{Jobs:MaintenanceJobResult[], Count:number}> {
-        let retVal: MaintenanceJobResult[][] = [];
+    async archiveHiddenActivities(tresholdDate: string, currentExecutionData: ExecutionData ): Promise<ArchiveHiddenReturnObj> {
+        let currentReport = currentExecutionData.ArchivingReport.find(x=>x.ActivityType = currentExecutionData.ActivityType);
+        let retVal: MaintenanceJobResult[][] = currentReport ? [currentReport.ArchiveJobResult] : [];
         let itemsCount: number = 0;
         let items: number[] = [];
         let aggregated: number[] = [];
@@ -195,12 +207,13 @@ export class MyService {
             fields:['InternalID'], 
             page_size:1000, 
             include_deleted:true, 
-            page: 1,
+            page: currentExecutionData.PageIndex,
             where: 'Hidden=1 And ModificationDateTime <= \'' + tresholdDate + '\''
         }
         
         do {
-            if(type == 'Transaction') { 
+            console.debug('processing hidden activities. Page number is', activitiesBody.page);
+            if(currentExecutionData.ActivityType == 'Transaction') { 
                 items = (await this.papiClient.transactions.find(activitiesBody)).map(item => item.InternalID ? item.InternalID : -1);
             }
             else {
@@ -211,18 +224,34 @@ export class MyService {
                 itemsCount += items.length;
                 aggregated = aggregated.concat(items);
             }
-            if(activitiesBody.page % 500 == 1) { // for performance reasons we limit number of activities to 500K activities
-                retVal.push(await this.getArchiveJobsInfo(type, aggregated));
-                aggregated = [];
+            if(activitiesBody.page % 5 == 1) { // for performance reasons we limit number of activities to 5K before archiving
+                //retVal.push(await this.getArchiveJobsInfo(currentExecutionData.ActivityType, aggregated));
+                //aggregated = [];
             }
             
-        } while (items.length > 0)
+        } while (items.length > 0 && activitiesBody.page % 50 != 1) // for performance reasons we limit number of activities to 150K and then retrying
 
-        if(aggregated.length > 0) {
-            retVal.push(await this.getArchiveJobsInfo(type, aggregated));
-        }
+        // if(aggregated.length > 0) {
+        //     retVal.push(await this.getArchiveJobsInfo(currentExecutionData.ActivityType, aggregated));
+        // }
 
-        return {Jobs: retVal.flat(), Count: itemsCount};
+        const report = currentExecutionData.ArchivingReport.map(item => {
+            if(item.ActivityType === currentExecutionData.ActivityType) {
+                return {
+                    ActivityType: currentExecutionData.ActivityType,
+                    ArchiveCount: item.ArchiveCount + itemsCount,
+                    ArchiveJobResult: retVal.flat(),
+                }
+            }
+            else {
+                return item;
+            }
+        })
+        return {
+            Report: report, 
+            Finished: items.length == 0, 
+            PageIndex: activitiesBody.page
+        };
     }
 }
 
@@ -268,4 +297,11 @@ export interface ExecutionData {
     ArchiveReportURL:TempUrlResponse;
     ArchivingReport: ArchiveReport[];
     ArchiveResultObject: ArchiveReturnObj[];
+    ActivityType: 'Transaction' | 'GeneralActivity';
+}
+
+export interface ArchiveHiddenReturnObj {
+    Report:ArchiveReport[];
+    Finished: boolean;
+    PageIndex: number;
 }

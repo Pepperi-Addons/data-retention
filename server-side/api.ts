@@ -1,6 +1,7 @@
 import { Client, Request } from '@pepperi-addons/debug-server'
 import { GeneralActivity, Transaction } from '@pepperi-addons/papi-sdk';
 import { ReportTuple, MyService, ScheduledType, ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj } from './my.service';
+import { exec } from 'child_process';
 
 export const PageSize: number = 5000;
 
@@ -9,6 +10,14 @@ export async function archive(client: Client, request: Request) {
         const service = new MyService(client);
         const addonData = await service.getAdditionalData();
         let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
+        if((await CanRunArchive(service)) == false) {
+            console.error('Api version is less than 286, aborting!')
+            return {
+                success: false,
+                errorMessage: 'Cannot run Archive on API version prior to 286',
+                resultObject: {}
+            }
+        }
         if (executionData.ArchivingReport && executionData.ArchivingReport.length > 0) {
             const resultObj = await PollArchiveJobs(service, executionData)
             if (resultObj) {
@@ -140,27 +149,38 @@ export async function archive_hidden_activities(client: Client, request: Request
             
             tresholdDate.setDate(tresholdDate.getDate() - daysToSubstract);
             const dateStr = tresholdDate.toISOString().split('.')[0]+"Z";
-            const transactionJobs = await service.archiveHiddenActivities('Transaction', dateStr);
-            const activitiesJobs = await service.archiveHiddenActivities('GeneralActivity', dateStr);
-            const jobsIds:ArchiveReport[] = [{
-                ActivityType:'Transactions',
-                ArchiveCount: transactionJobs.Count,
-                ArchiveJobResult: transactionJobs.Jobs,
-            },
-            {
-                ActivityType:'General Activities',
-                ArchiveCount: activitiesJobs.Count,
-                ArchiveJobResult: activitiesJobs.Jobs,
-            }]
-
-            request.body = {
-                archivingReport: jobsIds,
+            const retVal = await service.archiveHiddenActivities(dateStr, executionData);
+            if(retVal.Finished) {
+                if(executionData.ActivityType === 'GeneralActivity') {
+                    request.body = {
+                        archivingReport:  retVal.Report,
+                    }
+                    client.Retry(1000);
+                    return {
+                        success: true,
+                        errorMessage: '',
+                        archiveJobs:  retVal.Report,
+                    }
+                }
+                else {
+                    await service.uploadArchivingReportToS3(executionData.ArchiveReportURL.UploadUrl, retVal.Report);
+                    request.body = {
+                        activityType: 'GeneralActivity',
+                        pageIndex: 1,
+                        archiveDataFileURL: executionData.ArchiveReportURL,
+                    }
+                    client.Retry(1000);
+                    return request.body;
+                }
             }
-            client.Retry(1000);
-            return {
-                success: true,
-                errorMessage: '',
-                archiveJobs: jobsIds,
+            else {
+                await service.uploadArchivingReportToS3(executionData.ArchiveReportURL.UploadUrl, retVal.Report);
+                    request.body = {
+                        pageIndex: retVal.PageIndex,
+                        archiveDataFileURL: executionData.ArchiveReportURL,
+                    }
+                    client.Retry(1000);
+                    return request.body;
             }
         }
     }
@@ -178,6 +198,7 @@ async function processAccount(service: MyService, accountIDs: number[], archiveD
     const activities: (GeneralActivity | Transaction)[] = await service.getActivitiesForAccount(accountIDs);
     let retVal: ReportTuple[] = [];
     let activitiesByType = groupBy(activities, x => x.ActivityTypeID);
+    console.debug('after group by activities by type. number of activities to process is', activities.length);
     activitiesByType.forEach((items: (GeneralActivity | Transaction)[]) => {
         if (items.length > 0) {
             let type: ScheduledType = archiveData.find(x => x.ActivityType.Key == items[0].ActivityTypeID) ||
@@ -230,6 +251,7 @@ function ProcessActivitiesByType(items: (GeneralActivity | Transaction)[], type:
             activitiesToArchive = [];
         }
     }
+    console.debug('after ProcessActivitiesByType. Type is:', type.ActivityType.Value, 'number of activities to archive is:', activitiesToArchive.length, 'out of', items.length, 'total activities')
     return {
         ActivityType: {
             Key: type.ActivityType.Key,
@@ -286,6 +308,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
         },
         ArchivingReport: [],
         ArchiveResultObject: [],
+        ActivityType: 'Transaction',
     }
     if (request?.body) {
         try {
@@ -297,6 +320,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
             retVal.PageIndex = 'pageIndex' in request.body ? request.body.pageIndex : 1;
             retVal.ArchivingReport = 'archivingReport' in request.body ? request.body.archivingReport : [];
             retVal.ArchiveResultObject = 'archiveResultObject' in request.body ? request.body.archiveResultObject : [];
+            retVal.ActivityType = 'activityType' in request.body ? request.body.activityType : 'Transaction';
         }
         catch (error) {
             console.error("could not get execution data. reseting...\n request.body recieved:", request.body, '\nerror message is: ', 'message' in error ? error.message : '');
@@ -365,4 +389,11 @@ async function PollArchiveJobs(service: MyService, executionData: ExecutionData)
 
 function HasFailedJobs(item: ArchiveReturnObj): boolean {
     return item.Jobs.find(job => job.Status == "Failed") != undefined
+}
+
+async function CanRunArchive(service: MyService): Promise<boolean> {
+    const apiAddon = await service.papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
+    const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
+
+    return apiVersion >= 286;
 }
