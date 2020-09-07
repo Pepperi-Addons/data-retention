@@ -1,18 +1,17 @@
 <div  class="listContainer">
     <div class="rowBody">
-        <div class="topBarDynCont">
+        <div class="genericCont">
             <ndc-dynamic
                 #topBarComp
                 [ndcDynamicComponent]="topBarComponent"
                 [ndcDynamicInputs]="topBarInputs"
                 [ndcDynamicOutputs]="topBarOutputs"
-                (ndcDynamicCreated)="topBarOnInit($event)"
             >
             </ndc-dynamic>
         </div>
         <div id="mainContent" class="main-content row">
             <div class="main-layout pull-right flip">
-                <div #pepperiListCont>
+                <div #pepperiListCont class="content">
                     <ndc-dynamic
                         #pepperiListComp
                         [ndcDynamicComponent]="pepperiListComponent"

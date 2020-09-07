@@ -247,6 +247,12 @@ export class PepperiListContComponent implements OnInit {
         return osd;
         })
 
+        if (this.topBarComp) {
+            this.listActions = this.getListActions(null, translates);
+            this.topBarComp.componentRef.instance.listActionsData = null;
+            this.topBarOnInit(this.topBarComp.componentRef);
+          }
+
         this.pepperiListComp.componentRef.instance.initListData(uiControl, l.length, l, VIEW_TYPE.Table, '', true);
     });
   }

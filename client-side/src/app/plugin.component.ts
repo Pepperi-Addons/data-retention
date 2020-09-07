@@ -486,7 +486,7 @@ export class PluginComponent implements OnInit, OnDestroy {
                 self.deleteType(selectedObj);
                 
             },
-            className: "pepperi-button md strong",
+            className: "pepperi-button md strong caution",
             icon: null
         }];
         const title = this.translate.instant("Archive_DeleteModal_Title");
