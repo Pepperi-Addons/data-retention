@@ -47,8 +47,15 @@ export class AdditionalData {
     DefaultNumofMonths_Draft?: number = 24;
     LatestReportURL?: string = '';
     NumOfDaysForHidden?: number = 90;
+    ArchivePhase?: Phase;
+    ArchiveHiddenPhase?: Phase;
 }
 
+export interface Phase {
+    AuditUUID: string;
+    ReturnData: any;
+    Success: boolean;
+}
 export class DialogModel {
 
     title = '';

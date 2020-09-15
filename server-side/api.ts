@@ -1,23 +1,163 @@
+import { Addon } from './../client-side/src/app/plugin.model';
 import { Client, Request } from '@pepperi-addons/debug-server'
-import { GeneralActivity, Transaction } from '@pepperi-addons/papi-sdk';
-import { ReportTuple, MyService, ScheduledType, ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj } from './my.service';
-import { exec } from 'child_process';
+import { GeneralActivity, Transaction, AuditLog } from '@pepperi-addons/papi-sdk';
+import { ReportTuple, MyService, ScheduledType, ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj, DataRetentionData } from './my.service';
 
 export const PageSize: number = 5000;
+export const DeltaDays: number = 180;
+export const HiddenTresholdDays: number = 90;
+export const MaxArchiveItems: number = 150000;
 
-export async function archive(client: Client, request: Request) {
+export async function run_data_retention(client: Client, request: Request) {
     try {
         const service = new MyService(client);
-        const addonData = await service.getAdditionalData();
-        let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
-        if((await CanRunArchive(service)) == false) {
-            console.error('Api version is less than 286, aborting!')
-            return {
-                success: false,
-                errorMessage: 'Cannot run Archive on API version prior to 286',
-                resultObject: {}
+        const executionData: DataRetentionData = getDataRetentionExecutionData(request);
+        let callNextPhase = true;
+        let finished = false;
+        let retVal = executionData.PhaseResult;
+        let executionObj: any;
+        let phaseResult;
+        if(executionData.ExecutionID != '') {
+            let resultObj = await service.getReturnObjectFromAudit(executionData.ExecutionID);
+            console.log(`result obj got from audit log: ${resultObj}`);
+            if(!resultObj) {
+                callNextPhase = false;
+            }
+            else {
+                if(executionData.Phase == 'ArchiveHidden') {
+                    phaseResult = {
+                        Name: 'archive hidden activities',
+                        ResultObj: resultObj,
+                        AuditUUID: executionData.ExecutionID
+                    };
+                    retVal ? retVal.push(phaseResult) : retVal = [phaseResult];
+                    console.log('finished ArchiveHidden phase');
+                    executionData.Phase = 'Archive';
+                }
+                else if(executionData.Phase == 'Archive') {
+                    phaseResult = {
+                        Name: 'archive',
+                        ResultObj: resultObj,
+                        AuditUUID: executionData.ExecutionID
+                    }
+                    retVal ? retVal.push(phaseResult) : retVal = [phaseResult];
+                    console.log('finished Archive phase');
+                    finished = true;
+                }
             }
         }
+        if(callNextPhase) {
+            switch (executionData.Phase) {
+                case 'ArchiveHidden': {
+                    executionObj = await service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive_hidden_activities').post({retry:5});
+                    executionData.ExecutionID = 'ExecutionUUID' in executionObj ? executionObj.ExecutionUUID : '';
+                    console.log(`called archive_hidden_activities function. audit log: ${executionData.ExecutionID}`);
+                    break;
+                }
+                case 'Archive': {
+                    executionObj = await service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive').post({retry:25});
+                    executionData.ExecutionID = 'ExecutionUUID' in executionObj ? executionObj.ExecutionUUID : '';
+                    console.log(`called archive function. audit log: ${executionData.ExecutionID}`);
+                    break;
+                }
+            }
+        }
+
+        if(!finished) {
+            console.log('calling retry');
+            request.body = {
+                executionID: executionData.ExecutionID,
+                phase: executionData.Phase,
+                result: retVal,
+            }
+            client.Retry(60000);
+            return request.body;
+        }
+        else {
+            return {
+                success: true,
+                errorMessage: '',
+                returnValue: retVal,
+            }
+        }
+        // const callbackFunction = `exports.callback = async (Client, Request , Response ) =>
+        // {
+        //     const options = {
+        //         method: "POST",
+        //         uri: Client.BaseURL + "/addons/api/async/${client.AddonUUID}/api/run_data_retention",
+        //         headers: {
+        //             "Authorization": " Bearer " + Client.OAuthAccessToken,
+        //             "Content-Type": "application/json"
+        //         },
+        //         body: {
+        //             response: Response,
+        //             body: Request.body
+        //         },
+        //         json: true // Automatically parses the JSON string in the Response
+        //     };
+        //     try {
+        //             console.log("before calling 'run_data_retention'. options are", JSON.stringify(options))
+        //             const res = await Client.Module.rp(options);
+        //             const auditID = 'ExecutionUUID' in res ? res.ExecutionUUID : '';
+        //             console.log("function 'run_data_retention' audit log ID:", auditID);
+        //             Response = res;
+        //     }             
+        //     catch(error) {
+        //     	Client.addLogEntry("Error", "Got error in 'run_data_retention' callback " +  error.message);                 
+        //         Response.success = false;                 
+        //         Response.errorMessage = error.message;             
+        //     }
+        //     return Response; 
+        // }`
+        // let retVal = {};
+        // let success = true;
+        // const callbackUUID = '' // await service.papiClient.post('/addons/api/async/callback', {Callback:callbackFunction});
+        // console.debug('Callback UUID is', callbackUUID);
+        // if(!addonData.ArchiveHiddenPhase) {
+        //     service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive_hidden_activities').post({retry:5, callback:callbackUUID});
+        // }
+        // else {
+        //     if(!addonData.ArchivePhase) {
+        //         service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive').post({retry:25, callback:callbackUUID});
+        //     }
+        //     else {
+        //         retVal = [{
+        //             Name: 'archive hidden activities',
+        //             Result: addonData.ArchiveHiddenPhase.ReturnData,
+        //             Success: addonData.ArchiveHiddenPhase.Success,
+        //             AuditUUID: addonData.ArchiveHiddenPhase.AuditUUID,
+        //         },
+        //         {
+        //             Name: 'archive activities',
+        //             Result: addonData.ArchivePhase.ReturnData,
+        //             Success: addonData.ArchivePhase.Success,
+        //             AuditUUID: addonData.ArchivePhase.AuditUUID,
+        //         }]
+        //         success = addonData.ArchiveHiddenPhase.Success && addonData.ArchivePhase.Success;
+        //         addonData.ArchiveHiddenPhase = addonData.ArchivePhase = undefined;
+        //         service.updateAdditionalData(addonData);
+        //     }
+        // }
+   
+        // return {
+        //     success: success,
+        //     errorMessage: '',
+        //     resultObject: retVal
+        // }
+    }
+    catch (err) {
+        return {
+            success: false,
+            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured'
+        }
+    }
+}
+
+export async function archive(client: Client, request: Request) {
+    const service = new MyService(client);
+    const addonData = await service.getAdditionalData();
+    try {
+        let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
         if (executionData.ArchivingReport && executionData.ArchivingReport.length > 0) {
             const resultObj = await PollArchiveJobs(service, executionData)
             if (resultObj) {
@@ -33,12 +173,6 @@ export async function archive(client: Client, request: Request) {
             }
         }
         else {
-            // On the first run of the archive function, first archive all the hidden activities
-            if(executionData.PageIndex == 1) { 
-                const response = await service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive_hidden_activities').post({retry:5});
-                const auditID = 'ExecutionUUID' in response ? response.ExecutionUUID : '';
-                console.log('Archive Hidden activitied audit log ID:', auditID);
-            }
             const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths, executionData);
             if (isDone) {
                 const final = GenerateReport(report, x => x.ActivityType.Key);
@@ -125,9 +259,9 @@ export async function get_archive_report(client: Client, request: Request) {
 }
 
 export async function archive_hidden_activities(client: Client, request: Request) {
+    const service = new MyService(client);
+    const addonData = await service.getAdditionalData();
     try {
-        const service = new MyService(client);
-        const addonData = await service.getAdditionalData();
         const executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
         if (executionData.ArchivingReport && executionData.ArchivingReport.length > 0) {
             const resultObj = await PollArchiveJobs(service, executionData)
@@ -144,43 +278,40 @@ export async function archive_hidden_activities(client: Client, request: Request
             }
         }
         else {
-            const daysToSubstract: number = addonData.NumOfDaysForHidden ? addonData.NumOfDaysForHidden : 90;
-            const tresholdDate = new Date();
+            const daysToSubstract: number = addonData.NumOfDaysForHidden ? addonData.NumOfDaysForHidden : 1825;
+            const tresholModificationdDate = new Date();
+            const tresholActionDate = new Date();
             
-            tresholdDate.setDate(tresholdDate.getDate() - daysToSubstract);
-            const dateStr = tresholdDate.toISOString().split('.')[0]+"Z";
-            const retVal = await service.archiveHiddenActivities(dateStr, executionData);
-            if(retVal.Finished) {
-                if(executionData.ActivityType === 'GeneralActivity') {
-                    request.body = {
-                        archivingReport:  retVal.Report,
-                    }
-                    client.Retry(1000);
-                    return {
-                        success: true,
-                        errorMessage: '',
-                        archiveJobs:  retVal.Report,
-                    }
-                }
-                else {
-                    await service.uploadArchivingReportToS3(executionData.ArchiveReportURL.UploadUrl, retVal.Report);
-                    request.body = {
-                        activityType: 'GeneralActivity',
-                        pageIndex: 1,
-                        archiveDataFileURL: executionData.ArchiveReportURL,
-                    }
-                    client.Retry(1000);
-                    return request.body;
-                }
+            tresholModificationdDate.setDate(tresholModificationdDate.getDate() - HiddenTresholdDays);
+            tresholActionDate.setDate(tresholActionDate.getDate() - daysToSubstract);
+            const modificationDateStr = tresholModificationdDate.toISOString().split('.')[0]+"Z";
+            const actionDateStr = tresholActionDate.toISOString().split('.')[0]+"Z";
+            const transactionJobs = await service.archiveHiddenActivities('Transaction', modificationDateStr, actionDateStr);
+            const activitiesJobs = await service.archiveHiddenActivities('GeneralActivity', modificationDateStr, actionDateStr);
+            const jobsIds:ArchiveReport[] = [{
+                ActivityType:'Hidden Transactions',
+                ArchiveCount: transactionJobs.ArchiveCount,
+                ArchiveJobResult: transactionJobs.ArchiveJobResult,
+            },
+            {
+                ActivityType:'Hidden Activities',
+                ArchiveCount: activitiesJobs.ArchiveCount,
+                ArchiveJobResult: activitiesJobs.ArchiveJobResult,
+            }]
+
+            request.body = {
+                archivingReport: jobsIds,
             }
-            else {
-                await service.uploadArchivingReportToS3(executionData.ArchiveReportURL.UploadUrl, retVal.Report);
-                    request.body = {
-                        pageIndex: retVal.PageIndex,
-                        archiveDataFileURL: executionData.ArchiveReportURL,
-                    }
-                    client.Retry(1000);
-                    return request.body;
+
+            if((transactionJobs.TotalItems || 0) <= MaxArchiveItems && (activitiesJobs.TotalItems || 0) <= MaxArchiveItems) {
+                addonData.NumOfDaysForHidden = Math.max(daysToSubstract - DeltaDays, 90);
+                await service.updateAdditionalData(addonData);
+            }
+            client.Retry(1000);
+            return {
+                success: true,
+                errorMessage: '',
+                archiveJobs: jobsIds,
             }
         }
     }
@@ -297,7 +428,7 @@ function groupBy(list, keyGetter) {
 }
 
 async function GetPreviousExecutionsData(client: Client, request: Request): Promise<ExecutionData> {
-    console.log('request.body is:', request?.body);
+    console.log('request.body is:', JSON.stringify(request?.body));
     const service = new MyService(client);
     let retVal: ExecutionData = {
         PageIndex: 1,
@@ -312,7 +443,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
     }
     if (request?.body) {
         try {
-            retVal.ArchiveReportURL = 'archiveDataFileURL' in request.body ? request.body.archiveDataFileURL : await service.papiClient.fileStorage.temporaryUploadUrl();
+            retVal.ArchiveReportURL = 'archiveDataFileURL' in request.body ? request.body.archiveDataFileURL : await service.papiClient.post('/file_storage/temporary_upload_url');//await service.papiClient.fileStorage.temporaryUploadUrl();
             console.debug('temporary file url is:', retVal.ArchiveReportURL);
             if ('archiveDataFileURL' in request.body && request.body.archiveDataFileURL.PublicUrl != '') {
                 retVal.PreviousRunReport = await service.getReportFromS3(retVal.ArchiveReportURL.PublicUrl);
@@ -327,18 +458,20 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
         }
     }
     else {
-        retVal.ArchiveReportURL = await service.papiClient.fileStorage.temporaryUploadUrl();
+        retVal.ArchiveReportURL = await service.papiClient.post('/file_storage/temporary_upload_url'); //await service.papiClient.fileStorage.temporaryUploadUrl();
     }
     return retVal;
 }
 
 async function PollArchiveJobs(service: MyService, executionData: ExecutionData): Promise<{ archiveResultObject: ArchiveReturnObj[] }> {
     return new Promise((resolve) => {
+        console.log('start polling jobs:', JSON.stringify(executionData.ArchivingReport));
         let numOfTries = 1;
         const interval = setInterval(async () => {
             const pollingJobsPromises = executionData.ArchivingReport.map((item): Promise<ArchiveReturnObj> => {
                 const promises = item.ArchiveJobResult.map((job): Promise<ArchiveJobResult> => {
                     return new Promise((resolve) => {
+                        console.debug(`calling ${job.URI}`);
                         service.papiClient.get(job.URI).then((jobResult) => {
                             resolve({
                                 URI: job.URI,
@@ -369,6 +502,7 @@ async function PollArchiveJobs(service: MyService, executionData: ExecutionData)
             });
             const pollingJobs = await Promise.all(pollingJobsPromises.flat());
             if (pollingJobs.filter(poll => !poll.Finished).length == 0) {
+                clearInterval(interval);
                 resolve({
                     archiveResultObject: pollingJobs.map(item => {
                         return {
@@ -377,11 +511,10 @@ async function PollArchiveJobs(service: MyService, executionData: ExecutionData)
                         }
                     })
                 });
-                clearInterval(interval);
             }
             else if (numOfTries++ > 600) {
-                resolve(undefined);
                 clearInterval(interval);
+                resolve(undefined);
             }
         }, 10000);
     });
@@ -391,9 +524,12 @@ function HasFailedJobs(item: ArchiveReturnObj): boolean {
     return item.Jobs.find(job => job.Status == "Failed") != undefined
 }
 
-async function CanRunArchive(service: MyService): Promise<boolean> {
-    const apiAddon = await service.papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
-    const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
-
-    return apiVersion >= 286;
+function getDataRetentionExecutionData(request: Request): DataRetentionData {
+    let retVal: DataRetentionData = { Phase: 'ArchiveHidden', ExecutionID: ''};
+    if(request?.body) {
+        retVal.Phase = 'phase' in request.body ? request.body.phase : 'ArchiveHidden';
+        retVal.ExecutionID = 'executionID' in request.body ? request.body.executionID : '';
+        retVal.PhaseResult = 'result' in request.body ? request.body.result : [];
+    }
+    return retVal;
 }

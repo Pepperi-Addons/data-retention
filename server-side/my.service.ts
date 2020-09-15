@@ -1,14 +1,18 @@
 import { AdditionalData } from './../client-side/src/app/plugin.model';
-import { PapiClient, InstalledAddon, MaintenanceJobResult, ArchiveBody, TempUrlResponse } from '@pepperi-addons/papi-sdk'
+import { PapiClient, InstalledAddon, ExportApiResponse, ArchiveBody } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import fetch from 'node-fetch';
-import { PageSize } from './api';
+import { PageSize, MaxArchiveItems } from './api';
 import chunk from 'lodash.chunk';
+import { resolve } from 'dns';
+import { getTokenSourceMapRange } from 'typescript';
+import { createReadStream } from 'fs';
+import { ExecSyncOptionsWithBufferEncoding } from 'child_process';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 export class MyService {
-
+    
     papiClient: PapiClient
     addonUUID = '';
 
@@ -71,7 +75,7 @@ export class MyService {
             ScheduledTypes_Draft: [],
             DefaultNumofMonths:24,
             DefaultNumofMonths_Draft:24,
-            NumOfDaysForHidden:90
+            NumOfDaysForHidden:1825
         };
         if(addon?.AdditionalData) {
             retVal = JSON.parse(addon.AdditionalData);
@@ -80,6 +84,8 @@ export class MyService {
             retVal.ScheduledTypes = [];
             retVal.ScheduledTypes_Draft = [];
         }
+        retVal.DefaultNumofMonths = retVal.DefaultNumofMonths || 24;
+        retVal.DefaultNumofMonths_Draft = retVal.DefaultNumofMonths_Draft || 24;
 
         return retVal;
     }
@@ -93,19 +99,35 @@ export class MyService {
 
     async archiveData(data: ReportTuple[]): Promise<ArchiveReport[]> {
         let maintenanceJobs: Promise<ArchiveReport>[] = [];
+        let totalArchiveCount = 0;
         maintenanceJobs = data.filter(item => item.ArchiveCount > 0).map((row):Promise<ArchiveReport> => {
             return new Promise((resolve,reject) => {
                 this.getAtdType(row.ActivityType.Key).then((atdType) => {
                     console.debug("activity Type is:", row.ActivityType.Key, "\ntype got from meta data is:", atdType);
-                    this.getArchiveJobsInfo(atdType, row.Activities).then((jobsResults) => {
-                        resolve({
+                    const remainingItems = MaxArchiveItems - totalArchiveCount;
+                    if (remainingItems > 0 && remainingItems < row.ArchiveCount) {
+                        row.ArchiveCount = remainingItems;
+                        row.Activities = row.Activities.slice(0, remainingItems);
+                    }
+                    if(remainingItems > 0) {
+                        totalArchiveCount += row.ArchiveCount;
+                        this.getArchiveJobsInfo(atdType, row.Activities).then((jobsResults) => {
+                            resolve({
+                                ActivityType: row.ActivityType.Value,
+                                ArchiveCount: row.ArchiveCount,
+                                ArchiveJobResult: jobsResults
+                            })
+                        }, (reason)=>{
+                            reject(reason);
+                        });
+                    }
+                    else {
+                        resolve ({
                             ActivityType: row.ActivityType.Value,
-                            ArchiveCount: row.ArchiveCount,
-                            ArchiveJobResult: jobsResults
+                            ArchiveCount: 0,
+                            ArchiveJobResult: []
                         })
-                    }, (reason)=>{
-                        reject(reason);
-                    });
+                    }
                 });
             });
         })
@@ -139,8 +161,8 @@ export class MyService {
         }
     }
 
-    async getArchiveJobsInfo(atdType: string, activitiesIds: number[]): Promise<MaintenanceJobResult[]> {
-        let jobsResults: Promise<MaintenanceJobResult>[] = []
+    async getArchiveJobsInfo(atdType: string, activitiesIds: number[]): Promise<ExportApiResponse[]> {
+        let jobsResults: Promise<ExportApiResponse>[] = []
         const chunks: number[][] = chunk(activitiesIds, PageSize);
         chunks.forEach(items => {
             const body: ArchiveBody = atdType == 'Transaction' ? { transactions: items } : { activities: items };
@@ -171,6 +193,12 @@ export class MyService {
             .then((res) => (res ? JSON.parse(res) : ''));
     }
 
+    async getExportFile(url: string): Promise<ExportDataFile> {
+        return this.apiCall('GET', url)
+            .then((res) => res.text())
+            .then((res) => (res ? JSON.parse(res) : ''));
+    }
+    
     async apiCall(method: HttpMethod, url: string, body: any = undefined ) {
         
         const options: any = {
@@ -197,61 +225,68 @@ export class MyService {
         return res;
     }
 
-    async archiveHiddenActivities(tresholdDate: string, currentExecutionData: ExecutionData ): Promise<ArchiveHiddenReturnObj> {
-        let currentReport = currentExecutionData.ArchivingReport.find(x=>x.ActivityType = currentExecutionData.ActivityType);
-        let retVal: MaintenanceJobResult[][] = currentReport ? [currentReport.ArchiveJobResult] : [];
-        let itemsCount: number = 0;
-        let items: number[] = [];
-        let aggregated: number[] = [];
+    async archiveHiddenActivities(type: 'Transaction' | 'GeneralActivity', modificationDate: string, actionDate: string): Promise<ArchiveReport> {
         let activitiesBody = {
-            fields:['InternalID'], 
-            page_size:1000, 
-            include_deleted:true, 
-            page: currentExecutionData.PageIndex,
-            where: 'Hidden=1 And ModificationDateTime <= \'' + tresholdDate + '\''
+            fields:['InternalID'],
+            include_deleted:true,
+            where: 'Hidden=1 And ModificationDateTime <= \'' + modificationDate + '\' And ActionDateTime <= \'' + actionDate + '\''
         }
-        
-        do {
-            console.debug('processing hidden activities. Page number is', activitiesBody.page);
-            if(currentExecutionData.ActivityType == 'Transaction') { 
-                items = (await this.papiClient.transactions.find(activitiesBody)).map(item => item.InternalID ? item.InternalID : -1);
-            }
-            else {
-                items = (await this.papiClient.activities.find(activitiesBody)).map(item => item.InternalID ? item.InternalID : -1);
-            }
-            if(items.length > 0) {
-                activitiesBody.page++;
-                itemsCount += items.length;
-                aggregated = aggregated.concat(items);
-            }
-            if(activitiesBody.page % 5 == 1) { // for performance reasons we limit number of activities to 5K before archiving
-                //retVal.push(await this.getArchiveJobsInfo(currentExecutionData.ActivityType, aggregated));
-                //aggregated = [];
-            }
-            
-        } while (items.length > 0 && activitiesBody.page % 50 != 1) // for performance reasons we limit number of activities to 150K and then retrying
+        const apiResponse = type === 'Transaction' ? await this.papiClient.transactions.export(activitiesBody) : await this.papiClient.activities.export(activitiesBody);
+        console.log(`archive hidden ${type}, where clause is: ${activitiesBody.where} \n export job_id is: ${apiResponse.JobID}`);
 
-        // if(aggregated.length > 0) {
-        //     retVal.push(await this.getArchiveJobsInfo(currentExecutionData.ActivityType, aggregated));
-        // }
-
-        const report = currentExecutionData.ArchivingReport.map(item => {
-            if(item.ActivityType === currentExecutionData.ActivityType) {
-                return {
-                    ActivityType: currentExecutionData.ActivityType,
-                    ArchiveCount: item.ArchiveCount + itemsCount,
-                    ArchiveJobResult: retVal.flat(),
+        return new Promise((resolve,reject) => {
+            const interval = setInterval(async () => {
+                const jobStatus = await this.papiClient.get(apiResponse.URI);
+                console.debug(`response got from job_info ${JSON.stringify(jobStatus)}`)
+                if(jobStatus.Status === 'Succeeded') {
+                    clearInterval(interval);
+                    if(jobStatus.RecordsCount > 0) {
+                        const jobResponse = await this.getExportFile(jobStatus.GetDataURL);
+                        let items: number[] = jobResponse.Lines.map(arr => {
+                            return arr.length > 0 ? arr[0] : -1;
+                        })
+                        items = items.length > MaxArchiveItems ? items.slice(0, MaxArchiveItems) : items;
+                        const archiveJobs = await this.getArchiveJobsInfo(type, items);
+                        resolve({
+                            ActivityType: type,
+                            ArchiveCount: items.length,
+                            ArchiveJobResult: archiveJobs,
+                            TotalItems: jobStatus.RecordsCount,
+                        })
+                        console.debug('data URL is ', jobStatus.GetDataURL);
+                    }
+                    else {
+                        resolve({
+                            ActivityType: type,
+                            ArchiveCount: 0,
+                            ArchiveJobResult: [],
+                        })
+                    }
                 }
-            }
-            else {
-                return item;
-            }
-        })
-        return {
-            Report: report, 
-            Finished: items.length == 0, 
-            PageIndex: activitiesBody.page
-        };
+                else if (jobStatus.Status === 'Failed') {
+                    clearInterval(interval);
+                    reject({
+                        message: `export ${type} has failed with error: ${jobStatus.ErrorMessage}`
+                    });
+                }
+            }, 10000)
+        });
+    }
+
+    getReturnObjectFromAudit(auditLogUUID: string): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            console.log(`getting result object from audit log: ${auditLogUUID}`);
+            this.papiClient.auditLogs.uuid(auditLogUUID).get().then(logRes => {
+                if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress' && logRes.Status.Name !== 'InRetry') {
+                    const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
+                    console.log(`result got from audit log: ${JSON.stringify(logRes)}. `);
+                    resolve(resultObj);
+                }
+                else {
+                    resolve(undefined);
+                }
+            });
+        });
     }
 }
 
@@ -275,7 +310,8 @@ export interface ScheduledType {
 export interface ArchiveReport {
     ActivityType: string;
     ArchiveCount: number;
-    ArchiveJobResult: MaintenanceJobResult[];
+    ArchiveJobResult: ExportApiResponse[];
+    TotalItems?: number;
 }
 
 export interface ArchiveJobResult {
@@ -294,14 +330,31 @@ export interface ArchiveReturnObj {
 export interface ExecutionData {
     PageIndex: number;
     PreviousRunReport:ReportTuple[];
-    ArchiveReportURL:TempUrlResponse;
+    ArchiveReportURL:any;
     ArchivingReport: ArchiveReport[];
     ArchiveResultObject: ArchiveReturnObj[];
     ActivityType: 'Transaction' | 'GeneralActivity';
+}
+
+export interface DataRetentionData {
+    Phase: string;
+    ExecutionID: string;
+    PhaseResult?: [{
+        Name: string;
+        ResultObj: any;
+        AuditUUID: string;
+    }]
 }
 
 export interface ArchiveHiddenReturnObj {
     Report:ArchiveReport[];
     Finished: boolean;
     PageIndex: number;
+}
+
+export interface ExportDataFile {
+    SubType: string;
+    Headers: string[];
+    Lines: any[];
+    NumberOfResults: number;
 }
