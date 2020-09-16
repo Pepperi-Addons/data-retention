@@ -325,7 +325,7 @@ export class PluginComponent implements OnInit, OnDestroy {
         this.additionalData.DefaultNumofMonths = this.additionalData.DefaultNumofMonths_Draft;
         await this.pluginService.updateAdditionalData(this.additionalData);
         this.pluginService.papiClient.codeJobs.async().uuid(this.additionalData.CodeJobUUID).execute().then(value => {
-            const executionLogLink = `${this.schedulerURL}?view=executions&execution_id=${value.ExecutionUUID}&job_id=${this.additionalData.CodeJobUUID}`;
+            const executionLogLink = `${this.schedulerURL}?view=executions&job_id=${this.additionalData.CodeJobUUID}`;
             const title = this.translate.instant('Archive_ExecuteModal_Title');
             const content = this.translate.instant('Archive_ExecutingModal_Paragraph', {
                 ExecutionLogLink: executionLogLink
