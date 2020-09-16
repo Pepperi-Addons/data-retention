@@ -1,7 +1,7 @@
 import { PapiClient, CodeJob } from "@pepperi-addons/papi-sdk";
 import { InstalledAddon } from "../client-side/src/app/plugin.model";
 
-const minimumAPIVersion: number = 286;
+const minimumAPIVersion: number[] = [9,5,296];
 const minimumSchedulerVersion: number[] = [1,0,53];
 const editors = [
         {
@@ -213,30 +213,45 @@ function getRandomIndex(arrayLength:number): number {
 
 async function checkDependencies(papiClient:PapiClient, action: 'upgrade' | 'install'): Promise<{depedenciesMet:boolean, errorMessage:string}> {
     let checkPassed = true;
-    let errorMessage = '';
+    let errorMessage = `${action} addon Failed. \n`;
     try {
-    const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
-    const apiVersion = Number(apiAddon?.Version?.substr(1, 3));
-    const schedulerAddon = await papiClient.addons.installedAddons.addonUUID('fcb7ced2-4c81-4705-9f2b-89310d45e6c7').get();
-    const schedulerVersion = schedulerAddon?.Version ? schedulerAddon.Version.split('.').map(item => {
-        return Number(item);
-    }) : []
+        const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
+        const apiVersion = apiAddon?.Version ? apiAddon.Version.split('.').map(item => {
+            return Number(item);
+        }) : []
+        const schedulerAddon = await papiClient.addons.installedAddons.addonUUID('fcb7ced2-4c81-4705-9f2b-89310d45e6c7').get();
+        const schedulerVersion = schedulerAddon?.Version ? schedulerAddon.Version.split('.').map(item => {
+            return Number(item);
+        }) : []
 
-    if(apiVersion < minimumAPIVersion) {
-        checkPassed = false;
-        errorMessage = `Cannot ${action} addon. Please upgrade 'Services Framework' add-on to version V${minimumAPIVersion} or above and try again.`
-    }
-    else if (schedulerVersion?.length == 3 &&
-        (schedulerVersion[0] < minimumSchedulerVersion[0]) || 
-        (schedulerVersion[0] == minimumSchedulerVersion[0] && schedulerVersion[1] < minimumSchedulerVersion[1]) ||
-        (schedulerVersion[0] == minimumSchedulerVersion[0] && schedulerVersion[1] == minimumSchedulerVersion[1] && schedulerVersion[2] < minimumSchedulerVersion[2])) {      
+        if (apiVersion?.length == 3) {
+            if((apiVersion[0] < minimumAPIVersion[0]) || 
+                (apiVersion[0] == minimumAPIVersion[0] && apiVersion[1] < minimumAPIVersion[1]) ||
+                (apiVersion[0] == minimumAPIVersion[0] && apiVersion[1] == minimumAPIVersion[1] && apiVersion[2] < minimumAPIVersion[2])) {
+                checkPassed = false;
+                errorMessage += `Please upgrade 'Services Framework' add-on to version ${minimumAPIVersion.join('.')} or above and try again. \n`
+            }
+        }
+        else {
             checkPassed = false;
-            errorMessage = `Cannot ${action} addon. Please upgrade 'Automated Jobs' add-on to version ${minimumSchedulerVersion.join('.')} or above and try again.`
+            errorMessage += `Please upgrade 'Services Framework' add-on to version ${minimumAPIVersion.join('.')} or above and try again. \n`
+        }
+        if (schedulerVersion?.length == 3) {
+            if ((schedulerVersion[0] < minimumSchedulerVersion[0]) || 
+            (schedulerVersion[0] == minimumSchedulerVersion[0] && schedulerVersion[1] < minimumSchedulerVersion[1]) ||
+            (schedulerVersion[0] == minimumSchedulerVersion[0] && schedulerVersion[1] == minimumSchedulerVersion[1] && schedulerVersion[2] < minimumSchedulerVersion[2])) {      
+                checkPassed = false;
+                errorMessage += `Please upgrade 'Automated Jobs' add-on to version ${minimumSchedulerVersion.join('.')} or above and try again.`
+            }
+        }
+        else {
+            checkPassed = false;
+            errorMessage += `Please upgrade 'Automated Jobs' add-on to version ${minimumSchedulerVersion.join('.')} or above and try again.`
         }
     }
     catch {
         checkPassed = false;
-        errorMessage = `Cannot verify version for dependencies add-ons`
+        errorMessage += `Cannot verify version for dependencies add-ons`
     }
     return {
         depedenciesMet: checkPassed,
