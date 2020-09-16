@@ -3,6 +3,13 @@ import { InstalledAddon } from "../client-side/src/app/plugin.model";
 
 const minimumAPIVersion: number = 286;
 const minimumSchedulerVersion: number[] = [1,0,53];
+const editors = [
+        {
+            "ParentPackageName":"Automated Jobs",
+            "PackageName":"scheduler",
+            "Description":"Data Retention"
+        }
+    ]
 
 exports.install = async (Client, Request) => {
     let success = true;
@@ -48,7 +55,7 @@ exports.install = async (Client, Request) => {
     return {
         success: success,
         errorMessage: errorMessage,        
-        resultObject: resultObject
+        resultObject: {editors: editors}
     }
 }
 
@@ -101,19 +108,19 @@ exports.upgrade = async (Client, Request) => {
         return {
             success:true,
             errorMessage:'',
-            resultObject:{}
+            resultObject:{editors: editors}
         }
     }
     else {
         return {
             success: false,
             errorMessage: dependencies.errorMessage,
-            resultObject: {}
+            resultObject: {editors: editors}
         }
     }
 }
 exports.downgrade = async (Client, Request) => {
-    return {success:true,resultObject:{}}
+    return {success:true,resultObject:{editors: editors}}
 }
 
 function getCronExpression() {
