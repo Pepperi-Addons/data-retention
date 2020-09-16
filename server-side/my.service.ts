@@ -62,7 +62,7 @@ export class MyService {
             fields:['InternalID','ActivityTypeID','Type','ActionDateTime', 'ModificationDateTime'], 
             page:1, 
             page_size:-1, 
-            where:`Account.InternalID in (${accounts}) and ActivityTypeID is not null`,
+            where:`Account.InternalID in (${accounts}) and ActivityTypeID is not null And Archive=0`,
             orderBy:"ActionDateTime desc",
             include_deleted:false});
         return retVal;
@@ -229,7 +229,7 @@ export class MyService {
         let activitiesBody = {
             fields:['InternalID'],
             include_deleted:true,
-            where: 'Hidden=1 And ModificationDateTime <= \'' + modificationDate + '\' And ActionDateTime <= \'' + actionDate + '\''
+            where: 'Hidden=1 And Archive=0 And ModificationDateTime <= \'' + modificationDate + '\' And ActionDateTime <= \'' + actionDate + '\''
         }
         const apiResponse = type === 'Transaction' ? await this.papiClient.transactions.export(activitiesBody) : await this.papiClient.activities.export(activitiesBody);
         console.log(`archive hidden ${type}, where clause is: ${activitiesBody.where} \n export job_id is: ${apiResponse.JobID}`);
