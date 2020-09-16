@@ -14,7 +14,6 @@ const editors = [
 exports.install = async (Client, Request) => {
     let success = true;
     let errorMessage = '';
-    let resultObject = {};
     const papiClient = new PapiClient({
         baseURL: Client.BaseURL,
         token: Client.OAuthAccessToken,
@@ -31,7 +30,7 @@ exports.install = async (Client, Request) => {
                 IsScheduled: true,
                 CronExpression: getCronExpression(),
                 AddonPath: "api",
-                FunctionName: "archive",
+                FunctionName: "run_data_retention",
                 AddonUUID: Client.AddonUUID,
                 NumberOfTries: 25,
             })
@@ -95,7 +94,7 @@ exports.upgrade = async (Client, Request) => {
         addonUUID: Client.AddonUUID
     });
     const dependencies = await checkDependencies(papiClient, 'upgrade');
-
+    
     if(dependencies.depedenciesMet) {
         let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
         if(uuid != '') {
@@ -103,6 +102,7 @@ exports.upgrade = async (Client, Request) => {
                 UUID:uuid,
                 CodeJobName: "Data Retention",
                 NumberOfTries: 25,
+                FunctionName: 'run_data_retention'
             });
         }
         return {
