@@ -456,7 +456,7 @@ async function PollArchiveJobs(service: MyService, executionData: ExecutionData)
                     })
                 });
             }
-            else if (numOfTries++ > 600) {
+            else if (numOfTries++ > 540) {
                 clearInterval(interval);
                 resolve(undefined);
             }
