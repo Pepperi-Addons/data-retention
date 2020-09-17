@@ -17,6 +17,14 @@ export async function run_data_retention(client: Client, request: Request) {
         let retVal = executionData.PhaseResult;
         let executionObj: any;
         let phaseResult;
+        if((await CanRunArchive(service)) == false) {
+            console.error('Api version is less than 9.5.296, aborting!')
+            return {
+                success: false,
+                errorMessage: 'Cannot run data retention on API version prior to 9.5.296',
+                resultObject: {}
+            }
+        }
         if(executionData.ExecutionID != '') {
             let resultObj = await service.getReturnObjectFromAudit(executionData.ExecutionID);
             console.log(`result obj got from audit log: ${resultObj}`);
@@ -468,4 +476,11 @@ function getDataRetentionExecutionData(request: Request): DataRetentionData {
         retVal.PhaseResult = 'result' in request.body ? request.body.result : [];
     }
     return retVal;
+}
+
+async function CanRunArchive(service: MyService): Promise<boolean> {
+    const apiAddon = await service.papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
+    const apiVersion = apiAddon?.Version?.split('.').map(item => {return Number(item)}) || [];
+
+    return apiVersion.length == 3 && apiVersion[2] >= 296;
 }
