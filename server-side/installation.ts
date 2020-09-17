@@ -6,7 +6,7 @@ const minimumSchedulerVersion: number[] = [1,0,53];
 const editors = [
         {
             "ParentPackageName":"Automated Jobs",
-            "PackageName":"scheduler",
+            "PackageName":"archive",
             "Description":"Data Retention"
         }
     ]
