@@ -5,7 +5,7 @@ import fetch from 'node-fetch';
 import { PageSize, MaxArchiveItems } from './api';
 import chunk from 'lodash.chunk';
 import { resolve } from 'dns';
-import { getTokenSourceMapRange } from 'typescript';
+import { getTokenSourceMapRange, createLabel } from 'typescript';
 import { createReadStream } from 'fs';
 import { ExecSyncOptionsWithBufferEncoding } from 'child_process';
 
@@ -275,17 +275,22 @@ export class MyService {
 
     getReturnObjectFromAudit(auditLogUUID: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
-            console.log(`getting result object from audit log: ${auditLogUUID}`);
-            this.papiClient.auditLogs.uuid(auditLogUUID).get().then(logRes => {
-                if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress' && logRes.Status.Name !== 'InRetry') {
-                    const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
-                    console.log(`result got from audit log: ${JSON.stringify(logRes)}. `);
-                    resolve(resultObj);
-                }
-                else {
-                    resolve(undefined);
-                }
-            });
+            let numOfTries = 1;
+            const interval = setInterval(() => {
+                console.debug(`getting result object from audit log: ${auditLogUUID}`);
+                this.papiClient.auditLogs.uuid(auditLogUUID).get().then(logRes => {
+                    if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress' && logRes.Status.Name !== 'InRetry') {
+                        clearInterval(interval);
+                        const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
+                        console.debug(`result got from audit log: ${JSON.stringify(logRes)}. `);
+                        resolve(resultObj);
+                    }
+                    else if(numOfTries++ > 18) {
+                        clearInterval(interval);
+                        resolve(undefined);
+                    }
+                });
+            }, 30000);
         });
     }
 }

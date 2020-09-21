@@ -83,7 +83,7 @@ export async function run_data_retention(client: Client, request: Request) {
         }
         else {
             return {
-                success: true,
+                success: hasFailedPhases(retVal),
                 errorMessage: '',
                 returnValue: retVal,
             }
@@ -121,7 +121,7 @@ export async function archive(client: Client, request: Request) {
             if (isDone) {
                 const final = GenerateReport(report, x => x.ActivityType.Key);
                 await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, final);
-                const jobsIds: ArchiveReport[] = await service.archiveData(final);
+                const jobsIds: ArchiveReport[] = [];// await service.archiveData(final);
                 if(jobsIds.length > 0) {
                     request.body = {
                         archivingReport: jobsIds,
@@ -456,16 +456,20 @@ async function PollArchiveJobs(service: MyService, executionData: ExecutionData)
                     })
                 });
             }
-            else if (numOfTries++ > 540) {
+            else if (numOfTries++ > 18) {
                 clearInterval(interval);
                 resolve(undefined);
             }
-        }, 10000);
+        }, 30000);
     });
 }
 
 function HasFailedJobs(item: ArchiveReturnObj): boolean {
     return item.Jobs.find(job => job.Status == "Failed") != undefined
+}
+
+function hasFailedPhases(phases): boolean {
+    return phases.find(phase => phase.ResultObj.success == false) != undefined
 }
 
 function getDataRetentionExecutionData(request: Request): DataRetentionData {
