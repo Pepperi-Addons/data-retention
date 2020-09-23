@@ -274,22 +274,21 @@ export class MyService {
     }
 
     getReturnObjectFromAudit(auditLogUUID: string): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<any>((resolve) => {
             let numOfTries = 1;
-            const interval = setInterval(() => {
+            const interval = setInterval(async () => {
                 console.debug(`getting result object from audit log: ${auditLogUUID}`);
-                this.papiClient.auditLogs.uuid(auditLogUUID).get().then(logRes => {
-                    if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress' && logRes.Status.Name !== 'InRetry') {
-                        clearInterval(interval);
-                        const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
-                        console.debug(`result got from audit log: ${JSON.stringify(logRes)}. `);
-                        resolve(resultObj);
-                    }
-                    else if(numOfTries++ > 18) {
-                        clearInterval(interval);
-                        resolve(undefined);
-                    }
-                });
+                const logRes = await this.papiClient.auditLogs.uuid(auditLogUUID).get();
+                if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress' && logRes.Status.Name !== 'InRetry') {
+                    clearInterval(interval);
+                    const resultObj = JSON.parse(logRes.AuditInfo.ResultObject);
+                    console.debug(`result got from audit log: ${JSON.stringify(logRes)}. `);
+                    resolve(resultObj);
+                }
+                else if(++numOfTries > 16) {
+                    clearInterval(interval);
+                    resolve(undefined);
+                }
             }, 30000);
         });
     }

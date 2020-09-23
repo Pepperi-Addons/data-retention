@@ -1,6 +1,6 @@
-import { Addon } from './../client-side/src/app/plugin.model';
+
 import { Client, Request } from '@pepperi-addons/debug-server'
-import { GeneralActivity, Transaction, AuditLog } from '@pepperi-addons/papi-sdk';
+import { GeneralActivity, Transaction } from '@pepperi-addons/papi-sdk';
 import { ReportTuple, MyService, ScheduledType, ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj, DataRetentionData } from './my.service';
 
 export const PageSize: number = 5000;
@@ -27,7 +27,7 @@ export async function run_data_retention(client: Client, request: Request) {
         }
         if(executionData.ExecutionID != '') {
             let resultObj = await service.getReturnObjectFromAudit(executionData.ExecutionID);
-            console.log(`result obj got from audit log: ${resultObj}`);
+            console.log(`result obj got from audit log: ${JSON.stringify(resultObj)}`);
             if(!resultObj) {
                 callNextPhase = false;
             }
@@ -51,6 +51,7 @@ export async function run_data_retention(client: Client, request: Request) {
                     retVal ? retVal.push(phaseResult) : retVal = [phaseResult];
                     console.log('finished Archive phase');
                     finished = true;
+                    callNextPhase = false;
                 }
             }
         }
@@ -121,7 +122,7 @@ export async function archive(client: Client, request: Request) {
             if (isDone) {
                 const final = GenerateReport(report, x => x.ActivityType.Key);
                 await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, final);
-                const jobsIds: ArchiveReport[] = [];// await service.archiveData(final);
+                const jobsIds: ArchiveReport[] = await service.archiveData(final);
                 if(jobsIds.length > 0) {
                     request.body = {
                         archivingReport: jobsIds,
@@ -387,7 +388,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
     }
     if (request?.body) {
         try {
-            retVal.ArchiveReportURL = 'archiveDataFileURL' in request.body ? request.body.archiveDataFileURL : await service.papiClient.post('/file_storage/temporary_upload_url');//await service.papiClient.fileStorage.temporaryUploadUrl();
+            retVal.ArchiveReportURL = 'archiveDataFileURL' in request.body ? request.body.archiveDataFileURL : await service.papiClient.fileStorage.temporaryUploadUrl();
             console.debug('temporary file url is:', retVal.ArchiveReportURL);
             if ('archiveDataFileURL' in request.body && request.body.archiveDataFileURL.PublicUrl != '') {
                 retVal.PreviousRunReport = await service.getReportFromS3(retVal.ArchiveReportURL.PublicUrl);
@@ -402,7 +403,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
         }
     }
     else {
-        retVal.ArchiveReportURL = await service.papiClient.post('/file_storage/temporary_upload_url'); //await service.papiClient.fileStorage.temporaryUploadUrl();
+        retVal.ArchiveReportURL = await service.papiClient.fileStorage.temporaryUploadUrl();
     }
     return retVal;
 }
@@ -456,7 +457,7 @@ async function PollArchiveJobs(service: MyService, executionData: ExecutionData)
                     })
                 });
             }
-            else if (numOfTries++ > 18) {
+            else if (++numOfTries > 18) {
                 clearInterval(interval);
                 resolve(undefined);
             }
@@ -469,10 +470,11 @@ function HasFailedJobs(item: ArchiveReturnObj): boolean {
 }
 
 function hasFailedPhases(phases): boolean {
-    return phases.find(phase => phase.ResultObj.success == false) != undefined
+    return phases.find(phase => phase.ResultObj.success == false) == undefined
 }
 
 function getDataRetentionExecutionData(request: Request): DataRetentionData {
+    console.log('request.body is:', JSON.stringify(request?.body));
     let retVal: DataRetentionData = { Phase: 'ArchiveHidden', ExecutionID: ''};
     if(request?.body) {
         retVal.Phase = 'phase' in request.body ? request.body.phase : 'ArchiveHidden';
