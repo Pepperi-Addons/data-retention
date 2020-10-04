@@ -154,7 +154,6 @@ function getCronExpression() {
         '0 21 * * SAT',
         '0 22 * * SAT',
         '0 23 * * SAT',
-        '0 24 * * SAT',
         '0 0 * * SUN',
         '0 1 * * SUN',
         '0 2 * * SUN',
