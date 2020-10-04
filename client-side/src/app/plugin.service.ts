@@ -64,10 +64,16 @@ export class PluginService {
   }
 
 
-  async updateAdditionalData(additionalData: any) {
+  async updateAdditionalData(additionalData: AdditionalData) {
+      // Before updating the data, get current data in order not to override latest values
+      const currentData = await this.getAdditionalData();
+      currentData.DefaultNumofMonths = additionalData.DefaultNumofMonths;
+      currentData.DefaultNumofMonths_Draft = additionalData.DefaultNumofMonths_Draft;
+      currentData.ScheduledTypes = [...additionalData.ScheduledTypes];
+      currentData.ScheduledTypes_Draft = [...additionalData.ScheduledTypes_Draft];
     await this.papiClient.addons.installedAddons.upsert({
         Addon: {UUID: this.pluginUUID},
-        AdditionalData: JSON.stringify(additionalData)
+        AdditionalData: JSON.stringify(currentData)
     })
   }
 
