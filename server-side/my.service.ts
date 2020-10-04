@@ -334,7 +334,10 @@ export interface ArchiveReturnObj {
 export interface ExecutionData {
     PageIndex: number;
     PreviousRunReport:ReportTuple[];
-    ArchiveReportURL:any;
+    ArchiveReportURL:{
+        UploadURL: string;
+        DownloadURL: string;
+    };
     ArchivingReport: ArchiveReport[];
     ArchiveResultObject: ArchiveReturnObj[];
     ActivityType: 'Transaction' | 'GeneralActivity';

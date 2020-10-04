@@ -121,7 +121,7 @@ export async function archive(client: Client, request: Request) {
             const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths, executionData);
             if (isDone) {
                 const final = GenerateReport(report, x => x.ActivityType.Key);
-                await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, final);
+                await service.uploadReportToS3(executionData.ArchiveReportURL.UploadURL, final);
                 const jobsIds: ArchiveReport[] = await service.archiveData(final);
                 if(jobsIds.length > 0) {
                     request.body = {
@@ -136,7 +136,7 @@ export async function archive(client: Client, request: Request) {
                 }
             }
             else {
-                await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, report);
+                await service.uploadReportToS3(executionData.ArchiveReportURL.UploadURL, report);
                 request.body = {
                     pageIndex: pageIndex,
                     archiveDataFileURL: executionData.ArchiveReportURL,
@@ -165,8 +165,8 @@ export async function get_archive_report(client: Client, request: Request) {
         const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes_Draft, addonData.DefaultNumofMonths_Draft, executionData);
         if (isDone) {
             const final = GenerateReport(report, x => x.ActivityType.Key);
-            await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, final);
-            addonData.LatestReportURL = executionData.ArchiveReportURL.PublicUrl;
+            await service.uploadReportToS3(executionData.ArchiveReportURL.UploadURL, final);
+            addonData.LatestReportURL = executionData.ArchiveReportURL.DownloadURL;
             await service.updateAdditionalData(addonData);
             
             return {
@@ -183,7 +183,7 @@ export async function get_archive_report(client: Client, request: Request) {
             };
         }
         else {
-            await service.uploadReportToS3(executionData.ArchiveReportURL.UploadUrl, report);
+            await service.uploadReportToS3(executionData.ArchiveReportURL.UploadURL, report);
             request.body = {
                 pageIndex: pageIndex,
                 archiveDataFileURL: executionData.ArchiveReportURL,
@@ -379,8 +379,8 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
         PageIndex: 1,
         PreviousRunReport: [],
         ArchiveReportURL: {
-            UploadUrl: '',
-            PublicUrl: ''
+            UploadURL: '',
+            DownloadURL: ''
         },
         ArchivingReport: [],
         ArchiveResultObject: [],
@@ -388,10 +388,10 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
     }
     if (request?.body) {
         try {
-            retVal.ArchiveReportURL = 'archiveDataFileURL' in request.body ? request.body.archiveDataFileURL : await service.papiClient.fileStorage.temporaryUploadUrl();
+            retVal.ArchiveReportURL = 'archiveDataFileURL' in request.body ? request.body.archiveDataFileURL : await service.papiClient.fileStorage.tmp();
             console.debug('temporary file url is:', retVal.ArchiveReportURL);
-            if ('archiveDataFileURL' in request.body && request.body.archiveDataFileURL.PublicUrl != '') {
-                retVal.PreviousRunReport = await service.getReportFromS3(retVal.ArchiveReportURL.PublicUrl);
+            if ('archiveDataFileURL' in request.body && request.body.archiveDataFileURL.DownloadURL != '') {
+                retVal.PreviousRunReport = await service.getReportFromS3(retVal.ArchiveReportURL.DownloadURL);
             }
             retVal.PageIndex = 'pageIndex' in request.body ? request.body.pageIndex : 1;
             retVal.ArchivingReport = 'archivingReport' in request.body ? request.body.archivingReport : [];
@@ -403,7 +403,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
         }
     }
     else {
-        retVal.ArchiveReportURL = await service.papiClient.fileStorage.temporaryUploadUrl();
+        retVal.ArchiveReportURL = await service.papiClient.fileStorage.tmp();
     }
     return retVal;
 }
