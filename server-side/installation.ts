@@ -1,8 +1,8 @@
 import { PapiClient, CodeJob } from "@pepperi-addons/papi-sdk";
 import { InstalledAddon } from "../client-side/src/app/plugin.model";
 
-const minimumAPIVersion: number[] = [9,5,296];
-const minimumSchedulerVersion: number[] = [1,0,53];
+const minimumAPIVersion: number[] = [9,5,302];
+const minimumSchedulerVersion: number[] = [1,0,41];
 const editors = [
         {
             "ParentPackageName":"Automated Jobs",
