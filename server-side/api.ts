@@ -10,6 +10,7 @@ export const MaxArchiveItems: number = 150000;
 
 export async function run_data_retention(client: Client, request: Request) {
     try {
+        request = request || {}; // check if request is undefined, initialize it with empty obj
         const service = new MyService(client);
         const executionData: DataRetentionData = getDataRetentionExecutionData(request);
         let callNextPhase = true;
