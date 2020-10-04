@@ -134,7 +134,7 @@ export class PluginService {
     }
 
     async getReportToken(){
-        const token = await this.papiClient.addons.api.uuid(this.pluginUUID).async().file('api').func('get_archive_report').post({retry:20});
+        const token = await this.papiClient.addons.api.uuid(this.pluginUUID).async().file('api').func('get_archive_report').post({retry:25});
         return token ? token.ExecutionUUID : '';
     }
 

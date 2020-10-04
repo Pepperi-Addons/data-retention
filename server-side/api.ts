@@ -64,7 +64,7 @@ export async function run_data_retention(client: Client, request: Request) {
                     break;
                 }
                 case 'Archive': {
-                    executionObj = await service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive').post({retry:25});
+                    executionObj = await service.papiClient.addons.api.uuid(client.AddonUUID).async().file('api').func('archive').post({retry:30});
                     executionData.ExecutionID = 'ExecutionUUID' in executionObj ? executionObj.ExecutionUUID : '';
                     console.log(`called archive function. audit log: ${executionData.ExecutionID}`);
                     break;
