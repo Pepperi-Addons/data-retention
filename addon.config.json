@@ -1,31 +1,31 @@
 {
-    "AddonUUID": "8c9a5568-f35a-407d-856a-32d25ace2859",
-    "AddonVersion": "1.0.26",
-    "DebugPort": 4400,
-    "PapiBaseUrl": "https://papi.staging.pepperi.com/v1.0",
-    "WebappBaseUrl": "https://app.sandbox.pepperi.com",
-    "DefaultEditor": "archive",
-    "Endpoints": [
-        "installation.ts",
-        "api.ts"
-    ],
+  "AddonUUID": "8c9a5568-f35a-407d-856a-32d25ace2859",
+  "AddonVersion": "1.0.35",
+  "DebugPort": 4400,
+  "PapiBaseUrl": "https://papi.staging.pepperi.com/v1.0",
+  "WebappBaseUrl": "https://app.sandbox.pepperi.com",
+  "DefaultEditor": "archive",
+  "Endpoints": [
+    "installation.ts",
+    "api.ts"
+  ],
+  "Editors": [
+    "archive"
+  ],
+  "Assets": [
+    "en.json",
+    "he.json"
+  ],
+  "PublishConfig": {
     "Editors": [
-        "archive"
+      {
+        "ParentPackageName": "Automated Jobs",
+        "PackageName": "archive",
+        "Description": "Data Retention"
+      }
     ],
-    "Assets": [
-        "en.json",
-        "he.json"
-    ],
-    "PublishConfig": {
-        "Editors": [
-            {
-                "ParentPackageName":"Automated Jobs",
-                "PackageName":"archive",
-                "Description":"Data Retention"
-            }
-        ],
-        "Dependencies": {
-            "papi": "9.5.296"
-        }
+    "Dependencies": {
+      "papi": "9.5.302"
     }
+  }
 }

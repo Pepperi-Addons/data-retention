@@ -27,7 +27,7 @@
                 "group": "build"
             },
             //"runtimeExecutable": "${workspaceFolder}/server-side/node_modules/.bin/nodemon",
-            "restart": true,
+            "restart": true
         },
         {
             "name": "Attach by Process ID",
