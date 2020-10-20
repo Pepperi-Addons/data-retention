@@ -309,7 +309,7 @@ function shouldArchiveActivity(activityDate: Date, numOfMonths: number): boolean
 function ProcessActivitiesByType(items: (GeneralActivity | Transaction)[], type: ScheduledType): ReportTuple {
     let activitiesToArchive: number[] = [];
     items.forEach((activity: (GeneralActivity | Transaction)) => {
-        const activityDate = new Date(activity.ActionDateTime || activity.ModificationDateTime || '')
+        const activityDate = new Date(activity.ModificationDateTime || '')
         const activityID = activity.InternalID || -1;
         if (shouldArchiveActivity(activityDate, type.NumOfMonths)) {
             activitiesToArchive.push(activityID);

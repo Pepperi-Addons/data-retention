@@ -59,11 +59,11 @@ export class MyService {
     async getActivitiesForAccount(accountIDs: number[]) {
         let accounts = accountIDs.join(',');
         let retVal =  await this.papiClient.allActivities.find({
-            fields:['InternalID','ActivityTypeID','Type','ActionDateTime', 'ModificationDateTime'], 
+            fields:['InternalID','ActivityTypeID','Type', 'ModificationDateTime'], 
             page:1, 
             page_size:-1, 
             where:`Account.InternalID in (${accounts}) and ActivityTypeID is not null And Archive=0`,
-            orderBy:"ActionDateTime desc",
+            orderBy:"ModificationDateTime desc",
             include_deleted:false});
         return retVal;
     }
