@@ -1,15 +1,6 @@
 import { PapiClient, CodeJob } from "@pepperi-addons/papi-sdk";
 import { InstalledAddon } from "../client-side/src/app/plugin.model";
 
-const minimumAPIVersion: number[] = [9,5,302];
-const minimumSchedulerVersion: number[] = [1,0,41];
-const editors = [
-        {
-            "ParentPackageName":"Automated Jobs",
-            "PackageName":"archive",
-            "Description":"Data Retention"
-        }
-    ]
 
 exports.install = async (Client, Request) => {
     let success = true;
@@ -19,42 +10,35 @@ exports.install = async (Client, Request) => {
         token: Client.OAuthAccessToken,
         addonUUID: Client.AddonUUID
     });
-    const dependencies = await checkDependencies(papiClient, 'install');
-    if(dependencies.depedenciesMet) {
-        try {
+    try {
 
-            const codeJob: CodeJob = await papiClient.codeJobs.upsert({
-                CodeJobName: "Data Retention",
-                Description: "Data Retention",
-                Type: "AddonJob",
-                IsScheduled: true,
-                CronExpression: getCronExpression(),
-                AddonPath: "api",
-                FunctionName: "run_data_retention",
-                AddonUUID: Client.AddonUUID,
-                NumberOfTries: 30,
-            })
+        const codeJob: CodeJob = await papiClient.codeJobs.upsert({
+            CodeJobName: "Data Retention",
+            Description: "Data Retention",
+            Type: "AddonJob",
+            IsScheduled: true,
+            CronExpression: getCronExpression(),
+            AddonPath: "api",
+            FunctionName: "run_data_retention",
+            AddonUUID: Client.AddonUUID,
+            NumberOfTries: 30,
+        })
 
-            console.log("result object recieved from Code jobs is: " + JSON.stringify(codeJob));
-            let retVal = await updateCodeJobUUID(papiClient, Client.AddonUUID, codeJob.UUID);
-            success = retVal.success;
-            errorMessage = retVal.errorMessage;
+        console.log("result object recieved from Code jobs is: " + JSON.stringify(codeJob));
+        let retVal = await updateCodeJobUUID(papiClient, Client.AddonUUID, codeJob.UUID);
+        success = retVal.success;
+        errorMessage = retVal.errorMessage;
 
-        }
-        catch(err) {
-            success = false;
-            errorMessage = ('message' in err) ? err.message : 'Cannot install addon. Unknown Error Occured';
-        }
     }
-    else {
-        errorMessage = dependencies.errorMessage;
+    catch(err) {
         success = false;
+        errorMessage = ('message' in err) ? err.message : 'Cannot install addon. Unknown Error Occured';
     }
 
     return {
         success: success,
         errorMessage: errorMessage,        
-        resultObject: {editors: editors}
+        resultObject: {}
     }
 }
 
@@ -93,34 +77,23 @@ exports.upgrade = async (Client, Request) => {
         token: Client.OAuthAccessToken,
         addonUUID: Client.AddonUUID
     });
-    const dependencies = await checkDependencies(papiClient, 'upgrade');
-    
-    if(dependencies.depedenciesMet) {
-        let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
-        if(uuid != '') {
-            await papiClient.codeJobs.upsert({
-                UUID:uuid,
-                CodeJobName: "Data Retention",
-                NumberOfTries: 30,
-                FunctionName: 'run_data_retention'
-            });
-        }
-        return {
-            success:true,
-            errorMessage:'',
-            resultObject:{editors: editors}
-        }
+    let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
+    if(uuid != '') {
+        await papiClient.codeJobs.upsert({
+            UUID:uuid,
+            CodeJobName: "Data Retention",
+            NumberOfTries: 30,
+            FunctionName: 'run_data_retention'
+        });
     }
-    else {
-        return {
-            success: false,
-            errorMessage: dependencies.errorMessage,
-            resultObject: {editors: editors}
-        }
+    return {
+        success:true,
+        errorMessage:'',
+        resultObject:{}
     }
 }
 exports.downgrade = async (Client, Request) => {
-    return {success:true,resultObject:{editors: editors}}
+    return {success:true,resultObject:{}}
 }
 
 function getCronExpression() {
@@ -209,52 +182,3 @@ function getRandomIndex(arrayLength:number): number {
     Math.floor(Math.random() * (arrayLength + 1))
     return index;
 }
-
-async function checkDependencies(papiClient:PapiClient, action: 'upgrade' | 'install'): Promise<{depedenciesMet:boolean, errorMessage:string}> {
-    let checkPassed = true;
-    let errorMessage = `${action} addon Failed. \n`;
-    try {
-        const apiAddon = await papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
-        const apiVersion = apiAddon?.Version ? apiAddon.Version.split('.').map(item => {
-            return Number(item);
-        }) : []
-        const schedulerAddon = await papiClient.addons.installedAddons.addonUUID('fcb7ced2-4c81-4705-9f2b-89310d45e6c7').get();
-        const schedulerVersion = schedulerAddon?.Version ? schedulerAddon.Version.split('.').map(item => {
-            return Number(item);
-        }) : []
-
-        if (apiVersion?.length == 3) {
-            if((apiVersion[0] < minimumAPIVersion[0]) || 
-                (apiVersion[0] == minimumAPIVersion[0] && apiVersion[1] < minimumAPIVersion[1]) ||
-                (apiVersion[0] == minimumAPIVersion[0] && apiVersion[1] == minimumAPIVersion[1] && apiVersion[2] < minimumAPIVersion[2])) {
-                checkPassed = false;
-                errorMessage += `Please upgrade 'Services Framework' add-on to version ${minimumAPIVersion.join('.')} or above and try again. \n`
-            }
-        }
-        else {
-            checkPassed = false;
-            errorMessage += `Please upgrade 'Services Framework' add-on to version ${minimumAPIVersion.join('.')} or above and try again. \n`
-        }
-        if (schedulerVersion?.length == 3) {
-            if ((schedulerVersion[0] < minimumSchedulerVersion[0]) || 
-            (schedulerVersion[0] == minimumSchedulerVersion[0] && schedulerVersion[1] < minimumSchedulerVersion[1]) ||
-            (schedulerVersion[0] == minimumSchedulerVersion[0] && schedulerVersion[1] == minimumSchedulerVersion[1] && schedulerVersion[2] < minimumSchedulerVersion[2])) {      
-                checkPassed = false;
-                errorMessage += `Please upgrade 'Automated Jobs' add-on to version ${minimumSchedulerVersion.join('.')} or above and try again.`
-            }
-        }
-        else {
-            checkPassed = false;
-            errorMessage += `Please upgrade 'Automated Jobs' add-on to version ${minimumSchedulerVersion.join('.')} or above and try again.`
-        }
-    }
-    catch {
-        checkPassed = false;
-        errorMessage += `Cannot verify version for dependencies add-ons`
-    }
-    return {
-        depedenciesMet: checkPassed,
-        errorMessage: errorMessage
-    }
-}
-
