@@ -1,0 +1,52 @@
+<div  class="listContainer">
+    <div class="rowBody">
+        <div class="genericCont">
+            <pep-top-bar [title]="'Archive_TypesTable_Title' | translate" [inline]="true" >
+                <div header-start-content>
+         
+                </div>
+                <div header-end-content>
+                    <pep-button [styleType]="'weak'" [sizeType]="'sm'" 
+                        [value]="'Archive_TypesTable_AddAction' | translate" [iconName]="'number_plus'" [iconPosition]="'start'" (buttonClick)="addButtonClicked()">
+                    </pep-button>
+                    <!-- <button  class="mat-button pepperi-button sm weak pull-left" (click)="addButtonClicked()">
+                        <span class="mat-button-wrapper">
+                            <mat-icon class="mat-icon">
+                                <pep-icon [name]="'number_plus'"></pep-icon>
+                            </mat-icon>
+                            <span class="pull-left flip">
+                                <span>&nbsp;</span>
+                                {{ "Archive_TypesTable_AddAction" | translate }}
+                            </span>
+                        </span>
+                    </button> -->
+                    
+                </div>
+                <pep-list-actions [actions]="listActions" [sizeType]="'sm'" (actionClick)="onActionClicked($event)"></pep-list-actions>
+            </pep-top-bar>
+            <!-- <ndc-dynamic
+                #topBarComp
+                [ndcDynamicComponent]="topBarComponent"
+                [ndcDynamicInputs]="topBarInputs"
+                [ndcDynamicOutputs]="topBarOutputs"
+            >
+            </ndc-dynamic> -->
+        </div>
+        <div id="mainContent" class="main-content row">
+            <div class="main-layout pull-right flip">
+                <div #pepperiListCont class="content">
+                    <pep-list
+                        [firstFieldAsLink]="false"
+                        [isReport]="true"
+                        [supportSorting]="false"
+                        [supportResizing]="false"
+                        [selectionTypeForActions]="'single'"
+                        [noDataFoundMsg]="'Archive_TypesTable_NoItems' | translate "
+                        [parentScroll]="pepperiListCont"
+                        (selectedItemsChange)="selectedRowsChanged($event)">
+                    </pep-list>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,92 @@
+
+<div class="addon-page-container" *ngIf="this.additionalData">
+    <pep-top-bar [title]="'Archive_Title' | translate">
+        <div header-start-content>
+
+        </div>
+        <div header-end-content>
+            <!-- <button  *ngIf="latestReport"
+                class="mat-button pep-button md weak pull-left flip spacing-element" (click)="viewReport()">
+                <span class="mat-button-wrapper">
+                    <span class="pull-left flip" *ngIf="screenSize <= PepScreenSizeType.SM">
+                        <span>&nbsp;</span>
+                        {{ "Archive_ReportPreview" | translate }}
+                    </span>
+                    <mat-icon class="mat-icon">
+                        <pep-icon [name]="'system_doc'"></pep-icon>
+                    </mat-icon>
+                </span>
+            </button> -->
+            <pep-button *ngIf="latestReport && screenSize <= PepScreenSizeType.SM" [value]="'Archive_ReportPreview' | translate"
+                [sizeType]="'md'" [styleType]="'weak'" [classNames]="'spacing-element pull-left flip'" [iconName]="'system_doc'" [iconPosition]="'end'"
+                (buttonClick)="viewReport()"></pep-button>
+            <pep-button *ngIf="latestReport && screenSize > PepScreenSizeType.SM" [sizeType]="'md'" [styleType]="'weak'" 
+                [classNames]="'spacing-element pull-left flip'" [iconName]="'system_doc'" [iconPosition]="'end'"
+                (buttonClick)="viewReport()"></pep-button>
+            <pep-menu class="menu pull-left flip spacing-element" 
+                [items]="menuOptions" (menuItemClick)="onMenuItemClicked($event)"></pep-menu>
+            <pep-button [classNames]="'spacing-element'" [value]="'Archive_Publish' | translate" [sizeType]="'md'" [styleType]="'strong'" (buttonClick)="publishPlugin()"
+                [disabled]="disablePublish" [ngClass]="{ disabled: disablePublish }"></pep-button>
+        </div>
+        <!-- <div footer-start-content>
+
+        </div>
+        <div footer-end-content>
+            <div *ngIf="screenSize >= PepScreenSizeType.MD">
+                <pep-button  *ngIf="latestReport" [classNames]="'pull-left flip icon-button spacing-element'" [sizeType]="'md'" 
+                    [styleType]="'weak'" (buttonClick)="viewReport()" [icon]="{name:'system_doc', position:'start'}"></pep-button>
+                <pep-menu class="menu pull-left flip spacing-element" 
+                    [items]="menuOptions" (menuItemClick)="onMenuItemClicked($event)"></pep-menu>
+                <pep-button [value]="'Archive_Publish' | translate" [classNames]="'spacing-element'" [sizeType]="'md'"
+                    [styleType]="'strong'" (buttonClick)="publishPlugin()"
+                    [disabled]="disablePublish" [ngClass]="{ disabled: disablePublish }"></pep-button>
+            </div>
+        </div> -->
+    </pep-top-bar>
+
+    <div id="pluginBody" class="main-content limit-max-width">
+        <div class="content">
+            <p class="body-md narrow">
+                {{ "Archive_Paragraph" | translate }}
+            </p>
+            <div id="schedule-container" class="narrow">
+                <div class="pepperi-border-bottom section-title">
+                    <h4>
+                        {{ "Archive_Header1" | translate }}
+                    </h4>
+                </div>
+                <p class="body-sm">{{ "Archive_Schedule_Paragraph" | translate }}</p>
+                <div class="pep-row first">
+                    <pep-select [label]="'Archive_SelectDaysTitle' | translate" [value]="selectedDay"
+                        [options]="dayOptions" (valueChange)="onValueChange('Days', $event)"></pep-select>
+                </div>
+                <div class="pep-row">
+                    <pep-select [label]="'Archive_SelectTimeTitle' | translate" [value]="selectedHour"
+                        [options]="timeOptions" (valueChange)="onValueChange('Hour', $event)"></pep-select>
+                </div>
+            </div>
+
+            <div id="data-retention-policy" class="narrow">
+                <div class="pepperi-border-bottom section-title">
+                    <h4>
+                        {{ "Archive_Header2" | translate }}
+                    </h4>
+                </div>
+
+                <p class="body-sm">{{ "Archive_Policy_Paragraph" | translate }}</p>
+
+                <div class="pep-row">
+                    <pep-textbox [required]="true" [label]="'Archive_MonthsTitle' | translate"
+                        [value]="this.additionalData.DefaultNumofMonths_Draft" [type]="'int'"
+                        (valueChange)="onValueChange('defaultMonths', $event)" [minValue]=1 [maxValue]=24
+                        (formValidationChange)="this.disablePublish = $event == false"></pep-textbox>
+                </div>
+            </div>
+
+            <div id="retentionPreview" class="wide">
+                <app-list-view #typesList [scheduledTypes]="additionalData?.ScheduledTypes_Draft"
+                    (actionClicked)="onActionClicked($event)"></app-list-view>
+            </div>
+        </div>
+    </div>
+</div> 

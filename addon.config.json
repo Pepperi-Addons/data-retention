@@ -1,20 +1,44 @@
 {
   "AddonUUID": "8c9a5568-f35a-407d-856a-32d25ace2859",
-  "AddonVersion": "1.0.35",
+  "AddonVersion": "1.1.2",
   "DebugPort": 4400,
   "PapiBaseUrl": "https://papi.staging.pepperi.com/v1.0",
   "WebappBaseUrl": "https://app.sandbox.pepperi.com",
-  "DefaultEditor": "archive",
+  "DefaultEditor": "main",
   "Endpoints": [
     "installation.ts",
     "api.ts"
   ],
   "Editors": [
-    "archive"
+    "main"
   ],
   "Assets": [
+    "de.json",
     "en.json",
-    "he.json"
+    "es.json",
+    "fr.json",
+    "he.json",
+    "hu.json",
+    "it.json",
+    "ja.json",
+    "nl.json",
+    "pl.json",
+    "pt.json",
+    "ru.json",
+    "zh.json",
+    "de.ngx-lib.json",
+    "en.ngx-lib.json",
+    "es.ngx-lib.json",
+    "fr.ngx-lib.json",
+    "he.ngx-lib.json",
+    "hu.ngx-lib.json",
+    "it.ngx-lib.json",
+    "ja.ngx-lib.json",
+    "nl.ngx-lib.json",
+    "pl.ngx-lib.json",
+    "pt.ngx-lib.json",
+    "ru.ngx-lib.json",
+    "zh.ngx-lib.json"
   ],
   "PublishConfig": {
     "Editors": [
@@ -25,7 +49,9 @@
       }
     ],
     "Dependencies": {
-      "papi": "9.5.302"
-    }
+      "papi": "9.5.349",
+      "webapp": "16.55.67"
+    },
+    "ClientStack": "ng10"
   }
 }

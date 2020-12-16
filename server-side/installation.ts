@@ -1,5 +1,5 @@
 import { PapiClient, CodeJob } from "@pepperi-addons/papi-sdk";
-import { InstalledAddon } from "../client-side/src/app/plugin.model";
+import { InstalledAddon } from "../client-side/src/app/data-retention/data-retention.model";
 
 
 exports.install = async (Client, Request) => {

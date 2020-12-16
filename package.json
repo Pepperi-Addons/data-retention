@@ -5,16 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cd ./server-side && npm run build && cd .. && cd ./client-side && npm run build && cd ..",
-    "publish-addon": "npm run build && publish-addon --version-type"
+    "build": "cd ./server-side && npm run build && cd .. && cd ./client-side && npm run build:single-spa && cd ..",
+    "init": "npm install && cd ./server-side && npm install && cd .. && cd ./client-side && npm install && cd ..",
+    "publish-addon": "npm run build && publish-addon --version-type",
+    "pub-addon": "publish-addon"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@pepperi-addons/papi-sdk": "file:../papi-sdk",
-    "@pepperi-addons/scripts": "^1.0.22",
-    "npm-inspect": "^0.4.0"
-  },
-  "devDependencies": {}
+    "@pepperi-addons/scripts": "^1.0.27"
+  }
 }

@@ -1,4 +1,4 @@
-import { AdditionalData } from './../client-side/src/app/plugin.model';
+import { AdditionalData } from "../client-side/src/app/data-retention/data-retention.model";
 import { PapiClient, InstalledAddon, ExportApiResponse, ArchiveBody } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import fetch from 'node-fetch';
@@ -8,6 +8,7 @@ import { resolve } from 'dns';
 import { getTokenSourceMapRange, createLabel } from 'typescript';
 import { createReadStream } from 'fs';
 import { ExecSyncOptionsWithBufferEncoding } from 'child_process';
+import { Agent } from 'https';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -20,7 +21,7 @@ export class MyService {
         this.papiClient = new PapiClient({
             baseURL: client.BaseURL,
             token: client.OAuthAccessToken,
-            suppressLogging:true
+            suppressLogging:false
         });
         this.addonUUID = client.AddonUUID;
     }
@@ -201,8 +202,13 @@ export class MyService {
     
     async apiCall(method: HttpMethod, url: string, body: any = undefined ) {
         
+        const agent = new Agent({
+            rejectUnauthorized: false,
+        })
+        
         const options: any = {
             method: method,
+            agent: agent,
         };
 
         if(body) {
