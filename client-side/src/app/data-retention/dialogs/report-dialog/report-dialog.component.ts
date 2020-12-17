@@ -42,9 +42,6 @@ export class ReportDialogComponent implements OnInit, OnChanges {
     displayedColumns: string[];
     operationTypes: any;
 
-    private paginator: MatPaginator;
-    private sort: MatSort;
-
     constructor( public dialogRef: MatDialogRef<ReportDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public incoming: DialogModel) {
             this.title = incoming.title;

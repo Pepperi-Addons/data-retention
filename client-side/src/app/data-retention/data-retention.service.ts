@@ -7,8 +7,7 @@ import {AddonService, HttpService, DataConvertorService, SessionService} from '@
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import {AdditionalData, KeyValuePair } from './data-retention.model';
 
-import { DialogService, PepDialogData, PepDialogSizeType, PepDialogActionsType } from '@pepperi-addons/ngx-lib/dialog';
-import {DialogModel} from './data-retention.model';
+import { DialogService, PepDialogData, PepDialogActionsType } from '@pepperi-addons/ngx-lib/dialog';
 
 @Injectable({ providedIn: 'root' })
 export class DataRetentionService {
@@ -87,7 +86,6 @@ export class DataRetentionService {
    openDialog(title = 'Modal Test', content, buttons,
          input , callbackFunc = null): void {
         const dialogConfig = this.dialogService.getDialogConfig({disableClose: true, panelClass:'pepperi-standalone'}, 'inline')
-        //const data = new DialogModel(title, content, 'cancel-continue', buttons, input);
         const data = new PepDialogData({title: title, type:'custom', content:content, actionButtons: buttons})
         dialogConfig.data = data;
         

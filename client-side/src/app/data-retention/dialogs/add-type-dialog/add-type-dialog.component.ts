@@ -2,9 +2,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Component, OnInit, Inject, ViewChild, OnDestroy, Injectable, ViewEncapsulation } from '@angular/core';
 import { DialogModel, TypeDialogData, ScheduledType } from 'src/app/data-retention/data-retention.model';
 import { BehaviorSubject } from 'rxjs';
-import { PepBreadCrumbsModule } from '@pepperi-addons/ngx-lib/bread-crumbs';
-
-
 @Injectable({ providedIn: 'root' })
 export class AddTypeDialogService {
 

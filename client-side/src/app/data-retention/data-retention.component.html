@@ -5,18 +5,6 @@
 
         </div>
         <div header-end-content>
-            <!-- <button  *ngIf="latestReport"
-                class="mat-button pep-button md weak pull-left flip spacing-element" (click)="viewReport()">
-                <span class="mat-button-wrapper">
-                    <span class="pull-left flip" *ngIf="screenSize <= PepScreenSizeType.SM">
-                        <span>&nbsp;</span>
-                        {{ "Archive_ReportPreview" | translate }}
-                    </span>
-                    <mat-icon class="mat-icon">
-                        <pep-icon [name]="'system_doc'"></pep-icon>
-                    </mat-icon>
-                </span>
-            </button> -->
             <pep-button *ngIf="latestReport && screenSize <= PepScreenSizeType.SM" [value]="'Archive_ReportPreview' | translate"
                 [sizeType]="'md'" [styleType]="'weak'" [classNames]="'spacing-element pull-left flip'" [iconName]="'system_doc'" [iconPosition]="'end'"
                 (buttonClick)="viewReport()"></pep-button>
@@ -28,20 +16,6 @@
             <pep-button [classNames]="'spacing-element'" [value]="'Archive_Publish' | translate" [sizeType]="'md'" [styleType]="'strong'" (buttonClick)="publishPlugin()"
                 [disabled]="disablePublish" [ngClass]="{ disabled: disablePublish }"></pep-button>
         </div>
-        <!-- <div footer-start-content>
-
-        </div>
-        <div footer-end-content>
-            <div *ngIf="screenSize >= PepScreenSizeType.MD">
-                <pep-button  *ngIf="latestReport" [classNames]="'pull-left flip icon-button spacing-element'" [sizeType]="'md'" 
-                    [styleType]="'weak'" (buttonClick)="viewReport()" [icon]="{name:'system_doc', position:'start'}"></pep-button>
-                <pep-menu class="menu pull-left flip spacing-element" 
-                    [items]="menuOptions" (menuItemClick)="onMenuItemClicked($event)"></pep-menu>
-                <pep-button [value]="'Archive_Publish' | translate" [classNames]="'spacing-element'" [sizeType]="'md'"
-                    [styleType]="'strong'" (buttonClick)="publishPlugin()"
-                    [disabled]="disablePublish" [ngClass]="{ disabled: disablePublish }"></pep-button>
-            </div>
-        </div> -->
     </pep-top-bar>
 
     <div id="pluginBody" class="main-content limit-max-width">

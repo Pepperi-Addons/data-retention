@@ -58,10 +58,6 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
     reportInterval = undefined;
     dialogRef;
 
-    // Data sent from webapp
-    @Input() queryParams: any;
-    @Input() routerData: any;
-
     // Events emitters to webapp
     @Output() addEditors: EventEmitter<any> = new EventEmitter<any>();
     @Output() notify: EventEmitter<any> = new EventEmitter<any>();
@@ -131,8 +127,6 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
         translate.use(userLang);
         this.layoutService.onResize$.subscribe(size => {
             this.screenSize = size;
-
-            // this.searchOpenOnSmallDevice = this.screenSize > PepScreenSizeType.SM && this.searchListCompStateIsOpen;
         });
 
     }
@@ -286,8 +280,8 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
                     reportRows: this.latestReport
                 },
             },
-            (data) => {
-                // callback from dialog with input data
+            () => {
+
             }
         );
     }

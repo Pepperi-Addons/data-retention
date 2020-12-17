@@ -4,9 +4,6 @@ import { DataRetentionService } from './../../data-retention.service';
 import {  } from '@pepperi-addons/ngx-lib/top-bar'
 import { PepListComponent, PepListViewType } from '@pepperi-addons/ngx-lib/list';
 import { ObjectsData, ObjectsDataRow, ObjectSingleData, PepRowData, UIControl } from '@pepperi-addons/ngx-lib/';
-// import { TopBarComponent, TopBarButton, ICON_POSITION } from 'pepperi-top-bar';
-// import { ListActionsItem } from 'pepperi-list-actions';
-// import { JsonFilter } from 'pepperi-json-filter';
 import { TranslateService } from '@ngx-translate/core';
 
 import { GridDataView, DataViewFieldTypes } from '@pepperi-addons/papi-sdk'
@@ -38,14 +35,6 @@ export interface PepperiListService {
 })
 export class PepperiListContComponent implements OnInit {
 
-
-//   @ViewChild('pepperiListCont', { static: false })
-//   pepperiListCont: ElementRef;
-//   @ViewChild('pepperiListComp', { static: false })
-//   pepperiListComp: DynamicComponent;
-//   @ViewChild('topBarComp', { static: false }) 
-//   topBarComp: DynamicComponent;
-
 @ViewChild(PepListComponent) pepperiListComp: PepListComponent;
 
     @Output() notifyAddButtonClicked: EventEmitter<any> = new EventEmitter<any>();
@@ -55,14 +44,6 @@ export class PepperiListContComponent implements OnInit {
   service: PepperiListService;
 
   list: any[]
-
-//   pepperiListComponent = PepperiListComponent;
-//   pepperiListInputs;
-//   pepperiListOutputs;
-//   topBarComponent = TopBarComponent;
-//   topBarInputs;
-//   topBarOutputs;
-
   listActions: Array<PepMenuItem> = []
   currentList = {ListType: '', ListCustomizationParams: '', ListTabName: '',  ListFilterStr: ''};
 
@@ -109,8 +90,6 @@ export class PepperiListContComponent implements OnInit {
     }
 
     this.listActions = selectedRowsCount > 0 ? this.getListActions(rowData) : null;
-
-    //this.cd.detectChanges();
   }
 
   getListActions(rowData = null): Array<PepMenuItem> {
@@ -176,11 +155,6 @@ export class PepperiListContComponent implements OnInit {
             return osd;
         }) : [];
         
-        // if (this.topBarComp) {
-            //     this.listActions = this.getListActions(null, translates);
-            //     this.topBarComp.componentRef.instance.listActionsData = null;
-            //     this.topBarOnInit(this.topBarComp.componentRef);
-            //   }
             this.pepperiListComp.initListData(uiControl, l.length, l, 'table', '', true);
     });
     }

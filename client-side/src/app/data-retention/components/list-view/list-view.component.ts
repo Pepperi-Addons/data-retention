@@ -25,13 +25,11 @@ export class ListViewComponent implements OnInit {
         },
         Type: 'Grid',
         Title: translates ? translates['Archive_TypesTable_Title'] : '',
-        // Title: this.translate.instant('Archive_TypesTable_Title'),
         Fields: [
           {
             FieldID: 'ActivityType.Value',
             Type: 'TextBox',
             Title: translates ? translates['Archive_TypesTable_ActivityColumnTitle'] : '',
-            // Title: this.translate.instant('Archive_TypesTable_ActivityColumnTitle'),
             Mandatory: false,
             ReadOnly: true
           },
@@ -39,7 +37,6 @@ export class ListViewComponent implements OnInit {
             FieldID: 'NumOfMonths',
             Type: 'TextBox',
             Title: translates ? translates['Archive_TypesTable_MonthsColumnTitle'] : '',
-            // Title: this.translate.instant('Archive_TypesTable_MonthsColumnTitle'),
             Mandatory: false,
             ReadOnly: true
           },
@@ -47,7 +44,6 @@ export class ListViewComponent implements OnInit {
             FieldID: 'MinItems',
             Type: 'TextBox',
             Title: translates ? translates['Archive_TypesTable_ItemsColumnTitle'] : '',
-            // Title: this.translate.instant('Archive_TypesTable_ItemsColumnTitle'),
             Mandatory: false,
             ReadOnly: true
           },
@@ -72,7 +68,6 @@ export class ListViewComponent implements OnInit {
       return [
         {
           Key: 'Edit',
-        //   Title: translates ? translates['Archive_TypesTable_EditAction'] : '',
           Title: this.translate.instant('Archive_TypesTable_EditAction'),
           Filter: (obj) => true,
           Action: (obj) => { 
@@ -81,7 +76,6 @@ export class ListViewComponent implements OnInit {
         },
         {
           Key: 'Delete',
-        //   Title: translates ? translates['Archive_TypesTable_DeleteAction'] : '',
           Title: this.translate.instant('Archive_TypesTable_DeleteAction'),
           Filter: (obj) => true,
           Action: (obj) => { 
@@ -94,7 +88,6 @@ export class ListViewComponent implements OnInit {
     rightButtons: () => {
       return [
         {
-        //   Title: translates ? translates['Archive_TypesTable_AddAction'] : '',
           Title: this.translate.instant('Archive_TypesTable_AddAction'),
           Icon: 'number_plus',
           Action: () => this.actionClicked.emit({ApiName:'Add'})
