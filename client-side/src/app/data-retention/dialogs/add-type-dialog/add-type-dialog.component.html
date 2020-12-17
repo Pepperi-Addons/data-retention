@@ -4,7 +4,7 @@
     </h2>
     <div mat-dialog-content class="mat-dialog-content">
         <div>
-            <pep-select [required]="true" [value]="dialogData.selectedActivity" [disabled]="mode == 'Edit'"
+            <pep-select [emptyOption]="false" [required]="true" [value]="dialogData.selectedActivity" [disabled]="mode == 'Edit'"
                 [options]="activityTypes" [label]="'Archive_TypesModal_ActivityTypeTitle' | translate" 
                 (formValidationChange)="isActivityValid = $event" (valueChange)="onValueChanged('Activity', $event)"></pep-select>
         </div>

@@ -57,11 +57,11 @@
                 </div>
                 <p class="body-sm">{{ "Archive_Schedule_Paragraph" | translate }}</p>
                 <div class="pep-row first">
-                    <pep-select [label]="'Archive_SelectDaysTitle' | translate" [value]="selectedDay"
+                    <pep-select [emptyOption]="false" [label]="'Archive_SelectDaysTitle' | translate" [value]="selectedDay"
                         [options]="dayOptions" (valueChange)="onValueChange('Days', $event)"></pep-select>
                 </div>
                 <div class="pep-row">
-                    <pep-select [label]="'Archive_SelectTimeTitle' | translate" [value]="selectedHour"
+                    <pep-select [emptyOption]="false" [label]="'Archive_SelectTimeTitle' | translate" [value]="selectedHour"
                         [options]="timeOptions" (valueChange)="onValueChange('Hour', $event)"></pep-select>
                 </div>
             </div>

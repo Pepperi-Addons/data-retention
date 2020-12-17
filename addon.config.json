@@ -1,6 +1,6 @@
 {
   "AddonUUID": "8c9a5568-f35a-407d-856a-32d25ace2859",
-  "AddonVersion": "1.1.2",
+  "AddonVersion": "1.1.5",
   "DebugPort": 4400,
   "PapiBaseUrl": "https://papi.staging.pepperi.com/v1.0",
   "WebappBaseUrl": "https://app.sandbox.pepperi.com",
