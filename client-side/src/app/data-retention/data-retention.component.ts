@@ -24,8 +24,8 @@ import {
 
 import { ListViewComponent } from './components/list-view/list-view.component';
 import { ReportDialogComponent } from './dialogs/report-dialog/report-dialog.component';
-import { DialogService, PepDialogActionButton } from '@pepperi-addons/ngx-lib/dialog';
-import { LayoutService, PepScreenSizeType } from '@pepperi-addons/ngx-lib';
+import { PepDialogActionButton } from '@pepperi-addons/ngx-lib/dialog';
+import { PepLayoutService, PepScreenSizeType } from '@pepperi-addons/ngx-lib';
 import { PepMenuItem } from '@pepperi-addons/ngx-lib/menu';
 
 @Component({
@@ -114,8 +114,7 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
         public routeParams: ActivatedRoute,
         public router: Router,
         public compiler: Compiler,
-        public dialogService: DialogService,
-        public layoutService: LayoutService,
+        public layoutService: PepLayoutService,
     ) {
         const self = this;
 
@@ -342,16 +341,16 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
         this.menuOptions = [
             { 
                 key: 'Report', 
-                title: this.translate.instant('Archive_Menu_Report'), 
+                text: this.translate.instant('Archive_Menu_Report'), 
                 disabled: this.disablePublish 
             },
             { 
                 key: 'Executions', 
-                title: this.translate.instant('Archive_Menu_Execution')
+                text: this.translate.instant('Archive_Menu_Execution')
             },
             { 
                 key: 'Run', 
-                title: this.translate.instant('Archive_Menu_RunNow') 
+                text: this.translate.instant('Archive_Menu_RunNow') 
             },
         ]
     }

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
-import { PepNgxLibModule, AddonService, CustomizationService, FileService } from '@pepperi-addons/ngx-lib';
+import { PepNgxLibModule, PepAddonService, PepCustomizationService, PepFileService } from '@pepperi-addons/ngx-lib';
 import { PepAttachmentModule } from '@pepperi-addons/ngx-lib/attachment';
 import { PepCheckboxModule } from '@pepperi-addons/ngx-lib/checkbox';
 import { PepColorModule } from '@pepperi-addons/ngx-lib/color';
@@ -132,8 +132,8 @@ import { MultiTranslateHttpLoader } from 'ngx-translate-multi-http-loader';
 
 export function createTranslateLoader(
     http: HttpClient,
-    fileService: FileService,
-    addonService: AddonService
+    fileService: PepFileService,
+    addonService: PepAddonService
 ) {
     const addonStaticFolder = addonService.getAddonStaticFolder();
     const translationsPath: string = fileService.getAssetsTranslationsPath();
@@ -167,7 +167,7 @@ export function createTranslateLoader(
             loader: {
                 provide: TranslateLoader,
                 useFactory: createTranslateLoader,
-                deps: [HttpClient, FileService, AddonService]
+                deps: [HttpClient, PepFileService, PepAddonService]
             }
         })
     ],

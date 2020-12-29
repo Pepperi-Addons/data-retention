@@ -2,12 +2,12 @@ import jwt from 'jwt-decode';
 import { CodeJob, PapiClient, AuditLog } from '@pepperi-addons/papi-sdk';
 import { Injectable } from '@angular/core';
 
-import {AddonService, HttpService, DataConvertorService, SessionService} from '@pepperi-addons/ngx-lib';
+import {PepAddonService, PepHttpService, PepDataConvertorService, PepSessionService} from '@pepperi-addons/ngx-lib';
 
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import {AdditionalData, KeyValuePair } from './data-retention.model';
 
-import { DialogService, PepDialogData, PepDialogActionsType } from '@pepperi-addons/ngx-lib/dialog';
+import { PepDialogService, PepDialogData, PepDialogActionsType } from '@pepperi-addons/ngx-lib/dialog';
 
 @Injectable({ providedIn: 'root' })
 export class DataRetentionService {
@@ -30,12 +30,12 @@ export class DataRetentionService {
 }
 
   constructor(
-              public addonService:  AddonService
-              ,public session:  SessionService
-              ,public httpService: HttpService
+              public addonService:  PepAddonService
+              ,public session:  PepSessionService
+              ,public httpService: PepHttpService
               ,public dialog: MatDialog
-              ,public pepperiDataConverter: DataConvertorService
-              ,public dialogService: DialogService
+              ,public pepperiDataConverter: PepDataConvertorService
+              ,public dialogService: PepDialogService
     ) {
       const accessToken = this.session.getIdpToken();
         this.parsedToken = jwt(accessToken);

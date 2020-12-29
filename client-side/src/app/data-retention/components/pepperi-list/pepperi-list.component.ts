@@ -95,7 +95,7 @@ export class PepperiListContComponent implements OnInit {
   getListActions(rowData = null): Array<PepMenuItem> {
     let obj = rowData ? this.list.find(item => item.UUID === rowData.UID) : undefined;
     return this.service.getActions().filter(action => action.Filter(obj)).map(action => {
-      return new PepMenuItem({key: action.Key, title: action.Title});
+      return new PepMenuItem({key: action.Key, text: action.Title});
     })
   }
 

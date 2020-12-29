@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { PepFieldClickedData, PepFieldValueChangedData } from '@pepperi-addons/ngx-lib';
+import { IPepFieldClickEvent, IPepFieldValueChangeEvent } from '@pepperi-addons/ngx-lib';
 // import { PepGroupButtonClick, PepGroupButton } from '@pepperi-addons/ngx-lib/group-buttons';
 import { pepIconSystemBin } from '@pepperi-addons/ngx-lib/icon';
-import { PepMenuItem, PepMenuItemClick } from '@pepperi-addons/ngx-lib/menu';
+import { PepMenuItem, IPepMenuItemClickEvent } from '@pepperi-addons/ngx-lib/menu';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -47,10 +47,10 @@ export class PepperiNgxLibExamplesComponent implements OnInit {
 
     getMenuItems(): Array<PepMenuItem> {
         const menuItems: Array<PepMenuItem> = [
-            { key: 'test1', title: 'test 1'},
-            { key: 'test2', title: 'test 2', disabled: true },
+            { key: 'test1', text: 'test 1'},
+            { key: 'test2', text: 'test 2', disabled: true },
             { key: 'sep', type: 'splitter' },
-            { key: 'test3', title: 'test 3'}];
+            { key: 'test3', text: 'test 3'}];
 
         return menuItems;
     }
@@ -59,7 +59,7 @@ export class PepperiNgxLibExamplesComponent implements OnInit {
         this.menuItems = this.getMenuItems();
     }
 
-    onMenuItemClicked(action: PepMenuItemClick): void {
+    onMenuItemClicked(action: IPepMenuItemClickEvent): void {
         alert(action.source.key);
     }
 
@@ -67,11 +67,11 @@ export class PepperiNgxLibExamplesComponent implements OnInit {
         alert('menu clicked');
     }
 
-    onValueChanged(event: PepFieldValueChangedData) {
+    onValueChanged(event: IPepFieldValueChangeEvent) {
         alert(`${event.key}: value was changed to ${event.value}`);
     }
 
-    elementClicked(event: PepFieldClickedData) {
+    elementClicked(event: IPepFieldClickEvent) {
         alert(`${event.key}: was clicked`);
     }
 
