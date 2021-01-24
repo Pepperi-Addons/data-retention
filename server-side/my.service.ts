@@ -9,6 +9,7 @@ import { getTokenSourceMapRange, createLabel } from 'typescript';
 import { createReadStream } from 'fs';
 import { ExecSyncOptionsWithBufferEncoding } from 'child_process';
 import { Agent } from 'https';
+import { scheme } from './installation'
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -21,7 +22,8 @@ export class MyService {
         this.papiClient = new PapiClient({
             baseURL: client.BaseURL,
             token: client.OAuthAccessToken,
-            suppressLogging:false
+            suppressLogging:false,
+            addonSecretKey: client.AddonSecretKey
         });
         this.addonUUID = client.AddonUUID;
     }
@@ -70,32 +72,59 @@ export class MyService {
     }
 
     async getAdditionalData(): Promise<AdditionalData> {
-        let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID(this.addonUUID).get();
+        // let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID(this.addonUUID).get();
+        // let retVal: AdditionalData = {
+        //     ScheduledTypes: [],
+        //     ScheduledTypes_Draft: [],
+        //     DefaultNumofMonths:24,
+        //     DefaultNumofMonths_Draft:24,
+        //     NumOfDaysForHidden:1825
+        // };
+        // if(addon?.AdditionalData) {
+        //     retVal = JSON.parse(addon.AdditionalData);
+        // }
+        // if(typeof retVal.ScheduledTypes == 'undefined' || typeof retVal.ScheduledTypes_Draft == 'undefined') {
+        //     retVal.ScheduledTypes = [];
+        //     retVal.ScheduledTypes_Draft = [];
+        // }
+        // retVal.DefaultNumofMonths = retVal.DefaultNumofMonths || 24;
+        // retVal.DefaultNumofMonths_Draft = retVal.DefaultNumofMonths_Draft || 24;
+
+        // return retVal;
+        let dataItems = await this.papiClient.addons.data.uuid(this.addonUUID).table(scheme.Name).find();
         let retVal: AdditionalData = {
             ScheduledTypes: [],
             ScheduledTypes_Draft: [],
             DefaultNumofMonths:24,
             DefaultNumofMonths_Draft:24,
-            NumOfDaysForHidden:1825
+            NumOfDaysForHidden:1825,
+            HiddenTresholdDays:30
         };
-        if(addon?.AdditionalData) {
-            retVal = JSON.parse(addon.AdditionalData);
+        if(dataItems && dataItems.length > 0) {
+            retVal = {
+                ScheduledTypes: dataItems[0].ScheduledTypes || [],
+                ScheduledTypes_Draft: dataItems[0].ScheduledTypes_Draft || [],
+                DefaultNumofMonths:dataItems[0].DefaultNumofMonths || 24,
+                DefaultNumofMonths_Draft:dataItems[0].DefaultNumofMonths_Draft || 24,
+                NumOfDaysForHidden:dataItems[0].NumOfDaysForHidden || 1825,
+                HiddenTresholdDays:dataItems[0].HiddenTresholdDays || 30,
+                CodeJobUUID:dataItems[0].CodeJobUUID || '',
+                LatestReportURL:dataItems[0].LatestReportURL || '',
+                ArchivePhase:dataItems[0].ArchivePhase || {},
+                ArchiveHiddenPhase:dataItems[0].ArchiveHiddenPhase || {}
+            }
         }
-        if(typeof retVal.ScheduledTypes == 'undefined' || typeof retVal.ScheduledTypes_Draft == 'undefined') {
-            retVal.ScheduledTypes = [];
-            retVal.ScheduledTypes_Draft = [];
-        }
-        retVal.DefaultNumofMonths = retVal.DefaultNumofMonths || 24;
-        retVal.DefaultNumofMonths_Draft = retVal.DefaultNumofMonths_Draft || 24;
 
         return retVal;
     }
 
     async updateAdditionalData(additionalData: any) {
-        await this.papiClient.addons.installedAddons.upsert({
-            Addon: {UUID: this.addonUUID},
-            AdditionalData: JSON.stringify(additionalData)
-        })
+        // await this.papiClient.addons.installedAddons.upsert({
+        //     Addon: {UUID: this.addonUUID},
+        //     AdditionalData: JSON.stringify(additionalData)
+        // })
+        additionalData.Key = additionalData.CodeJobUUID;
+        await this.papiClient.addons.data.uuid(this.addonUUID).table(scheme.Name).upsert(additionalData);
       }   
 
     async archiveData(data: ReportTuple[]): Promise<ArchiveReport[]> {

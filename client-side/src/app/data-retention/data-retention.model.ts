@@ -46,6 +46,7 @@ export class AdditionalData {
     DefaultNumofMonths_Draft?: number = 24;
     LatestReportURL?: string = '';
     NumOfDaysForHidden?: number = 90;
+    HiddenTresholdDays?: number = 30;
     ArchivePhase?: Phase;
     ArchiveHiddenPhase?: Phase;
 }

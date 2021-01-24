@@ -5,8 +5,43 @@ import { ReportTuple, MyService, ScheduledType, ArchiveReport, ExecutionData, Ar
 
 export const PageSize: number = 5000;
 export const DeltaDays: number = 180;
-export const HiddenTresholdDays: number = 90;
 export const MaxArchiveItems: number = 150000;
+
+export async function get_addon_data(client: Client, request: Request) {
+    try {
+        const service = new MyService(client);
+        const data = await service.getAdditionalData();
+        return {
+            success:true,
+            errorMessage:'',
+            resultObject:data
+        }
+    }
+    catch(err) {
+        return {
+            success: false,
+            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured'
+        }
+    }
+}
+
+export async function update_addon_data(client: Client, request: Request) {
+    try {
+        const service = new MyService(client);
+        const data = request?.body || {};
+        await service.updateAdditionalData(data);
+        return {
+            success:true,
+            errorMessage:''
+        }
+    }
+    catch(err) {
+        return {
+            success: false,
+            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured'
+        }
+    }
+}
 
 export async function run_data_retention(client: Client, request: Request) {
     try {
@@ -207,6 +242,7 @@ export async function get_archive_report(client: Client, request: Request) {
 export async function archive_hidden_activities(client: Client, request: Request) {
     const service = new MyService(client);
     const addonData = await service.getAdditionalData();
+    const hiddenTresholdDays = addonData.HiddenTresholdDays || 30;
     try {
         const executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
         if (executionData.ArchivingReport && executionData.ArchivingReport.length > 0) {
@@ -228,7 +264,7 @@ export async function archive_hidden_activities(client: Client, request: Request
             const tresholModificationdDate = new Date();
             const tresholActionDate = new Date();
             
-            tresholModificationdDate.setDate(tresholModificationdDate.getDate() - HiddenTresholdDays);
+            tresholModificationdDate.setDate(tresholModificationdDate.getDate() - hiddenTresholdDays);
             tresholActionDate.setDate(tresholActionDate.getDate() - daysToSubstract);
             const modificationDateStr = tresholModificationdDate.toISOString().split('.')[0]+"Z";
             const actionDateStr = tresholActionDate.toISOString().split('.')[0]+"Z";
@@ -250,7 +286,7 @@ export async function archive_hidden_activities(client: Client, request: Request
             }
 
             if((transactionJobs.TotalItems || 0) <= MaxArchiveItems && (activitiesJobs.TotalItems || 0) <= MaxArchiveItems) {
-                addonData.NumOfDaysForHidden = Math.max(daysToSubstract - DeltaDays, 90);
+                addonData.NumOfDaysForHidden = Math.max(daysToSubstract - DeltaDays, hiddenTresholdDays);
                 await service.updateAdditionalData(addonData);
             }
             client.Retry(1000);

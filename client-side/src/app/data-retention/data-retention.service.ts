@@ -46,16 +46,29 @@ export class DataRetentionService {
   }
 
   async getAdditionalData(): Promise<AdditionalData> {
-    const installedAddon = await this.papiClient.addons.installedAddons.addonUUID(this.pluginUUID).get();
-    const additionalData: AdditionalData = JSON.parse(installedAddon.AdditionalData);
-    if(typeof additionalData.ScheduledTypes == 'undefined') {
-        additionalData.ScheduledTypes = [];
-        additionalData.ScheduledTypes_Draft = [];
+    // const installedAddon = await this.papiClient.addons.installedAddons.addonUUID(this.pluginUUID).get();
+    // const additionalData: AdditionalData = JSON.parse(installedAddon.AdditionalData);
+    // if(typeof additionalData.ScheduledTypes == 'undefined') {
+    //     additionalData.ScheduledTypes = [];
+    //     additionalData.ScheduledTypes_Draft = [];
+    // }
+    // if(typeof additionalData.DefaultNumofMonths_Draft == 'undefined') {
+    //     additionalData.DefaultNumofMonths_Draft = 24;
+    // }
+    // return additionalData;
+    let retVal: AdditionalData = {
+        ScheduledTypes: [],
+        ScheduledTypes_Draft: [],
+        DefaultNumofMonths:24,
+        DefaultNumofMonths_Draft:24,
+        NumOfDaysForHidden:1825,
+    };
+    const data = await this.papiClient.addons.api.uuid(this.pluginUUID).sync().file('api').func('get_addon_data').get();
+    if(data.success) {
+        retVal = data.resultObject;
     }
-    if(typeof additionalData.DefaultNumofMonths_Draft == 'undefined') {
-        additionalData.DefaultNumofMonths_Draft = 24;
-    }
-    return additionalData;
+
+    return retVal;
   }
 
 
@@ -66,10 +79,11 @@ export class DataRetentionService {
       currentData.DefaultNumofMonths_Draft = additionalData.DefaultNumofMonths_Draft;
       currentData.ScheduledTypes = [...additionalData.ScheduledTypes];
       currentData.ScheduledTypes_Draft = [...additionalData.ScheduledTypes_Draft];
-    await this.papiClient.addons.installedAddons.upsert({
-        Addon: {UUID: this.pluginUUID},
-        AdditionalData: JSON.stringify(currentData)
-    })
+    // await this.papiClient.addons.installedAddons.upsert({
+    //     Addon: {UUID: this.pluginUUID},
+    //     AdditionalData: JSON.stringify(currentData)
+    // })
+    await this.papiClient.addons.api.uuid(this.pluginUUID).sync().file('api').func('update_addon_data').post(undefined, currentData);
   }
 
   updateSystemData(body: any, successFunc, errorFunc = null) {

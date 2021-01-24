@@ -1,34 +1,59 @@
-import { PapiClient, CodeJob } from "@pepperi-addons/papi-sdk";
+import { PapiClient, CodeJob, AddonDataScheme } from "@pepperi-addons/papi-sdk";
 import { InstalledAddon } from "../client-side/src/app/data-retention/data-retention.model";
-
-
+//import * as Scheme from './dataScheme.json'
+export const scheme: AddonDataScheme = {
+    Name: "DataRetention",
+    Type: "data",
+    Fields: {
+        CodeJobUUID: {
+            Type: "String"
+        },
+        DefaultNumberOfMonths: {
+            Type: "Integer"
+        },
+        DefaultNumofMonths_Draft: {
+            Type: "Integer"
+        },
+        LatestReportURL: {
+            Type: "String"
+        },
+        NumOfDaysForHidden: {
+            Type: "Integer"
+        },
+        HiddenTreshold: {
+            Type: "Integer"
+        }
+    }
+}
 exports.install = async (Client, Request) => {
     let success = true;
     let errorMessage = '';
     const papiClient = new PapiClient({
         baseURL: Client.BaseURL,
         token: Client.OAuthAccessToken,
-        addonUUID: Client.AddonUUID
+        addonUUID: Client.AddonUUID,
+        addonSecretKey: '8c9a5568-f35a-407d-856a-32d25ace2859'
     });
     try {
+        let retVal = await createADALScheme(papiClient);
+        if(retVal.success) {
+            const codeJob: CodeJob = await papiClient.codeJobs.upsert({
+                CodeJobName: "Data Retention",
+                Description: "Data Retention",
+                Type: "AddonJob",
+                IsScheduled: true,
+                CronExpression: getCronExpression(),
+                AddonPath: "api",
+                FunctionName: "run_data_retention",
+                AddonUUID: Client.AddonUUID,
+                NumberOfTries: 30,
+            })
 
-        const codeJob: CodeJob = await papiClient.codeJobs.upsert({
-            CodeJobName: "Data Retention",
-            Description: "Data Retention",
-            Type: "AddonJob",
-            IsScheduled: true,
-            CronExpression: getCronExpression(),
-            AddonPath: "api",
-            FunctionName: "run_data_retention",
-            AddonUUID: Client.AddonUUID,
-            NumberOfTries: 30,
-        })
-
-        console.log("result object recieved from Code jobs is: " + JSON.stringify(codeJob));
-        let retVal = await updateCodeJobUUID(papiClient, Client.AddonUUID, codeJob.UUID);
+            console.log("result object recieved from Code jobs is: " + JSON.stringify(codeJob));
+            retVal = await updateCodeJobUUID(papiClient, Client.AddonUUID, codeJob.UUID);
+        }
         success = retVal.success;
         errorMessage = retVal.errorMessage;
-
     }
     catch(err) {
         success = false;
@@ -75,21 +100,30 @@ exports.upgrade = async (Client, Request) => {
     const papiClient = new PapiClient({
         baseURL: Client.BaseURL,
         token: Client.OAuthAccessToken,
-        addonUUID: Client.AddonUUID
+        addonUUID: Client.AddonUUID,
+        addonSecretKey: Client.AddonSecretKey
     });
-    let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
-    if(uuid != '') {
-        await papiClient.codeJobs.upsert({
-            UUID:uuid,
-            CodeJobName: "Data Retention",
-            NumberOfTries: 30,
-            FunctionName: 'run_data_retention'
-        });
+    let retVal = {
+        success: true,
+        errorMessage: ""
+    } //await createADALScheme(papiClient);
+    if(retVal.success) {
+        let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
+        if(uuid != '') {
+            await papiClient.codeJobs.upsert({
+                UUID:uuid,
+                CodeJobName: "Data Retention",
+                NumberOfTries: 30,
+                FunctionName: 'run_data_retention'
+            });
+            retVal.success = true;
+            retVal.errorMessage = "";
+        }
     }
     return {
-        success:true,
-        errorMessage:'',
-        resultObject:{}
+        success: retVal.success,
+        errorMessage: retVal.errorMessage,
+        resultObject: {}
     }
 }
 exports.downgrade = async (Client, Request) => {
@@ -139,26 +173,15 @@ function getCronExpression() {
 
 async function updateCodeJobUUID(papiClient, addonUUID, uuid) {
     try {
-        let addon: InstalledAddon = await papiClient.addons.installedAddons.addonUUID(addonUUID).get();
-        console.log("installed addon object is: " + JSON.stringify(addon));
-        if(addon?.AdditionalData) {
-            let data = JSON.parse(addon.AdditionalData);
-            data.CodeJobUUID = uuid;
-            addon.AdditionalData = JSON.stringify(data);
-        }
-        else {
-            console.log("could not recieved addon with ID: " + addonUUID + " exiting...");
-            return {
-                success: false,
-                errorMessage: "Addon does not exists."
-            }
-        }
-        console.log("addon object to post is: " + JSON.stringify(addon));
-        await papiClient.addons.installedAddons.upsert(addon);
+        await papiClient.addons.data.uuid(addonUUID).table(scheme.Name).post({
+            Key: uuid,
+            CodeJobUUID: uuid
+        });
         return {
             success:true, 
             errorMessage:""
         };
+
     }
     catch (err) {
         return {
@@ -168,13 +191,31 @@ async function updateCodeJobUUID(papiClient, addonUUID, uuid) {
     }
 }
 
-async function getCodeJobUUID(papiClient, addonUUID) {
+async function getCodeJobUUID(papiClient: PapiClient, addonUUID) {
     let uuid = '';
-    let addon = await papiClient.addons.installedAddons.addonUUID(addonUUID).get();
-    if(addon?.AdditionalData) {
-        uuid = JSON.parse(addon.AdditionalData).CodeJobUUID;
+    let data = await papiClient.addons.data.uuid(addonUUID).table(scheme.Name).find();
+    
+    if(data.length > 0) {
+         uuid = data[0].CodeJobUUID;
     }
+ 
     return uuid;
+}
+
+async function createADALScheme(papiClient: PapiClient) {
+    try {
+        await papiClient.addons.data.schemes.post(scheme);
+        return {
+            success: true,
+            errorMessage: ""
+        }
+    }
+    catch (err) {
+        return {
+            success: false,
+            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+        }
+    }
 }
 
 function getRandomIndex(arrayLength:number): number {
