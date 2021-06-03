@@ -103,10 +103,8 @@ exports.upgrade = async (Client, Request) => {
         addonUUID: Client.AddonUUID,
         addonSecretKey: Client.AddonSecretKey
     });
-    let retVal = {
-        success: true,
-        errorMessage: ""
-    } //await createADALScheme(papiClient);
+    let retVal = await createADALScheme(papiClient);
+    await migrateData(papiClient, Client.AddonUUID);
     if(retVal.success) {
         let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
         if(uuid != '') {
@@ -214,6 +212,46 @@ async function createADALScheme(papiClient: PapiClient) {
         return {
             success: false,
             errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+        }
+    }
+}
+
+async function migrateData(papiClient: PapiClient, addonUUID: string) {
+    let addon:any = await papiClient.addons.installedAddons.addonUUID(addonUUID).get();
+    let retVal: any;
+    if(addon?.AdditionalData) {
+        retVal = JSON.parse(addon.AdditionalData);
+        try {
+            await papiClient.addons.data.uuid(addonUUID).table(scheme.Name).key(retVal.CodeJobUUID!).get();
+        }
+        catch(error) { 
+            // we changed keyValuePair properties to be lower cased, so we need to map new objects
+            retVal.ScheduledTypes_Draft = retVal.ScheduledTypes_Draft?.map(item => {
+                return {
+                    UUID: item.UUID,
+                    ActivityType: {
+                        key:item.ActivityType.Key,
+                        value: item.ActivityType.Value
+                    },
+                    NumOfMonths: item.NumOfMonths,
+                    MinItems: item.MinItems
+                    
+                }
+            });
+            retVal.ScheduledTypes = retVal.ScheduledTypes?.map(item => {
+                return {
+                    UUID: item.UUID,
+                    ActivityType: {
+                        key:item.ActivityType.Key,
+                        value: item.ActivityType.Value
+                    },
+                    NumOfMonths: item.NumOfMonths,
+                    MinItems: item.MinItems
+                    
+                }
+            });
+            retVal.Key = retVal.CodeJobUUID;
+            await papiClient.addons.data.uuid(addonUUID).table(scheme.Name).upsert(retVal);
         }
     }
 }
