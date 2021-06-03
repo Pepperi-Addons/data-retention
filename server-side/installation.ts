@@ -1,5 +1,5 @@
 import { PapiClient, CodeJob, AddonDataScheme } from "@pepperi-addons/papi-sdk";
-import { InstalledAddon } from "../client-side/src/app/data-retention/data-retention.model";
+import { AdditionalData, ScheduledType } from "../shared/entities";
 //import * as Scheme from './dataScheme.json'
 export const scheme: AddonDataScheme = {
     Name: "DataRetention",

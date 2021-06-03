@@ -1,7 +1,8 @@
 
 import { Client, Request } from '@pepperi-addons/debug-server'
 import { GeneralActivity, Transaction } from '@pepperi-addons/papi-sdk';
-import { ReportTuple, MyService, ScheduledType, ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj, DataRetentionData } from './my.service';
+import { ReportTuple, ScheduledType } from '../shared/entities';
+import { MyService, ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj, DataRetentionData } from './my.service';
 
 export const PageSize: number = 5000;
 export const DeltaDays: number = 180;
@@ -156,7 +157,7 @@ export async function archive(client: Client, request: Request) {
         else {
             const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths, executionData);
             if (isDone) {
-                const final = GenerateReport(report, x => x.ActivityType.Key);
+                const final = GenerateReport(report, x => x.ActivityType.key);
                 await service.uploadReportToS3(executionData.ArchiveReportURL.UploadURL, final);
                 const jobsIds: ArchiveReport[] = await service.archiveData(final);
                 if(jobsIds.length > 0) {
@@ -200,7 +201,7 @@ export async function get_archive_report(client: Client, request: Request) {
         let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
         const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes_Draft, addonData.DefaultNumofMonths_Draft, executionData);
         if (isDone) {
-            const final = GenerateReport(report, x => x.ActivityType.Key);
+            const final = GenerateReport(report, x => x.ActivityType.key);
             await service.uploadReportToS3(executionData.ArchiveReportURL.UploadURL, final);
             addonData.LatestReportURL = executionData.ArchiveReportURL.DownloadURL;
             await service.updateAdditionalData(addonData);
@@ -210,7 +211,7 @@ export async function get_archive_report(client: Client, request: Request) {
                 errorMessage: '',
                 resultObject: final.map(item => {
                     return {
-                        ActivityType: item.ActivityType.Value,
+                        ActivityType: item.ActivityType.value,
                         BeforeCount: item.BeforeCount,
                         ArchiveCount: item.ArchiveCount,
                         AfterCount: item.AfterCount
@@ -314,7 +315,7 @@ async function processAccount(service: MyService, accountIDs: number[], archiveD
     console.debug('after group by activities by type. number of activities to process is', activities.length);
     activitiesByType.forEach((items: (GeneralActivity | Transaction)[]) => {
         if (items.length > 0) {
-            let type: ScheduledType = archiveData.find(x => x.ActivityType.Key == items[0].ActivityTypeID) ||
+            let type: ScheduledType = archiveData.find(x => x.ActivityType.key == items[0].ActivityTypeID) ||
             {
                 ActivityType: {
                     Key: items[0].ActivityTypeID || -1,
@@ -364,11 +365,11 @@ function ProcessActivitiesByType(items: (GeneralActivity | Transaction)[], type:
             activitiesToArchive = [];
         }
     }
-    console.debug('after ProcessActivitiesByType. Type is:', type.ActivityType.Value, 'number of activities to archive is:', activitiesToArchive.length, 'out of', items.length, 'total activities')
+    console.debug('after ProcessActivitiesByType. Type is:', type.ActivityType.value, 'number of activities to archive is:', activitiesToArchive.length, 'out of', items.length, 'total activities')
     return {
         ActivityType: {
-            Key: type.ActivityType.Key,
-            Value: type.ActivityType.Value
+            key: type.ActivityType.key,
+            value: type.ActivityType.value
         },
         BeforeCount: items.length,
         ArchiveCount: activitiesToArchive.length,

@@ -3,7 +3,7 @@ import { DataRetentionService } from 'src/app/data-retention/data-retention.serv
 import { PepperiListService, PepperiListContComponent } from '../pepperi-list/pepperi-list.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ScheduledType } from 'src/app/data-retention/data-retention.model';
+import { ScheduledType } from '../../../../../../shared/entities';
 
 @Component({
   selector: 'app-list-view',
@@ -27,7 +27,7 @@ export class ListViewComponent implements OnInit {
         Title: translates ? translates['Archive_TypesTable_Title'] : '',
         Fields: [
           {
-            FieldID: 'ActivityType.Value',
+            FieldID: 'ActivityType.value',
             Type: 'TextBox',
             Title: translates ? translates['Archive_TypesTable_ActivityColumnTitle'] : '',
             Mandatory: false,

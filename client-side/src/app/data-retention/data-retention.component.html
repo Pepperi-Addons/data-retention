@@ -50,7 +50,7 @@
                 <p class="body-sm">{{ "Archive_Policy_Paragraph" | translate }}</p>
 
                 <div class="pep-row">
-                    <pep-textbox [required]="true" [label]="'Archive_MonthsTitle' | translate"
+                    <pep-textbox [mandatory]="true" [label]="'Archive_MonthsTitle' | translate"
                         [value]="this.additionalData.DefaultNumofMonths_Draft" [type]="'int'"
                         (valueChange)="onValueChange('defaultMonths', $event)" [minValue]=1 [maxValue]=24
                         (formValidationChange)="this.disablePublish = $event == false"></pep-textbox>

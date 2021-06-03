@@ -1,6 +1,7 @@
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Component, OnInit, Inject, ViewChild, OnDestroy, Injectable, ViewEncapsulation } from '@angular/core';
-import { DialogModel, TypeDialogData, ScheduledType, DEFAULT_NUM_OF_MONTHS } from 'src/app/data-retention/data-retention.model';
+import { DialogModel, TypeDialogData } from 'src/app/data-retention/data-retention.model';
+import {ScheduledType, DEFAULT_NUM_OF_MONTHS } from "../../../../../../shared/entities";
 import { BehaviorSubject } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class AddTypeDialogService {
@@ -47,8 +48,8 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
             let current: ScheduledType  = incoming.data.selectedType;
             this.dialogData.numOfMonths = current.NumOfMonths;
             this.dialogData.minItems = current.MinItems.toString();
-            this.dialogData.selectedActivity = current.ActivityType.Key;
-            this.selectedActivity = current.ActivityType.Key;
+            this.dialogData.selectedActivity = current.ActivityType.key;
+            this.selectedActivity = current.ActivityType.key;
             this.mode = 'Edit';
             this.isActivityValid = true;
             this.isNumOfMonthsValid = Number(current.NumOfMonths) <= Number(this.maxHistory);
@@ -67,15 +68,15 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
         console.log($event);
         switch(element) {
             case 'Activity': {
-                this.dialogData.selectedActivity = $event.value;
+                this.dialogData.selectedActivity = $event;
                 break;
             }
             case 'NumOfMonths': {
-                this.dialogData.numOfMonths = $event.value;
+                this.dialogData.numOfMonths = $event;
                 break;
             }
             case 'MinItems': {
-                this.dialogData.minItems = $event.value;
+                this.dialogData.minItems = $event;
                 break;
             }
         }

@@ -1,7 +1,7 @@
 import { CodeJob } from "@pepperi-addons/papi-sdk";
 
 import { DataRetentionService } from "./data-retention.service";
-import { ScheduledType, AdditionalData, DEFAULT_NUM_OF_MONTHS } from "./data-retention.model";
+import { ScheduledType, AdditionalData, DEFAULT_NUM_OF_MONTHS } from "../../../../shared/entities";
 
 import {
     Component,
@@ -27,6 +27,7 @@ import { ReportDialogComponent } from './dialogs/report-dialog/report-dialog.com
 import { PepDialogActionButton } from '@pepperi-addons/ngx-lib/dialog';
 import { PepLayoutService, PepScreenSizeType } from '@pepperi-addons/ngx-lib';
 import { PepMenuItem } from '@pepperi-addons/ngx-lib/menu';
+import { KeyValuePair } from './../../../../shared/entities';
 
 @Component({
     selector: "data-retention",
@@ -66,40 +67,40 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
     menuOptions: PepMenuItem[] = [];
 
     timeOptions = [
-        { Key: "0", Value: "00:00" },
-        { Key: "1", Value: "01:00" },
-        { Key: "2", Value: "02:00" },
-        { Key: "3", Value: "03:00" },
-        { Key: "4", Value: "04:00" },
-        { Key: "5", Value: "05:00" },
-        { Key: "6", Value: "06:00" },
-        { Key: "7", Value: "07:00" },
-        { Key: "8", Value: "08:00" },
-        { Key: "9", Value: "09:00" },
-        { Key: "10", Value: "10:00" },
-        { Key: "11", Value: "11:00" },
-        { Key: "12", Value: "12:00" },
-        { Key: "13", Value: "13:00" },
-        { Key: "14", Value: "14:00" },
-        { Key: "15", Value: "15:00" },
-        { Key: "16", Value: "16:00" },
-        { Key: "17", Value: "17:00" },
-        { Key: "18", Value: "18:00" },
-        { Key: "19", Value: "19:00" },
-        { Key: "20", Value: "20:00" },
-        { Key: "21", Value: "21:00" },
-        { Key: "22", Value: "22:00" },
-        { Key: "23", Value: "23:00" },
+        { key: "0", value: "00:00" },
+        { key: "1", value: "01:00" },
+        { key: "2", value: "02:00" },
+        { key: "3", value: "03:00" },
+        { key: "4", value: "04:00" },
+        { key: "5", value: "05:00" },
+        { key: "6", value: "06:00" },
+        { key: "7", value: "07:00" },
+        { key: "8", value: "08:00" },
+        { key: "9", value: "09:00" },
+        { key: "10", value: "10:00" },
+        { key: "11", value: "11:00" },
+        { key: "12", value: "12:00" },
+        { key: "13", value: "13:00" },
+        { key: "14", value: "14:00" },
+        { key: "15", value: "15:00" },
+        { key: "16", value: "16:00" },
+        { key: "17", value: "17:00" },
+        { key: "18", value: "18:00" },
+        { key: "19", value: "19:00" },
+        { key: "20", value: "20:00" },
+        { key: "21", value: "21:00" },
+        { key: "22", value: "22:00" },
+        { key: "23", value: "23:00" },
     ];
 
     dayOptions = [
-        { Key: "SUN", Value: "Sunday" },
-        { Key: "MON", Value: "Monday" },
-        { Key: "TUE", Value: "Tuesday" },
-        { Key: "WED", Value: "Wednesday" },
-        { Key: "THU", Value: "Thursday" },
-        { Key: "FRI", Value: "Friday" },
-        { Key: "SAT", Value: "Saturday" },
+        { key: "SUN", value: "Sunday" },
+        { key: "MON", value: "Monday" },
+        { key: "TUE", value: "Tuesday" },
+        { key: "WED", value: "Wednesday" },
+        { key: "THU", value: "Thursday" },
+        { key: "FRI", value: "Friday" },
+        { key: "SAT", value: "Saturday" },
     ];
 
     codeJob: CodeJob;
@@ -141,11 +142,11 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
             switch (mode) {
                 case "DaySelect": {
                     index =
-                        this.dayOptions.findIndex((item) => item.Key === parts[3]) || 0;
+                        this.dayOptions.findIndex((item) => item.key === parts[3]) || 0;
                 }
                 case "TimeSelect": {
                     index =
-                        this.timeOptions.findIndex((item) => item.Key === parts[1]) || 0;
+                        this.timeOptions.findIndex((item) => item.key === parts[1]) || 0;
                 }
                 default: {
                     break;
@@ -163,7 +164,7 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
                 break;
             }
             case "Edit": {
-                if (event.SelectedItem && self.activityTypes.find(item => event.SelectedItem.ActivityType.Key == item.Key)) {
+                if (event.SelectedItem && self.activityTypes.find(item => event.SelectedItem.ActivityType.key == item.key)) {
                     self.openTypeDialog(event.ApiName, event.SelectedItem);
                 }
                 else {
@@ -331,11 +332,11 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
         const parts = this.codeJob ? this.codeJob.CronExpression.split(" ") : [];
         if (parts.length > 4) {
             this.selectedDay = this.dayOptions.find(
-                (item) => item.Key === parts[4]
-            ).Key;
+                (item) => item.key === parts[4]
+            ).key;
             this.selectedHour = this.timeOptions.find(
-                (item) => item.Key === parts[1]
-            ).Key;
+                (item) => item.key === parts[1]
+            ).key;
         }
 
         this.menuOptions = [
@@ -384,7 +385,7 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
     openTypeDialog(operation, selectedObj = undefined) {
         const self = this;
         const types = self.additionalData.ScheduledTypes_Draft ? self.activityTypes.filter((item) => {
-            return self.additionalData.ScheduledTypes_Draft.findIndex(type => type.ActivityType.Key == item.Key) == -1 || (selectedObj ? selectedObj.ActivityType.Key == item.Key : false)
+            return self.additionalData.ScheduledTypes_Draft.findIndex(type => type.ActivityType.key == item.key) == -1 || (selectedObj ? selectedObj.ActivityType.key == item.key : false)
         }) : self.activityTypes;
         const dialogTitle = operation == 'Add' ? this.translate.instant('Archive_TypesModalTitle_Add') : this.translate.instant('Archive_TypesModalTitle_Update');
         self.pluginService.openDialog(
@@ -412,19 +413,19 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
         const exist = this.additionalData.ScheduledTypes_Draft ?
             this.additionalData.ScheduledTypes_Draft.filter(
                 (type) =>
-                    data.selectedActivity && type.ActivityType.Key == data.selectedActivity
+                    data.selectedActivity && type.ActivityType.key == data.selectedActivity
             ).length == 1 : false;
         if (exist) {
             const index = this.additionalData.ScheduledTypes_Draft.findIndex(
-                (type) => type.ActivityType.Key === data.selectedActivity
+                (type) => type.ActivityType.key === data.selectedActivity
             );
             this.additionalData.ScheduledTypes_Draft[index].NumOfMonths = data.numOfMonths;
             this.additionalData.ScheduledTypes_Draft[index].MinItems = data.minItems;
         } else {
-            const type = this.activityTypes.find(item => item.Key == data.selectedActivity);
+            const type = this.activityTypes.find(item => item.key == data.selectedActivity);
             if (type) {
                 this.additionalData.ScheduledTypes_Draft.push(
-                    new ScheduledType(type.Key, type.Value, data.numOfMonths, data.minItems)
+                    new ScheduledType(type.key, type.value, data.numOfMonths, data.minItems)
                 );
             }
         }
@@ -436,7 +437,7 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
         this.activityTypes = [];
         this.pluginService.getTypes((types) => {
             if (types) {
-                types.sort((a, b) => a.Value.localeCompare(b.Value))
+                types.sort((a, b) => a.value.localeCompare(b.value))
                 this.activityTypes = [...types];
             }
         });
@@ -463,7 +464,7 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
 
     deleteType(selectedObj) {
         if (selectedObj) {
-            const index = this.additionalData.ScheduledTypes_Draft.findIndex(item => item.ActivityType.Key == selectedObj.ActivityType.Key);
+            const index = this.additionalData.ScheduledTypes_Draft.findIndex(item => item.ActivityType.key == selectedObj.ActivityType.key);
             index > -1 ? this.additionalData.ScheduledTypes_Draft.splice(index, 1) : null;
             this.pluginService.updateAdditionalData(this.additionalData);
             this.typesList ? this.typesList.reload() : null;

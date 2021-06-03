@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 import {PepAddonService, PepHttpService, PepDataConvertorService, PepSessionService} from '@pepperi-addons/ngx-lib';
 
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
-import {AdditionalData, DEFAULT_NUM_OF_MONTHS, KeyValuePair } from './data-retention.model';
+import {AdditionalData, DEFAULT_NUM_OF_MONTHS, KeyValuePair } from "../../../../shared/entities";
 
 import { PepDialogService, PepDialogData, PepDialogActionsType } from '@pepperi-addons/ngx-lib/dialog';
 
@@ -90,7 +90,7 @@ export class DataRetentionService {
    openDialog(title = 'Modal Test', content, buttons,
          input , callbackFunc = null): void {
         const dialogConfig = this.dialogService.getDialogConfig({disableClose: true, panelClass:'pepperi-standalone'}, 'inline')
-        const data = new PepDialogData({title: title, type:'custom', content:content, actionButtons: buttons})
+        const data = new PepDialogData({title: title, actionsType:'custom', content:content, actionButtons: buttons})
         dialogConfig.data = data;
         
         this.dialogRef = this.dialogService.openDialog(content, input, dialogConfig);
@@ -100,7 +100,7 @@ export class DataRetentionService {
    }
 
     openTextDialog(title, content, buttons, dialogType: PepDialogActionsType ) {
-        const data = new PepDialogData({title: title, content: content, type: dialogType, actionButtons: buttons});
+        const data = new PepDialogData({title: title, content: content, actionsType: dialogType, actionButtons: buttons});
         const config = this.dialogService.getDialogConfig({}, 'inline')
         this.dialogService.openDefaultDialog(data, config);
     }
@@ -112,14 +112,14 @@ export class DataRetentionService {
             (activityTypes) => {
                 if (activityTypes) {
                     activityTypes.forEach(type =>
-                        types.push({ Key: type.TypeID, Value: type.ExternalID })
+                        types.push({ key: type.TypeID, value: type.ExternalID })
                     );
                 }
                 this.httpService.getPapiApiCall('/meta_data/transactions/types').subscribe(
                     (transactionTypes) => {
                         if (transactionTypes) {
                             transactionTypes.forEach(type =>
-                                types.push({ Key: type.TypeID, Value: type.ExternalID })
+                                types.push({ key: type.TypeID, value: type.ExternalID })
                             );
                         }
                         successFunc(types);

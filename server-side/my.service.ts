@@ -1,4 +1,4 @@
-import { AdditionalData, DEFAULT_NUM_OF_MONTHS } from "../client-side/src/app/data-retention/data-retention.model";
+import { AdditionalData, DEFAULT_NUM_OF_MONTHS, ReportTuple } from "../shared/entities";
 import { PapiClient, InstalledAddon, ExportApiResponse, ArchiveBody } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import fetch from 'node-fetch';
@@ -23,7 +23,8 @@ export class MyService {
             baseURL: client.BaseURL,
             token: client.OAuthAccessToken,
             suppressLogging:false,
-            addonSecretKey: client.AddonSecretKey
+            addonSecretKey: client.AddonSecretKey,
+            addonUUID:client.AddonUUID
         });
         this.addonUUID = client.AddonUUID;
     }
@@ -114,8 +115,8 @@ export class MyService {
         let totalArchiveCount = 0;
         maintenanceJobs = data.filter(item => item.ArchiveCount > 0).map((row):Promise<ArchiveReport> => {
             return new Promise((resolve,reject) => {
-                this.getAtdType(row.ActivityType.Key).then((atdType) => {
-                    console.debug("activity Type is:", row.ActivityType.Key, "\ntype got from meta data is:", atdType);
+                this.getAtdType(row.ActivityType.key).then((atdType) => {
+                    console.debug("activity Type is:", row.ActivityType.key, "\ntype got from meta data is:", atdType);
                     const remainingItems = MaxArchiveItems - totalArchiveCount;
                     if (remainingItems > 0 && remainingItems < row.ArchiveCount) {
                         row.ArchiveCount = remainingItems;
@@ -125,7 +126,7 @@ export class MyService {
                         totalArchiveCount += row.ArchiveCount;
                         this.getArchiveJobsInfo(atdType, row.Activities).then((jobsResults) => {
                             resolve({
-                                ActivityType: row.ActivityType.Value,
+                                ActivityType: row.ActivityType.value,
                                 ArchiveCount: row.ArchiveCount,
                                 ArchiveJobResult: jobsResults
                             })
@@ -135,7 +136,7 @@ export class MyService {
                     }
                     else {
                         resolve ({
-                            ActivityType: row.ActivityType.Value,
+                            ActivityType: row.ActivityType.value,
                             ArchiveCount: 0,
                             ArchiveJobResult: []
                         })
@@ -309,23 +310,6 @@ export class MyService {
             }, 30000);
         });
     }
-}
-
-export interface ReportTuple {
-    ActivityType: KeyValuePair<string>;
-    BeforeCount: number;
-    AfterCount: number;
-    ArchiveCount: number;
-    Activities: number[];
-}
-export interface KeyValuePair<T> {
-    Key: number;
-    Value: T;
-}
-export interface ScheduledType {
-    ActivityType: KeyValuePair<string>;
-    NumOfMonths: number;
-    MinItems: number;
 }
 
 export interface ArchiveReport {

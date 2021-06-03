@@ -129,33 +129,37 @@ export class PepperiListContComponent implements OnInit {
         const dataView = this.service.getDataView(translates);
         this.list = await this.service.getList();
         const rows: PepRowData[] = this.list.map(x => {
-        const res = new PepRowData();
-        res.Fields = dataView.Fields.map((field, i) => {
-            return {
-            ApiName: field.FieldID,
-            Title: field.Title,
-            XAlignment: 1,
-            FormattedValue: this.getValue(x, field.FieldID),
-            Value:  this.getValue(x, field.FieldID),
-            ColumnWidth: dataView.Columns[i].Width,
-            AdditionalValue: '',
-            OptionalValues: [],
-            FieldType: DataViewFieldTypes[field.Type]
-            }
-        })
-        return res;
+            const res = new PepRowData();
+            res.UUID = x.UUID;
+            res.Fields = dataView.Fields.map((field, i) => {
+                return {
+                ApiName: field.FieldID,
+                Title: field.Title,
+                XAlignment: 1,
+                FormattedValue: this.getValue(x, field.FieldID),
+                Value:  this.getValue(x, field.FieldID),
+                ColumnWidth: dataView.Columns[i].Width,
+                AdditionalValue: '',
+                OptionalValues: [],
+                FieldType: DataViewFieldTypes[field.Type]
+                }
+            })
+            return res;
         });
 
-        let pepperiListObj = rows.length > 0 ? this.pluginService.pepperiDataConverter.convertListData(rows) : new ObjectsData();
-        let uiControl = rows.length > 0 ? pepperiListObj.UIControl: new UIControl();
-        let l = rows.length > 0 ? pepperiListObj.Rows.map((row, i) => {
-            row.UID = this.list[i].UUID || row.UID;
-            const osd = new ObjectSingleData(uiControl, row);
-            osd.IsEditable = false;
-            return osd;
-        }) : [];
+        // let pepperiListObj = rows.length > 0 ? this.pluginService.pepperiDataConverter.convertListData(rows) : new ObjectsData();
+        // let uiControl = rows.length > 0 ? pepperiListObj.UIControl: new UIControl();
+        // let l = rows.length > 0 ? pepperiListObj.Rows.map((row, i) => {
+        //     row.UID = this.list[i].UUID || row.UID;
+        //     const osd = new ObjectSingleData(uiControl, row);
+        //     osd.IsEditable = false;
+        //     return osd;
+        // }) : [];
         
-            this.pepperiListComp.initListData(uiControl, l.length, l, 'table', '', true);
+        const uiControl = this.pluginService.pepperiDataConverter.getUiControl(rows[0]);
+        const l = this.pluginService.pepperiDataConverter.convertListData(rows);
+
+        this.pepperiListComp.initListData(uiControl, l.length, l, 'table', '', true);
     });
     }
 
