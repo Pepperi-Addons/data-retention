@@ -1,5 +1,7 @@
 import { PepDialogActionsType } from '@pepperi-addons/ngx-lib/dialog';
 
+
+export const DEFAULT_NUM_OF_MONTHS: number = 12;
 export class KeyValuePair<T> {
     Key: number;
     Value: T;
@@ -42,8 +44,8 @@ export class AdditionalData {
     CodeJobUUID?: string;
     ScheduledTypes?: ScheduledType[];
     ScheduledTypes_Draft?: ScheduledType[];
-    DefaultNumofMonths?: number = 24;
-    DefaultNumofMonths_Draft?: number = 24;
+    DefaultNumofMonths?: number = DEFAULT_NUM_OF_MONTHS;
+    DefaultNumofMonths_Draft?: number = DEFAULT_NUM_OF_MONTHS;
     LatestReportURL?: string = '';
     NumOfDaysForHidden?: number = 90;
     HiddenTresholdDays?: number = 30;

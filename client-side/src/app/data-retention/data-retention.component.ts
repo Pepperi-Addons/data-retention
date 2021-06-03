@@ -1,7 +1,7 @@
 import { CodeJob } from "@pepperi-addons/papi-sdk";
 
 import { DataRetentionService } from "./data-retention.service";
-import { ScheduledType, AdditionalData } from "./data-retention.model";
+import { ScheduledType, AdditionalData, DEFAULT_NUM_OF_MONTHS } from "./data-retention.model";
 
 import {
     Component,
@@ -53,7 +53,7 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
     selectedHour: string = "";
     latestReport = undefined;
     listActions = [];
-    defaultNumOfMonths = 24;
+    defaultNumOfMonths = DEFAULT_NUM_OF_MONTHS;
     disablePublish = false;
     reportInterval = undefined;
     dialogRef;

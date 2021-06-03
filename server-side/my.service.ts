@@ -1,4 +1,4 @@
-import { AdditionalData } from "../client-side/src/app/data-retention/data-retention.model";
+import { AdditionalData, DEFAULT_NUM_OF_MONTHS } from "../client-side/src/app/data-retention/data-retention.model";
 import { PapiClient, InstalledAddon, ExportApiResponse, ArchiveBody } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import fetch from 'node-fetch';
@@ -66,37 +66,19 @@ export class MyService {
             page:1, 
             page_size:-1, 
             where:`Account.InternalID in (${accounts}) and ActivityTypeID is not null And Archive=0`,
-            orderBy:"ModificationDateTime desc",
+            order_by:"ModificationDateTime desc",
             include_deleted:false});
         return retVal;
     }
 
     async getAdditionalData(): Promise<AdditionalData> {
-        // let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID(this.addonUUID).get();
-        // let retVal: AdditionalData = {
-        //     ScheduledTypes: [],
-        //     ScheduledTypes_Draft: [],
-        //     DefaultNumofMonths:24,
-        //     DefaultNumofMonths_Draft:24,
-        //     NumOfDaysForHidden:1825
-        // };
-        // if(addon?.AdditionalData) {
-        //     retVal = JSON.parse(addon.AdditionalData);
-        // }
-        // if(typeof retVal.ScheduledTypes == 'undefined' || typeof retVal.ScheduledTypes_Draft == 'undefined') {
-        //     retVal.ScheduledTypes = [];
-        //     retVal.ScheduledTypes_Draft = [];
-        // }
-        // retVal.DefaultNumofMonths = retVal.DefaultNumofMonths || 24;
-        // retVal.DefaultNumofMonths_Draft = retVal.DefaultNumofMonths_Draft || 24;
 
-        // return retVal;
         let dataItems = await this.papiClient.addons.data.uuid(this.addonUUID).table(scheme.Name).find();
         let retVal: AdditionalData = {
             ScheduledTypes: [],
             ScheduledTypes_Draft: [],
-            DefaultNumofMonths:24,
-            DefaultNumofMonths_Draft:24,
+            DefaultNumofMonths:DEFAULT_NUM_OF_MONTHS,
+            DefaultNumofMonths_Draft:DEFAULT_NUM_OF_MONTHS,
             NumOfDaysForHidden:1825,
             HiddenTresholdDays:30
         };
@@ -104,8 +86,8 @@ export class MyService {
             retVal = {
                 ScheduledTypes: dataItems[0].ScheduledTypes || [],
                 ScheduledTypes_Draft: dataItems[0].ScheduledTypes_Draft || [],
-                DefaultNumofMonths:dataItems[0].DefaultNumofMonths || 24,
-                DefaultNumofMonths_Draft:dataItems[0].DefaultNumofMonths_Draft || 24,
+                DefaultNumofMonths:dataItems[0].DefaultNumofMonths || DEFAULT_NUM_OF_MONTHS,
+                DefaultNumofMonths_Draft:dataItems[0].DefaultNumofMonths_Draft || DEFAULT_NUM_OF_MONTHS,
                 NumOfDaysForHidden:dataItems[0].NumOfDaysForHidden || 1825,
                 HiddenTresholdDays:dataItems[0].HiddenTresholdDays || 30,
                 CodeJobUUID:dataItems[0].CodeJobUUID || '',

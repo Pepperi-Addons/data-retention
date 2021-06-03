@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 import {PepAddonService, PepHttpService, PepDataConvertorService, PepSessionService} from '@pepperi-addons/ngx-lib';
 
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
-import {AdditionalData, KeyValuePair } from './data-retention.model';
+import {AdditionalData, DEFAULT_NUM_OF_MONTHS, KeyValuePair } from './data-retention.model';
 
 import { PepDialogService, PepDialogData, PepDialogActionsType } from '@pepperi-addons/ngx-lib/dialog';
 
@@ -46,21 +46,11 @@ export class DataRetentionService {
   }
 
   async getAdditionalData(): Promise<AdditionalData> {
-    // const installedAddon = await this.papiClient.addons.installedAddons.addonUUID(this.pluginUUID).get();
-    // const additionalData: AdditionalData = JSON.parse(installedAddon.AdditionalData);
-    // if(typeof additionalData.ScheduledTypes == 'undefined') {
-    //     additionalData.ScheduledTypes = [];
-    //     additionalData.ScheduledTypes_Draft = [];
-    // }
-    // if(typeof additionalData.DefaultNumofMonths_Draft == 'undefined') {
-    //     additionalData.DefaultNumofMonths_Draft = 24;
-    // }
-    // return additionalData;
     let retVal: AdditionalData = {
         ScheduledTypes: [],
         ScheduledTypes_Draft: [],
-        DefaultNumofMonths:24,
-        DefaultNumofMonths_Draft:24,
+        DefaultNumofMonths:DEFAULT_NUM_OF_MONTHS,
+        DefaultNumofMonths_Draft:DEFAULT_NUM_OF_MONTHS,
         NumOfDaysForHidden:1825,
     };
     const data = await this.papiClient.addons.api.uuid(this.pluginUUID).sync().file('api').func('get_addon_data').get();

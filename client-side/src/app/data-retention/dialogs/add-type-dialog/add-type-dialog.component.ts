@@ -1,6 +1,6 @@
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Component, OnInit, Inject, ViewChild, OnDestroy, Injectable, ViewEncapsulation } from '@angular/core';
-import { DialogModel, TypeDialogData, ScheduledType } from 'src/app/data-retention/data-retention.model';
+import { DialogModel, TypeDialogData, ScheduledType, DEFAULT_NUM_OF_MONTHS } from 'src/app/data-retention/data-retention.model';
 import { BehaviorSubject } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class AddTypeDialogService {
@@ -30,7 +30,7 @@ export class AddTypeDialogComponent implements OnInit, OnDestroy {
     minItems: number;
     selectedActivity: number;
     mode = 'Add';
-    maxHistory: number = 24;
+    maxHistory: number = DEFAULT_NUM_OF_MONTHS;
     isNumOfMonthsValid: boolean = true;
     isMinItemsValid: boolean = true;
     isActivityValid: boolean = false;

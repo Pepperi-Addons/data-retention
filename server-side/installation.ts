@@ -3,7 +3,7 @@ import { InstalledAddon } from "../client-side/src/app/data-retention/data-reten
 //import * as Scheme from './dataScheme.json'
 export const scheme: AddonDataScheme = {
     Name: "DataRetention",
-    Type: "data",
+    Type: "meta_data",
     Fields: {
         CodeJobUUID: {
             Type: "String"
