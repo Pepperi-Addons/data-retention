@@ -169,7 +169,7 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
                 }
                 else {
                     const title = self.translate.instant('Archive_MissingActivityModal_Title');
-                    const content = self.translate.instant('Archive_MissingActivityModal_Paragraph', { Type: event.SelectedItem.ActivityType.Value });
+                    const content = self.translate.instant('Archive_MissingActivityModal_Paragraph', { Type: event.SelectedItem.ActivityType.value });
                     
                     const buttons = [
                         new PepDialogActionButton(
@@ -480,16 +480,16 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
     onValueChange(element, $event) {
         switch(element) {
             case 'Days': {
-                this.selectedDay = $event.value;
+                this.selectedDay = $event;
                 break;
             }
             case 'Hour': {
-                this.selectedHour = $event.value;
+                this.selectedHour = $event;
                 break;
             }
             case 'defaultMonths': {
-                if ($event.value && $event.value > 0 && $event.value < 25) {
-                    this.additionalData.DefaultNumofMonths_Draft = $event.value;
+                if ($event && $event > 0 && $event < 25) {
+                    this.additionalData.DefaultNumofMonths_Draft = $event;
                     this.pluginService.updateAdditionalData(this.additionalData);
                 }
                 break;
@@ -503,7 +503,7 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
             const responseText = await response.text();
             return (responseText ? JSON.parse(responseText) : '').map(item => {
                 return {
-                    ActivityType: item.ActivityType.Value,
+                    ActivityType: item.ActivityType.value,
                     BeforeCount: item.BeforeCount,
                     ArchiveCount: item.ArchiveCount,
                     AfterCount: item.AfterCount

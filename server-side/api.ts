@@ -318,8 +318,8 @@ async function processAccount(service: MyService, accountIDs: number[], archiveD
             let type: ScheduledType = archiveData.find(x => x.ActivityType.key == items[0].ActivityTypeID) ||
             {
                 ActivityType: {
-                    Key: items[0].ActivityTypeID || -1,
-                    Value: items[0].Type || ""
+                    key: items[0].ActivityTypeID || -1,
+                    value: items[0].Type || ""
                 },
                 NumOfMonths: defaultNumOfMonths,
                 MinItems: -1
