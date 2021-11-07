@@ -159,7 +159,7 @@ export class PepperiListContComponent implements OnInit {
         const uiControl = this.pluginService.pepperiDataConverter.getUiControl(rows[0]);
         const l = this.pluginService.pepperiDataConverter.convertListData(rows);
 
-        this.pepperiListComp.initListData(uiControl, l.length, l, 'table', '', true);
+        this.pepperiListComp.initListData(uiControl, l.length, l);
     });
     }
 
