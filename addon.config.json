@@ -12,34 +12,6 @@
   "Editors": [
     "main"
   ],
-  "Assets": [
-    "de.json",
-    "en.json",
-    "es.json",
-    "fr.json",
-    "he.json",
-    "hu.json",
-    "it.json",
-    "ja.json",
-    "nl.json",
-    "pl.json",
-    "pt.json",
-    "ru.json",
-    "zh.json",
-    "de.ngx-lib.json",
-    "en.ngx-lib.json",
-    "es.ngx-lib.json",
-    "fr.ngx-lib.json",
-    "he.ngx-lib.json",
-    "hu.ngx-lib.json",
-    "it.ngx-lib.json",
-    "ja.ngx-lib.json",
-    "nl.ngx-lib.json",
-    "pl.ngx-lib.json",
-    "pt.ngx-lib.json",
-    "ru.ngx-lib.json",
-    "zh.ngx-lib.json"
-  ],
   "PublishConfig": {
     "Editors": [
       {

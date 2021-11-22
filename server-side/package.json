@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "@pepperi-addons/debug-server": "0.0.30",
-        "@pepperi-addons/papi-sdk": "file:../../papi-sdk",
+        "@pepperi-addons/papi-sdk": "^1.24.0",
         "@pepperi-addons/pepperi-filters": "^1.0.1",
         "@types/node-fetch": "^2.5.7",
         "lodash.chunk": "^4.2.0",

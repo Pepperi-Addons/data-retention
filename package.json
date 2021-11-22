@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@pepperi-addons/papi-sdk": "file:../papi-sdk",
+    "@pepperi-addons/papi-sdk": "^1.24.0",
     "@pepperi-addons/scripts": "^2.0.4"
   }
 }
