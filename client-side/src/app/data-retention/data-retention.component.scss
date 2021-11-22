@@ -1,7 +1,9 @@
-#pluginBody {
-    .content {
-        margin-top: var(--pep-spacing-lg, 1rem);
-    }
+.plugin-body {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    height: inherit;
+    padding-top: .5rem;
+
     p {
         margin:0;
     }
@@ -40,7 +42,7 @@
     }
 
     #retentionPreview {
-        margin-top: .5rem;
+        height: 100%;
     }
     
 }

@@ -1,5 +1,12 @@
+:host {
+    display: block;
+    height: inherit;
+}
+
 .listContainer {
     width: 100%;
+    height: inherit;
+
     table {
         width: 100%;
     }
@@ -13,6 +20,10 @@
     }
 
     .rowBody {
+        height: inherit;
+        display: grid;
+        grid-template-rows: auto 1fr;
+
         .topBarDynCont {
             clear: both;
             padding-top: .5rem;
@@ -30,6 +41,11 @@
                     margin: 0 !important;
                 }
             }
+        }
+
+        .list-container {
+            overflow: auto;
+            height: 100%;
         }
     }
 }

@@ -477,19 +477,19 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
         }
     }
 
-    onValueChange(element, $event) {
+    onValueChange(element, value) {
         switch(element) {
             case 'Days': {
-                this.selectedDay = $event;
+                this.selectedDay = value;
                 break;
             }
             case 'Hour': {
-                this.selectedHour = $event;
+                this.selectedHour = value;
                 break;
             }
             case 'defaultMonths': {
-                if ($event && $event > 0 && $event < 25) {
-                    this.additionalData.DefaultNumofMonths_Draft = $event;
+                if (value && value > 0 && value < 25) {
+                    this.additionalData.DefaultNumofMonths_Draft = value;
                     this.pluginService.updateAdditionalData(this.additionalData);
                 }
                 break;

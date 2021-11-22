@@ -1,25 +1,26 @@
 
-<div class="addon-page-container" *ngIf="this.additionalData">
-    <pep-top-bar [title]="'Archive_Title' | translate">
-        <div header-start-content>
-
-        </div>
-        <div header-end-content>
-            <pep-button *ngIf="latestReport && screenSize <= PepScreenSizeType.SM" [value]="'Archive_ReportPreview' | translate"
-                [sizeType]="'md'" [styleType]="'weak'" [classNames]="'spacing-element pull-left flip'" [iconName]="'system_doc'" [iconPosition]="'end'"
-                (buttonClick)="viewReport()"></pep-button>
-            <pep-button *ngIf="latestReport && screenSize > PepScreenSizeType.SM" [sizeType]="'md'" [styleType]="'weak'" 
-                [classNames]="'spacing-element pull-left flip'" [iconName]="'system_doc'" [iconPosition]="'end'"
-                (buttonClick)="viewReport()"></pep-button>
-            <pep-menu class="menu pull-left flip spacing-element" 
-                [items]="menuOptions" (menuItemClick)="onMenuItemClicked($event)"></pep-menu>
-            <pep-button [classNames]="'spacing-element'" [value]="'Archive_Publish' | translate" [sizeType]="'md'" [styleType]="'strong'" (buttonClick)="publishPlugin()"
-                [disabled]="disablePublish" [ngClass]="{ disabled: disablePublish }"></pep-button>
-        </div>
-    </pep-top-bar>
-
-    <div id="pluginBody" class="main-content limit-max-width">
-        <div class="content">
+<pep-page-layout *ngIf="this.additionalData">
+    <ng-container pep-top-area>
+        <pep-top-bar [title]="'Archive_Title' | translate">
+            <div header-start-content>
+    
+            </div>
+            <div header-end-content>
+                <pep-button *ngIf="latestReport && screenSize <= PepScreenSizeType.SM" [value]="'Archive_ReportPreview' | translate"
+                    [sizeType]="'md'" [styleType]="'weak'" [classNames]="'pep-spacing-element pull-left flip'" [iconName]="'system_doc'" [iconPosition]="'end'"
+                    (buttonClick)="viewReport()"></pep-button>
+                <pep-button *ngIf="latestReport && screenSize > PepScreenSizeType.SM" [sizeType]="'md'" [styleType]="'weak'" 
+                    [classNames]="'pep-spacing-element pull-left flip'" [iconName]="'system_doc'" [iconPosition]="'end'"
+                    (buttonClick)="viewReport()"></pep-button>
+                <pep-menu class="menu pull-left flip pep-spacing-element" 
+                    [items]="menuOptions" (menuItemClick)="onMenuItemClicked($event)"></pep-menu>
+                <pep-button [classNames]="'pep-spacing-element'" [value]="'Archive_Publish' | translate" [sizeType]="'md'" [styleType]="'strong'" (buttonClick)="publishPlugin()"
+                    [disabled]="disablePublish" [ngClass]="{ disabled: disablePublish }"></pep-button>
+            </div>
+        </pep-top-bar>
+    </ng-container>
+    <ng-container pep-main-area>
+        <div class="plugin-body limit-max-width">
             <p class="body-md narrow">
                 {{ "Archive_Paragraph" | translate }}
             </p>
@@ -62,5 +63,5 @@
                     (actionClicked)="onActionClicked($event)"></app-list-view>
             </div>
         </div>
-    </div>
-</div> 
+    </ng-container>
+</pep-page-layout>
