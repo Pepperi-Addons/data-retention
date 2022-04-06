@@ -11,12 +11,12 @@
         <div id="header" pepRtlClass>
             <nav class="navbar {{ getTopBarStyle() }} navbar-light bg-faded menuCont" [ngStyle]="{'background-color': customizationService.getBrandingMainColor() }">
                 <button id="btnMenuHome" (click)="navigateHome()"
-                    class="spacing-element pep-button icon-button sm weak pull-left flip " [ngClass]="getButtonClassName()" mat-button>
+                    class="pep-spacing-element pep-button icon-button sm weak pull-left flip " [ngClass]="getButtonClassName()" mat-button>
                     <mat-icon>
                         <pep-icon name="system_home"></pep-icon>
                     </mat-icon>
                 </button>
-                <button id="btnToggleSettings" class="spacing-element pep-button icon-button sm weak pull-right flip " [ngClass]="getButtonClassName()" mat-button>
+                <button id="btnToggleSettings" class="pep-spacing-element pep-button icon-button sm weak pull-right flip " [ngClass]="getButtonClassName()" mat-button>
                     <mat-icon>
                         <pep-icon name="system_menu"></pep-icon>
                     </mat-icon>

@@ -247,7 +247,10 @@ export class MyService {
         let activitiesBody = {
             fields:['InternalID'],
             include_deleted:true,
-            where: 'Hidden=1 And Archive=0 And ModificationDateTime <= \'' + modificationDate + '\' And ActionDateTime <= \'' + actionDate + '\''
+            //where: 'Hidden=1 And Archive=0 And ModificationDateTime <= \'' + modificationDate + '\' And ActionDateTime <= \'' + actionDate + '\''
+            // removing ActionDateTime filter because it's not relevant for now. 
+            // there are distributors that have a lot of hidden activities with ActionDateTime which is null so the API does not returning them.
+            where: 'Hidden=1 And Archive=0 And ModificationDateTime <= \'' + modificationDate + '\''
         }
         const apiResponse = type === 'Transaction' ? await this.papiClient.transactions.export(activitiesBody) : await this.papiClient.activities.export(activitiesBody);
         console.log(`archive hidden ${type}, where clause is: ${activitiesBody.where} \n export job_id is: ${apiResponse.JobID}`);

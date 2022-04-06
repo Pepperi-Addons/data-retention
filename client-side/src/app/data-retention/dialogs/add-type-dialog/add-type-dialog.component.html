@@ -27,15 +27,15 @@
     </div>
     <div mat-dialog-actions class="pepperi-border-top mat-dialog-actions split-actions"
         style="justify-content: flex-end;">
-        <div class="spacing-element-negative">
-            <button class="spacing-element pepperi-button md weak mat-button" mat-button [mat-dialog-close]>
+        <div class="pep-spacing-element-negative">
+            <button class="pep-spacing-element pepperi-button md weak mat-button" mat-button [mat-dialog-close]>
                 <span class="mat-button-wrapper">
                     {{ 'Archive_Cancel' | translate }}
                 </span>
                 <div class="mat-button-ripple mat-ripple" matripple></div>
                 <div class="mat-button-focus-overlay"></div>
             </button>
-            <button class="spacing-element pepperi-button md strong mat-button" mat-button
+            <button class="pep-spacing-element pepperi-button md strong mat-button" mat-button
                 [mat-dialog-close]="dialogData"
                 [ngClass]="{ disabled: isNumOfMonthsValid == false || isMinItemsValid == false || isActivityValid == false }"
                 [disabled]="isNumOfMonthsValid == false || isMinItemsValid == false || isActivityValid == false">
