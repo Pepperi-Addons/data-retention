@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2015",
+    "target": "es2017",
     "module": "commonjs",
     "strict": true,
     "rootDir": "..",
@@ -12,8 +12,8 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "lib": [
-      "es2019"
-    ]
+        "es2019"
+      ]
   },
   "exclude": [
     "./build/**",

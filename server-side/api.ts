@@ -1,12 +1,48 @@
 
 import { Client, Request } from '@pepperi-addons/debug-server'
 import { GeneralActivity, Transaction } from '@pepperi-addons/papi-sdk';
-import { ReportTuple, MyService, ScheduledType, ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj, DataRetentionData } from './my.service';
+import { ReportTuple, ScheduledType } from '../shared/entities';
+import { MyService, ArchiveReport, ExecutionData, ArchiveJobResult, ArchiveReturnObj, DataRetentionData } from './my.service';
 
 export const PageSize: number = 5000;
 export const DeltaDays: number = 180;
-export const HiddenTresholdDays: number = 90;
 export const MaxArchiveItems: number = 150000;
+
+export async function get_addon_data(client: Client, request: Request) {
+    try {
+        const service = new MyService(client);
+        const data = await service.getAdditionalData();
+        return {
+            success:true,
+            errorMessage:'',
+            resultObject:data
+        }
+    }
+    catch(err) {
+        return {
+            success: false,
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured'
+        }
+    }
+}
+
+export async function update_addon_data(client: Client, request: Request) {
+    try {
+        const service = new MyService(client);
+        const data = request?.body || {};
+        await service.updateAdditionalData(data);
+        return {
+            success:true,
+            errorMessage:''
+        }
+    }
+    catch(err) {
+        return {
+            success: false,
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured'
+        }
+    }
+}
 
 export async function run_data_retention(client: Client, request: Request) {
     try {
@@ -18,14 +54,6 @@ export async function run_data_retention(client: Client, request: Request) {
         let retVal = executionData.PhaseResult;
         let executionObj: any;
         let phaseResult;
-        if((await CanRunArchive(service)) == false) {
-            console.error('Api version is less than 9.5.296, aborting!')
-            return {
-                success: false,
-                errorMessage: 'Cannot run data retention on API version prior to 9.5.296',
-                resultObject: {}
-            }
-        }
         if(executionData.ExecutionID != '') {
             let resultObj = await service.getReturnObjectFromAudit(executionData.ExecutionID);
             console.log(`result obj got from audit log: ${JSON.stringify(resultObj)}`);
@@ -94,7 +122,7 @@ export async function run_data_retention(client: Client, request: Request) {
     catch (err) {
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured'
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured'
         }
     }
 }
@@ -121,7 +149,7 @@ export async function archive(client: Client, request: Request) {
         else {
             const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes, addonData.DefaultNumofMonths, executionData);
             if (isDone) {
-                const final = GenerateReport(report, x => x.ActivityType.Key);
+                const final = GenerateReport(report, x => x.ActivityType.key);
                 await service.uploadReportToS3(executionData.ArchiveReportURL.UploadURL, final);
                 const jobsIds: ArchiveReport[] = await service.archiveData(final);
                 if(jobsIds.length > 0) {
@@ -150,7 +178,7 @@ export async function archive(client: Client, request: Request) {
     catch (err) {
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured',
             archiveJobs: [],
         }
     }
@@ -165,7 +193,7 @@ export async function get_archive_report(client: Client, request: Request) {
         let executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
         const { report, isDone, pageIndex } = await service.prepareReport(processAccount, addonData.ScheduledTypes_Draft, addonData.DefaultNumofMonths_Draft, executionData);
         if (isDone) {
-            const final = GenerateReport(report, x => x.ActivityType.Key);
+            const final = GenerateReport(report, x => x.ActivityType.key);
             await service.uploadReportToS3(executionData.ArchiveReportURL.UploadURL, final);
             addonData.LatestReportURL = executionData.ArchiveReportURL.DownloadURL;
             await service.updateAdditionalData(addonData);
@@ -175,7 +203,7 @@ export async function get_archive_report(client: Client, request: Request) {
                 errorMessage: '',
                 resultObject: final.map(item => {
                     return {
-                        ActivityType: item.ActivityType.Value,
+                        ActivityType: item.ActivityType.value,
                         BeforeCount: item.BeforeCount,
                         ArchiveCount: item.ArchiveCount,
                         AfterCount: item.AfterCount
@@ -197,7 +225,7 @@ export async function get_archive_report(client: Client, request: Request) {
         console.error('an error has occured. exception is:', JSON.stringify(err));
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured',
             resultObject: []
         }
     }
@@ -207,6 +235,7 @@ export async function get_archive_report(client: Client, request: Request) {
 export async function archive_hidden_activities(client: Client, request: Request) {
     const service = new MyService(client);
     const addonData = await service.getAdditionalData();
+    const hiddenTresholdDays = addonData.HiddenTresholdDays || 30;
     try {
         const executionData: ExecutionData = await GetPreviousExecutionsData(client, request);
         if (executionData.ArchivingReport && executionData.ArchivingReport.length > 0) {
@@ -228,7 +257,7 @@ export async function archive_hidden_activities(client: Client, request: Request
             const tresholModificationdDate = new Date();
             const tresholActionDate = new Date();
             
-            tresholModificationdDate.setDate(tresholModificationdDate.getDate() - HiddenTresholdDays);
+            tresholModificationdDate.setDate(tresholModificationdDate.getDate() - hiddenTresholdDays);
             tresholActionDate.setDate(tresholActionDate.getDate() - daysToSubstract);
             const modificationDateStr = tresholModificationdDate.toISOString().split('.')[0]+"Z";
             const actionDateStr = tresholActionDate.toISOString().split('.')[0]+"Z";
@@ -250,7 +279,7 @@ export async function archive_hidden_activities(client: Client, request: Request
             }
 
             if((transactionJobs.TotalItems || 0) <= MaxArchiveItems && (activitiesJobs.TotalItems || 0) <= MaxArchiveItems) {
-                addonData.NumOfDaysForHidden = Math.max(daysToSubstract - DeltaDays, 90);
+                addonData.NumOfDaysForHidden = Math.max(daysToSubstract - DeltaDays, hiddenTresholdDays);
                 await service.updateAdditionalData(addonData);
             }
             client.Retry(1000);
@@ -265,7 +294,7 @@ export async function archive_hidden_activities(client: Client, request: Request
         console.error('an error has occured. exception is:', JSON.stringify(err));
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured',
             resultObject: []
         }
     }    
@@ -278,11 +307,11 @@ async function processAccount(service: MyService, accountIDs: number[], archiveD
     console.debug('after group by activities by type. number of activities to process is', activities.length);
     activitiesByType.forEach((items: (GeneralActivity | Transaction)[]) => {
         if (items.length > 0) {
-            let type: ScheduledType = archiveData.find(x => x.ActivityType.Key == items[0].ActivityTypeID) ||
+            let type: ScheduledType = archiveData.find(x => x.ActivityType.key == items[0].ActivityTypeID) ||
             {
                 ActivityType: {
-                    Key: items[0].ActivityTypeID || -1,
-                    Value: items[0].Type || ""
+                    key: items[0].ActivityTypeID || -1,
+                    value: items[0].Type || ""
                 },
                 NumOfMonths: defaultNumOfMonths,
                 MinItems: -1
@@ -328,11 +357,11 @@ function ProcessActivitiesByType(items: (GeneralActivity | Transaction)[], type:
             activitiesToArchive = [];
         }
     }
-    console.debug('after ProcessActivitiesByType. Type is:', type.ActivityType.Value, 'number of activities to archive is:', activitiesToArchive.length, 'out of', items.length, 'total activities')
+    console.debug('after ProcessActivitiesByType. Type is:', type.ActivityType.value, 'number of activities to archive is:', activitiesToArchive.length, 'out of', items.length, 'total activities')
     return {
         ActivityType: {
-            Key: type.ActivityType.Key,
-            Value: type.ActivityType.Value
+            key: type.ActivityType.key,
+            value: type.ActivityType.value
         },
         BeforeCount: items.length,
         ArchiveCount: activitiesToArchive.length,
@@ -400,7 +429,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
             retVal.ActivityType = 'activityType' in request.body ? request.body.activityType : 'Transaction';
         }
         catch (error) {
-            console.error("could not get execution data. reseting...\n request.body recieved:", request.body, '\nerror message is: ', 'message' in error ? error.message : '');
+            console.error("could not get execution data. reseting...\n request.body recieved:", request.body, '\nerror message is: ', 'message' in (error as any) ? (error as any).message : '');
         }
     }
     else {
@@ -409,7 +438,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
     return retVal;
 }
 
-async function PollArchiveJobs(service: MyService, executionData: ExecutionData): Promise<{ archiveResultObject: ArchiveReturnObj[] }> {
+async function PollArchiveJobs(service: MyService, executionData: ExecutionData): Promise<{ archiveResultObject: ArchiveReturnObj[] } | undefined> {
     return new Promise((resolve) => {
         console.log('start polling jobs:', JSON.stringify(executionData.ArchivingReport));
         let numOfTries = 1;
@@ -483,11 +512,4 @@ function getDataRetentionExecutionData(request: Request): DataRetentionData {
         retVal.PhaseResult = 'result' in request.body ? request.body.result : [];
     }
     return retVal;
-}
-
-async function CanRunArchive(service: MyService): Promise<boolean> {
-    const apiAddon = await service.papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
-    const apiVersion = apiAddon?.Version?.split('.').map(item => {return Number(item)}) || [];
-
-    return apiVersion.length == 3 && apiVersion[2] >= 296;
 }

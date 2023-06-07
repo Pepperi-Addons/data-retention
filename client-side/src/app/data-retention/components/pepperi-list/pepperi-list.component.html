@@ -1,0 +1,29 @@
+<div class="listContainer">
+    <div class="rowBody">
+        <div class="genericCont">
+            <pep-top-bar [title]="'Archive_TypesTable_Title' | translate" [inline]="true" >
+                <div header-start-content>
+         
+                </div>
+                <div header-end-content>
+                    <pep-button [styleType]="'weak'" [sizeType]="'sm'" 
+                        [value]="'Archive_TypesTable_AddAction' | translate" [iconName]="'number_plus'" [iconPosition]="'start'" (buttonClick)="addButtonClicked()">
+                    </pep-button>                    
+                </div>
+                <pep-list-actions [actions]="listActions" [sizeType]="'sm'" (actionClick)="onActionClicked($event)"></pep-list-actions>
+            </pep-top-bar>
+        </div>
+        <div #pepperiListCont class="list-container">
+            <pep-list
+                [firstFieldAsLink]="false"
+                [isReport]="true"
+                [supportSorting]="false"
+                [supportResizing]="false"
+                [selectionTypeForActions]="'single'"
+                [noDataFoundMsg]="'Archive_TypesTable_NoItems' | translate "
+                [viewType]="'table'"
+                (selectedItemsChange)="selectedRowsChanged($event)">
+            </pep-list>
+        </div>
+    </div>
+</div>

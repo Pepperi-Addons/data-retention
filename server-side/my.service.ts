@@ -1,4 +1,4 @@
-import { AdditionalData } from './../client-side/src/app/plugin.model';
+import { AdditionalData, DEFAULT_NUM_OF_MONTHS, ReportTuple } from "../shared/entities";
 import { PapiClient, InstalledAddon, ExportApiResponse, ArchiveBody } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import fetch from 'node-fetch';
@@ -8,6 +8,8 @@ import { resolve } from 'dns';
 import { getTokenSourceMapRange, createLabel } from 'typescript';
 import { createReadStream } from 'fs';
 import { ExecSyncOptionsWithBufferEncoding } from 'child_process';
+import { Agent } from 'https';
+import { scheme } from './installation'
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -20,7 +22,9 @@ export class MyService {
         this.papiClient = new PapiClient({
             baseURL: client.BaseURL,
             token: client.OAuthAccessToken,
-            suppressLogging:true
+            suppressLogging:false,
+            addonSecretKey: client.AddonSecretKey,
+            addonUUID:client.AddonUUID
         });
         this.addonUUID = client.AddonUUID;
     }
@@ -63,38 +67,47 @@ export class MyService {
             page:1, 
             page_size:-1, 
             where:`Account.InternalID in (${accounts}) and ActivityTypeID is not null And Archive=0`,
-            orderBy:"ModificationDateTime desc",
+            order_by:"ModificationDateTime desc",
             include_deleted:false});
         return retVal;
     }
 
     async getAdditionalData(): Promise<AdditionalData> {
-        let addon:InstalledAddon = await this.papiClient.addons.installedAddons.addonUUID(this.addonUUID).get();
+
+        let dataItems = await this.papiClient.addons.data.uuid(this.addonUUID).table(scheme.Name).find();
         let retVal: AdditionalData = {
             ScheduledTypes: [],
             ScheduledTypes_Draft: [],
-            DefaultNumofMonths:24,
-            DefaultNumofMonths_Draft:24,
-            NumOfDaysForHidden:1825
+            DefaultNumofMonths:DEFAULT_NUM_OF_MONTHS,
+            DefaultNumofMonths_Draft:DEFAULT_NUM_OF_MONTHS,
+            NumOfDaysForHidden:1825,
+            HiddenTresholdDays:30
         };
-        if(addon?.AdditionalData) {
-            retVal = JSON.parse(addon.AdditionalData);
+        if(dataItems && dataItems.length > 0) {
+            retVal = {
+                ScheduledTypes: dataItems[0].ScheduledTypes || [],
+                ScheduledTypes_Draft: dataItems[0].ScheduledTypes_Draft || [],
+                DefaultNumofMonths:dataItems[0].DefaultNumofMonths || DEFAULT_NUM_OF_MONTHS,
+                DefaultNumofMonths_Draft:dataItems[0].DefaultNumofMonths_Draft || DEFAULT_NUM_OF_MONTHS,
+                NumOfDaysForHidden:dataItems[0].NumOfDaysForHidden || 1825,
+                HiddenTresholdDays:dataItems[0].HiddenTresholdDays || 30,
+                CodeJobUUID:dataItems[0].CodeJobUUID || '',
+                LatestReportURL:dataItems[0].LatestReportURL || '',
+                ArchivePhase:dataItems[0].ArchivePhase || {},
+                ArchiveHiddenPhase:dataItems[0].ArchiveHiddenPhase || {}
+            }
         }
-        if(typeof retVal.ScheduledTypes == 'undefined' || typeof retVal.ScheduledTypes_Draft == 'undefined') {
-            retVal.ScheduledTypes = [];
-            retVal.ScheduledTypes_Draft = [];
-        }
-        retVal.DefaultNumofMonths = retVal.DefaultNumofMonths || 24;
-        retVal.DefaultNumofMonths_Draft = retVal.DefaultNumofMonths_Draft || 24;
 
         return retVal;
     }
 
     async updateAdditionalData(additionalData: any) {
-        await this.papiClient.addons.installedAddons.upsert({
-            Addon: {UUID: this.addonUUID},
-            AdditionalData: JSON.stringify(additionalData)
-        })
+        // await this.papiClient.addons.installedAddons.upsert({
+        //     Addon: {UUID: this.addonUUID},
+        //     AdditionalData: JSON.stringify(additionalData)
+        // })
+        additionalData.Key = additionalData.CodeJobUUID;
+        await this.papiClient.addons.data.uuid(this.addonUUID).table(scheme.Name).upsert(additionalData);
       }   
 
     async archiveData(data: ReportTuple[]): Promise<ArchiveReport[]> {
@@ -102,8 +115,8 @@ export class MyService {
         let totalArchiveCount = 0;
         maintenanceJobs = data.filter(item => item.ArchiveCount > 0).map((row):Promise<ArchiveReport> => {
             return new Promise((resolve,reject) => {
-                this.getAtdType(row.ActivityType.Key).then((atdType) => {
-                    console.debug("activity Type is:", row.ActivityType.Key, "\ntype got from meta data is:", atdType);
+                this.getAtdType(row.ActivityType.key).then((atdType) => {
+                    console.debug("activity Type is:", row.ActivityType.key, "\ntype got from meta data is:", atdType);
                     const remainingItems = MaxArchiveItems - totalArchiveCount;
                     if (remainingItems > 0 && remainingItems < row.ArchiveCount) {
                         row.ArchiveCount = remainingItems;
@@ -113,7 +126,7 @@ export class MyService {
                         totalArchiveCount += row.ArchiveCount;
                         this.getArchiveJobsInfo(atdType, row.Activities).then((jobsResults) => {
                             resolve({
-                                ActivityType: row.ActivityType.Value,
+                                ActivityType: row.ActivityType.value,
                                 ArchiveCount: row.ArchiveCount,
                                 ArchiveJobResult: jobsResults
                             })
@@ -123,7 +136,7 @@ export class MyService {
                     }
                     else {
                         resolve ({
-                            ActivityType: row.ActivityType.Value,
+                            ActivityType: row.ActivityType.value,
                             ArchiveCount: 0,
                             ArchiveJobResult: []
                         })
@@ -201,8 +214,13 @@ export class MyService {
     
     async apiCall(method: HttpMethod, url: string, body: any = undefined ) {
         
+        const agent = new Agent({
+            rejectUnauthorized: false,
+        })
+        
         const options: any = {
             method: method,
+            agent: agent,
         };
 
         if(body) {
@@ -229,7 +247,10 @@ export class MyService {
         let activitiesBody = {
             fields:['InternalID'],
             include_deleted:true,
-            where: 'Hidden=1 And Archive=0 And ModificationDateTime <= \'' + modificationDate + '\' And ActionDateTime <= \'' + actionDate + '\''
+            //where: 'Hidden=1 And Archive=0 And ModificationDateTime <= \'' + modificationDate + '\' And ActionDateTime <= \'' + actionDate + '\''
+            // removing ActionDateTime filter because it's not relevant for now. 
+            // there are distributors that have a lot of hidden activities with ActionDateTime which is null so the API does not returning them.
+            where: 'Hidden=1 And Archive=0 And ModificationDateTime <= \'' + modificationDate + '\''
         }
         const apiResponse = type === 'Transaction' ? await this.papiClient.transactions.export(activitiesBody) : await this.papiClient.activities.export(activitiesBody);
         console.log(`archive hidden ${type}, where clause is: ${activitiesBody.where} \n export job_id is: ${apiResponse.JobID}`);
@@ -292,23 +313,6 @@ export class MyService {
             }, 30000);
         });
     }
-}
-
-export interface ReportTuple {
-    ActivityType: KeyValuePair<string>;
-    BeforeCount: number;
-    AfterCount: number;
-    ArchiveCount: number;
-    Activities: number[];
-}
-export interface KeyValuePair<T> {
-    Key: number;
-    Value: T;
-}
-export interface ScheduledType {
-    ActivityType: KeyValuePair<string>;
-    NumOfMonths: number;
-    MinItems: number;
 }
 
 export interface ArchiveReport {

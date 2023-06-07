@@ -1,20 +1,16 @@
 {
   "AddonUUID": "8c9a5568-f35a-407d-856a-32d25ace2859",
-  "AddonVersion": "1.0.35",
-  "DebugPort": 4400,
+  "AddonVersion": "1.1.27",
+  "DebugPort": 4500,
   "PapiBaseUrl": "https://papi.staging.pepperi.com/v1.0",
   "WebappBaseUrl": "https://app.sandbox.pepperi.com",
-  "DefaultEditor": "archive",
+  "DefaultEditor": "main",
   "Endpoints": [
     "installation.ts",
     "api.ts"
   ],
   "Editors": [
-    "archive"
-  ],
-  "Assets": [
-    "en.json",
-    "he.json"
+    "main"
   ],
   "PublishConfig": {
     "Editors": [
@@ -25,7 +21,9 @@
       }
     ],
     "Dependencies": {
-      "papi": "9.5.302"
-    }
+      "papi": "9.5.349",
+      "webapp": "16.55.67"
+    },
+    "ClientStack": "ng10"
   }
 }

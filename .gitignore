@@ -1,5 +1,3 @@
-/publish/api
-/publish/editors
+node_modules/**
+publish/**
 var_sk
-node_modules
-*.code-workspace

@@ -1,0 +1,13 @@
+{
+	"folders": [
+        {
+            "path": "..\\papi-sdk"
+        },
+        {
+            "path": "."
+        }
+    ],
+	"settings": {
+		"editor.detectIndentation": false
+	}
+}
