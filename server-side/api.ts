@@ -21,7 +21,7 @@ export async function get_addon_data(client: Client, request: Request) {
     catch(err) {
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured'
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured'
         }
     }
 }
@@ -39,7 +39,7 @@ export async function update_addon_data(client: Client, request: Request) {
     catch(err) {
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured'
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured'
         }
     }
 }
@@ -54,14 +54,6 @@ export async function run_data_retention(client: Client, request: Request) {
         let retVal = executionData.PhaseResult;
         let executionObj: any;
         let phaseResult;
-        if((await CanRunArchive(service)) == false) {
-            console.error('Api version is less than 9.5.296, aborting!')
-            return {
-                success: false,
-                errorMessage: 'Cannot run data retention on API version prior to 9.5.296',
-                resultObject: {}
-            }
-        }
         if(executionData.ExecutionID != '') {
             let resultObj = await service.getReturnObjectFromAudit(executionData.ExecutionID);
             console.log(`result obj got from audit log: ${JSON.stringify(resultObj)}`);
@@ -130,7 +122,7 @@ export async function run_data_retention(client: Client, request: Request) {
     catch (err) {
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured'
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured'
         }
     }
 }
@@ -186,7 +178,7 @@ export async function archive(client: Client, request: Request) {
     catch (err) {
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured',
             archiveJobs: [],
         }
     }
@@ -233,7 +225,7 @@ export async function get_archive_report(client: Client, request: Request) {
         console.error('an error has occured. exception is:', JSON.stringify(err));
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured',
             resultObject: []
         }
     }
@@ -302,7 +294,7 @@ export async function archive_hidden_activities(client: Client, request: Request
         console.error('an error has occured. exception is:', JSON.stringify(err));
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured',
             resultObject: []
         }
     }    
@@ -437,7 +429,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
             retVal.ActivityType = 'activityType' in request.body ? request.body.activityType : 'Transaction';
         }
         catch (error) {
-            console.error("could not get execution data. reseting...\n request.body recieved:", request.body, '\nerror message is: ', 'message' in error ? error.message : '');
+            console.error("could not get execution data. reseting...\n request.body recieved:", request.body, '\nerror message is: ', 'message' in (error as any) ? (error as any).message : '');
         }
     }
     else {
@@ -446,7 +438,7 @@ async function GetPreviousExecutionsData(client: Client, request: Request): Prom
     return retVal;
 }
 
-async function PollArchiveJobs(service: MyService, executionData: ExecutionData): Promise<{ archiveResultObject: ArchiveReturnObj[] }> {
+async function PollArchiveJobs(service: MyService, executionData: ExecutionData): Promise<{ archiveResultObject: ArchiveReturnObj[] } | undefined> {
     return new Promise((resolve) => {
         console.log('start polling jobs:', JSON.stringify(executionData.ArchivingReport));
         let numOfTries = 1;
@@ -520,11 +512,4 @@ function getDataRetentionExecutionData(request: Request): DataRetentionData {
         retVal.PhaseResult = 'result' in request.body ? request.body.result : [];
     }
     return retVal;
-}
-
-async function CanRunArchive(service: MyService): Promise<boolean> {
-    const apiAddon = await service.papiClient.addons.installedAddons.addonUUID('00000000-0000-0000-0000-000000000a91').get();
-    const apiVersion = apiAddon?.Version?.split('.').map(item => {return Number(item)}) || [];
-
-    return apiVersion.length == 3 && apiVersion[2] >= 296;
 }
