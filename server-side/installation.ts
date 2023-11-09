@@ -53,11 +53,11 @@ exports.install = async (Client, Request) => {
             retVal = await updateCodeJobUUID(papiClient, Client.AddonUUID, codeJob.UUID);
         }
         success = retVal.success;
-        errorMessage = retVal.errorMessage;
+        errorMessage = retVal.errorMessage as any;
     }
     catch(err) {
         success = false;
-        errorMessage = ('message' in err) ? err.message : 'Cannot install addon. Unknown Error Occured';
+        errorMessage = ('message' in (err as any)) ? (err as any).message : 'Cannot install addon. Unknown Error Occured';
     }
 
     return {
@@ -85,8 +85,8 @@ exports.uninstall = async (Client, Request) => {
     }
     catch (err) {
         return {
-            success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            success: true,
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured',
             resultObject: {},
         }
     }
@@ -185,7 +185,7 @@ async function updateCodeJobUUID(papiClient: PapiClient, addonUUID, uuid) {
     catch (err) {
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured',
         };
     }
 }
@@ -212,7 +212,7 @@ async function createADALScheme(papiClient: PapiClient) {
     catch (err) {
         return {
             success: false,
-            errorMessage: ('message' in err) ? err.message : 'Unknown Error Occured',
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured',
         }
     }
 }

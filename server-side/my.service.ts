@@ -1,5 +1,5 @@
 import { AdditionalData, DEFAULT_NUM_OF_MONTHS, ReportTuple } from "../shared/entities";
-import { PapiClient, InstalledAddon, ExportApiResponse, ArchiveBody } from '@pepperi-addons/papi-sdk'
+import { PapiClient, InstalledAddon, ExportApiResponse, ArchiveBody, CodeJob } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import fetch from 'node-fetch';
 import { PageSize, MaxArchiveItems } from './api';
@@ -312,6 +312,10 @@ export class MyService {
                 }
             }, 30000);
         });
+    }
+
+    async updateCodeJob(job: CodeJob) {
+        return await this.papiClient.codeJobs.upsert(job);
     }
 }
 

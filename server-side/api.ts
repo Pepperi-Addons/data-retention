@@ -300,6 +300,20 @@ export async function archive_hidden_activities(client: Client, request: Request
     }    
 }
 
+export async function update_code_job(client: Client, request: Request) {
+    try {
+        const service = new MyService(client);
+        const data = request?.body || {};
+        return await service.updateCodeJob(data);
+    }
+    catch(err) {
+        return {
+            success: false,
+            errorMessage: ('message' in (err as any)) ? (err as any).message : 'Unknown Error Occured'
+        }
+    }
+}
+
 async function processAccount(service: MyService, accountIDs: number[], archiveData, defaultNumOfMonths): Promise<ReportTuple[]> {
     const activities: (GeneralActivity | Transaction)[] = await service.getActivitiesForAccount(accountIDs);
     let retVal: ReportTuple[] = [];

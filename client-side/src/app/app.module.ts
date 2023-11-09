@@ -13,6 +13,7 @@ import { PepperiListContComponent } from './data-retention/components/pepperi-li
 import { ListViewComponent } from './data-retention/components/list-view/list-view.component';
 import { ReportDialogComponent } from './data-retention/dialogs/report-dialog/report-dialog.component';
 import { DataRetentionService } from './data-retention/data-retention.service';
+import { PepAddonService } from '@pepperi-addons/ngx-lib';
 
 @NgModule({
     declarations: [
@@ -21,7 +22,7 @@ import { DataRetentionService } from './data-retention/data-retention.service';
         AddTypeDialogComponent,
         PepperiListContComponent,
         ListViewComponent,
-        ReportDialogComponent
+        ReportDialogComponent,
     ],
     imports: [
         BrowserModule,
