@@ -3,7 +3,7 @@ name: PublishAddon
 on:
   push:
     branches:
-      - 'master'
+      - 'releases/**'
 
 jobs:
   publish-addon:

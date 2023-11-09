@@ -169,4 +169,8 @@ export class DataRetentionService {
 
         return res;
     }
+
+    async updateCodeJob(job: CodeJob) {
+        return await this.addonService.postAddonApiCall(this.pluginUUID, 'api', 'update_code_job', job).toPromise();
+    }
 }

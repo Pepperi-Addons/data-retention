@@ -361,7 +361,7 @@ export class DataRetentionComponent implements OnInit, OnDestroy {
         this.additionalData.ScheduledTypes = [...this.additionalData.ScheduledTypes_Draft];
         this.additionalData.DefaultNumofMonths = this.additionalData.DefaultNumofMonths_Draft;
         try {
-            await this.pluginService.papiClient.codeJobs.upsert({
+            await this.pluginService.updateCodeJob({
                 UUID: this.codeJob.UUID,
                 CodeJobName: this.codeJob.CodeJobName,
                 CronExpression: cronExpression
