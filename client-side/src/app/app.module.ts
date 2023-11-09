@@ -23,7 +23,6 @@ import { PepAddonService } from '@pepperi-addons/ngx-lib';
         PepperiListContComponent,
         ListViewComponent,
         ReportDialogComponent,
-        PepAddonService
     ],
     imports: [
         BrowserModule,
