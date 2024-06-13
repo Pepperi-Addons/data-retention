@@ -1,6 +1,7 @@
 import { PapiClient, CodeJob, AddonDataScheme } from "@pepperi-addons/papi-sdk";
 import { AdditionalData, ScheduledType } from "../shared/entities";
 import { RelationsService } from "./relations.service"
+import semver from 'semver'
 
 //import * as Scheme from './dataScheme.json'
 export const scheme: AddonDataScheme = {
@@ -110,8 +111,11 @@ exports.upgrade = async (Client, Request) => {
         addonUUID: Client.AddonUUID,
         addonSecretKey: Client.AddonSecretKey
     });
+    if (Request.body.FromVersion && semver.compare(Request.body.FromVersion, '1.2.0') < 0) { 
+        await service.upsertRelations();
+    }
+
     let retVal = await createADALScheme(papiClient);
-    await service.upsertRelations();
     await migrateData(papiClient, Client.AddonUUID);
     if(retVal.success) {
         let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
