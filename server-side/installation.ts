@@ -1,5 +1,7 @@
 import { PapiClient, CodeJob, AddonDataScheme } from "@pepperi-addons/papi-sdk";
 import { AdditionalData, ScheduledType } from "../shared/entities";
+import { RelationsService } from "./relations.service"
+
 //import * as Scheme from './dataScheme.json'
 export const scheme: AddonDataScheme = {
     Name: "DataRetention",
@@ -26,6 +28,8 @@ export const scheme: AddonDataScheme = {
     }
 }
 exports.install = async (Client, Request) => {
+    const service = new RelationsService(Client);
+
     let success = true;
     let errorMessage = '';
     const papiClient = new PapiClient({
@@ -35,6 +39,7 @@ exports.install = async (Client, Request) => {
         addonSecretKey: Client.AddonSecretKey
     });
     try {
+        await service.upsertRelations();
         let retVal = await createADALScheme(papiClient);
         if(retVal.success) {
             const codeJob: CodeJob = await papiClient.codeJobs.upsert({
@@ -97,6 +102,8 @@ exports.uninstall = async (Client, Request) => {
     }
 }
 exports.upgrade = async (Client, Request) => {
+    const service = new RelationsService(Client);
+
     const papiClient = new PapiClient({
         baseURL: Client.BaseURL,
         token: Client.OAuthAccessToken,
@@ -104,6 +111,7 @@ exports.upgrade = async (Client, Request) => {
         addonSecretKey: Client.AddonSecretKey
     });
     let retVal = await createADALScheme(papiClient);
+    await service.upsertRelations();
     await migrateData(papiClient, Client.AddonUUID);
     if(retVal.success) {
         let uuid = await getCodeJobUUID(papiClient, Client.AddonUUID);
