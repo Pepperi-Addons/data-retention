@@ -8,12 +8,8 @@ const routes: Routes = [
         // component: SettingsComponent,
         children: [
             {
-                path: ':form_key',
-                loadChildren: () => import('./editor-form/editor-form.module').then(m => m.EditorFormModule)
-            },
-            {
                 path: '**',
-                loadChildren: () => import('./editor-list/editor-list.module').then(m => m.EditorListModule),
+                loadChildren: () => import('./data-retention-tabs/data-retention-tabs.module').then(m => m.DataRetentionTabsModule),
             }
         ]
     }
