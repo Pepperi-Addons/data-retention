@@ -1,3 +1,8 @@
 {
-    "Block_Title": "Block title"
+    "DATA_RETENTION_TITLE": "Data Retention",
+    "SCHEDULE_TAB_NAME": "Schedule",
+    "SCHEDULE_TITLE": "Schedule",
+    "Archive_Schedule_Paragraph": "Set the day and time for data archiving. It is recommended to choose a time during low business activity with Pepperi.",
+    "Archive_SelectDaysTitle": "Day",
+    "Archive_SelectTimeTitle": "Time (UTC)"
 }
