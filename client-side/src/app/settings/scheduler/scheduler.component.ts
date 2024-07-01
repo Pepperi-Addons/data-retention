@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DataRetentionService } from 'src/app/services/data-retention.service';
 
 
 @Component({
@@ -9,6 +10,7 @@ import { Component, OnInit } from '@angular/core';
 export class SchedulerComponent implements OnInit {
   selectedDay: string = "";
   selectedHour: string = "";
+  isLoaded: boolean = false;
 
   timeOptions = [
     { key: "0", value: "00:00" },
@@ -47,9 +49,30 @@ export class SchedulerComponent implements OnInit {
     { key: "SAT", value: "Saturday" },
 ];
   constructor(
+    public pluginService: DataRetentionService,
+
     ) { }
 
   ngOnInit() {
+    this.run();
+  }
+
+  async run() {
+    const CodeJobUUID = (await this.pluginService.getAdditionalData()).CodeJobUUID;
+
+    const codeJob = await this.pluginService.papiClient.codeJobs
+        .uuid(CodeJobUUID)
+        .find();
+    const parts = codeJob ? codeJob.CronExpression.split(" ") : [];
+    if (parts.length > 4) {
+        this.selectedDay = this.dayOptions.find(
+            (item) => item.key === parts[4]
+        ).key;
+        this.selectedHour = this.timeOptions.find(
+            (item) => item.key === parts[1]
+        ).key;
+    }
+    this.isLoaded = true;
   }
 
   onValueChange(element, value) {

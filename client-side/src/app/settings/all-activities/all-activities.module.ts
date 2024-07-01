@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,50 +10,41 @@ import { PepSizeDetectorModule } from '@pepperi-addons/ngx-lib/size-detector';
 import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
 import { PepIconRegistry, PepIconModule, pepIconSystemClose } from '@pepperi-addons/ngx-lib/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-
 import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
-
-import { SchedulerModule } from '../scheduler/scheduler.module';
-import { DataRetentionTabsComponent } from './data-retention-tabs.component';
-import { AllActivitiesModule } from '../all-activities/all-activities.module';
+import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
+import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
+import { AllActivitiesComponent } from './all-activities.component';
+import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
+import { AddTypeDialogModule } from '../dialogs/add-type-dialog/add-type-dialog.module';
+import { DataRetentionService } from 'src/app/services/data-retention.service';
 
 const pepIcons = [
-    pepIconSystemClose,
-];
-
-export const routes: Routes = [
-    {
-        path: '',
-        component: DataRetentionTabsComponent
-    }
+    pepIconSystemClose
 ];
 
 @NgModule({
     declarations: [
-        DataRetentionTabsComponent
+        AllActivitiesComponent
     ],
     imports: [
         CommonModule,
         HttpClientModule,
         PepNgxLibModule,
         PepSizeDetectorModule,
-        // PepIconModule,
-        // PepDialogModule,
         PepTopBarModule,
-        // PepMenuModule,
         PepPageLayoutModule,
-        // PepButtonModule,
-        // PepTextboxModule,
         PepGenericListModule,
+        PepSelectModule,
+        PepTextboxModule,
+        PepButtonModule,
         MatTabsModule,
-        SchedulerModule,
-        AllActivitiesModule,
-        TranslateModule.forChild(),
-        RouterModule.forChild(routes)
+        AddTypeDialogModule,
+        TranslateModule.forChild()
     ],
-    exports:[DataRetentionTabsComponent]
+    exports:[AllActivitiesComponent], 
+    providers: [DataRetentionService]   
 })
-export class DataRetentionTabsModule {
+export class AllActivitiesModule {
     constructor(
         private pepIconRegistry: PepIconRegistry,
     ) {

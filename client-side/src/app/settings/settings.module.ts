@@ -7,10 +7,6 @@ import { PepNgxLibModule, PepAddonService } from '@pepperi-addons/ngx-lib';
 
 import { SettingsRoutingModule } from './settings.routes';
 import { SettingsComponent } from './settings.component';
-
-import { EditorFormModule } from './editor-form/editor-form.module';
-import { EditorListModule } from './editor-list/editor-list.module';
-
 import { config } from '../app.config';
 
 @NgModule({
@@ -20,8 +16,6 @@ import { config } from '../app.config';
     imports: [
         CommonModule,
         PepNgxLibModule,
-        EditorListModule,
-        EditorFormModule,
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,

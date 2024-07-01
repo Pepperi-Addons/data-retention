@@ -14,6 +14,10 @@
                 <scheduler *ngIf="tabID == 0">
                 </scheduler>
             </mat-tab>
+            <mat-tab id="all-activities" label="{{ 'ALL_ACTIVITIES_TAB_NAME' | translate}}">
+                <all-activities *ngIf="tabID == 1">
+                </all-activities>
+            </mat-tab>
         </mat-tab-group>
     </ng-container>
 
