@@ -14,7 +14,15 @@ import { SettingsComponent, SettingsModule } from './settings';
 // import { BlockEditorModule, BlockEditorComponent } from './block-editor';
 
 import { config } from './app.config';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
+import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
+import { PepIconRegistry, pepIconNumberPlus } from '@pepperi-addons/ngx-lib/icon';
 
+const pepIcons = [
+    pepIconNumberPlus
+];
 @NgModule({
     declarations: [
         AppComponent,
@@ -25,6 +33,10 @@ import { config } from './app.config';
         // BlockModule,
         // BlockEditorModule,
         SettingsModule,
+        MatButtonModule,
+        MatDialogModule,
+        PepSelectModule,
+        PepTextboxModule,
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
@@ -44,13 +56,16 @@ export class AppModule implements DoBootstrap {
     constructor(
         private injector: Injector,
         translate: TranslateService,
-        private pepAddonService: PepAddonService
+        private pepAddonService: PepAddonService,
+        private pepIconRegistry: PepIconRegistry
+
     ) {
         this.pepAddonService.setDefaultTranslateLang(translate);
     }
 
     ngDoBootstrap() {
         this.pepAddonService.defineCustomElement(`settings-element-${config.AddonUUID}`, SettingsComponent, this.injector);
+        this.pepIconRegistry.registerIcons(pepIcons);
 
         // this.pepAddonService.defineCustomElement(`block-element-${config.AddonUUID}`, BlockComponent, this.injector);
         // this.pepAddonService.defineCustomElement(`block-editor-element-${config.AddonUUID}`, BlockEditorComponent, this.injector);

@@ -1,0 +1,68 @@
+<pep-page-layout [addPadding]="true">
+        <ng-container pep-top-area>
+            <pep-top-bar [title]="'ALL_ACTIVITIES_TITLE' | translate">
+                <div header-start-content>
+                </div>
+                <div header-end-content>
+                </div>
+            </pep-top-bar>
+        </ng-container>
+        <ng-container pep-main-area>
+            <div *ngIf="isLoaded">
+
+                <div class="plugin-body limit-max-width">
+                    <div id="data-retention-policy">
+                        <p class="body-sm">{{ "Archive_Policy_Paragraph" | translate }}</p>
+
+                        <div class="pep-row">
+                            <pep-textbox
+                                [value]="this.additionalData.DefaultNumofMonths_Draft"
+                                [label]="'Archive_MonthsTitle' | translate"
+                                type="int"
+                                [mandatory]="true"
+                                [disabled]="false"
+                                [showTitle]="true"
+                                [minValue]=1 
+                                [maxValue]=24
+                                (valueChange)="onValueChange($event)"
+                            ></pep-textbox>
+                        </div>
+                        
+                        <div id="retentionPreview" class="wide">
+                            <pep-top-bar [title]="'Archive_TypesTable_Title' | translate">
+                                <div header-end-content>
+                                    <pep-button
+                                        [value]="'Archive_TypesTable_AddAction' | translate"
+                                        styleType="weak"
+                                        styleStateType="system"
+                                        sizeType="sm" 
+                                        [disabled]="false"
+                                        iconName="number_plus"
+                                        iconPosition="start"
+                                        [visible]="true"
+                                        (buttonClick)="addButtonClicked($event)"
+                                    ></pep-button>
+                                </div>
+                            </pep-top-bar>
+                            <div #pepperiListCont class="list-container">
+                                <pep-generic-list
+                                    [dataSource]="dataSource"
+                                    uuidMapping="ActivityTypeKey"
+                                    [actions]="actions"
+                                    [selectionType]="'single'"
+                                    [inline]="false"
+                                    [showSearch]="false"
+                                    [showTopBar]="true"
+                                    [emptyState]="listEmptyState"
+                                    [noDataFoundMsg]="'Archive_TypesTable_NoItems' | translate">
+                                </pep-generic-list>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+      
+        </ng-container>
+</pep-page-layout>
+
+<pep-size-detector></pep-size-detector>

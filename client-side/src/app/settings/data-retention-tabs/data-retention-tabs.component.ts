@@ -21,7 +21,6 @@ export class DataRetentionTabsComponent implements OnInit {
   }
 
   tabClick(event){
-    window.dispatchEvent(new Event("resize"));
     this.tabID = event.index;
   }
 }  

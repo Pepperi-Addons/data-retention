@@ -16,6 +16,7 @@ import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-
 
 import { SchedulerModule } from '../scheduler/scheduler.module';
 import { DataRetentionTabsComponent } from './data-retention-tabs.component';
+import { AllActivitiesModule } from '../all-activities/all-activities.module';
 
 const pepIcons = [
     pepIconSystemClose,
@@ -42,6 +43,7 @@ export const routes: Routes = [
         PepGenericListModule,
         MatTabsModule,
         SchedulerModule,
+        AllActivitiesModule,
         TranslateModule.forChild(),
         RouterModule.forChild(routes)
     ],
