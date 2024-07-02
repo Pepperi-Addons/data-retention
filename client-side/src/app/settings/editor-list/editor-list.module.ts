@@ -39,13 +39,8 @@ export const routes: Routes = [
         HttpClientModule,
         PepNgxLibModule,
         PepSizeDetectorModule,
-        // PepIconModule,
-        // PepDialogModule,
         PepTopBarModule,
-        // PepMenuModule,
         PepPageLayoutModule,
-        // PepButtonModule,
-        // PepTextboxModule,
         PepGenericListModule,
         TranslateModule.forChild(),
         RouterModule.forChild(routes)
