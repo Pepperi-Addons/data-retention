@@ -10,14 +10,12 @@ import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 import { PepSizeDetectorModule } from '@pepperi-addons/ngx-lib/size-detector';
 import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
 import { PepIconRegistry, PepIconModule, pepIconSystemClose } from '@pepperi-addons/ngx-lib/icon';
-// import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
-// import { PepDialogModule } from '@pepperi-addons/ngx-lib/dialog';
-// import { PepMenuModule } from '@pepperi-addons/ngx-lib/menu';
-// import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
+import { MatTabsModule } from '@angular/material/tabs';
 
 import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
 
-import { EditorListComponent } from './editor-list.component';
+import { SchedulerModule } from '../scheduler/scheduler.module';
+import { DataRetentionTabsComponent } from './data-retention-tabs.component';
 
 const pepIcons = [
     pepIconSystemClose,
@@ -26,13 +24,13 @@ const pepIcons = [
 export const routes: Routes = [
     {
         path: '',
-        component: EditorListComponent
+        component: DataRetentionTabsComponent
     }
 ];
 
 @NgModule({
     declarations: [
-        EditorListComponent
+        DataRetentionTabsComponent
     ],
     imports: [
         CommonModule,
@@ -42,12 +40,14 @@ export const routes: Routes = [
         PepTopBarModule,
         PepPageLayoutModule,
         PepGenericListModule,
+        MatTabsModule,
+        SchedulerModule,
         TranslateModule.forChild(),
         RouterModule.forChild(routes)
     ],
-    exports:[EditorListComponent]
+    exports:[DataRetentionTabsComponent]
 })
-export class EditorListModule {
+export class DataRetentionTabsModule {
     constructor(
         private pepIconRegistry: PepIconRegistry,
     ) {

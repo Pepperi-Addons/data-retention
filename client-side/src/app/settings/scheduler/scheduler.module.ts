@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -10,29 +9,19 @@ import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 import { PepSizeDetectorModule } from '@pepperi-addons/ngx-lib/size-detector';
 import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
 import { PepIconRegistry, PepIconModule, pepIconSystemClose } from '@pepperi-addons/ngx-lib/icon';
-// import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
-// import { PepDialogModule } from '@pepperi-addons/ngx-lib/dialog';
-// import { PepMenuModule } from '@pepperi-addons/ngx-lib/menu';
-// import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
-
+import { MatTabsModule } from '@angular/material/tabs';
 import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
+import { SchedulerComponent } from './scheduler.component';
+import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
 
-import { EditorListComponent } from './editor-list.component';
 
 const pepIcons = [
     pepIconSystemClose,
 ];
 
-export const routes: Routes = [
-    {
-        path: '',
-        component: EditorListComponent
-    }
-];
-
 @NgModule({
     declarations: [
-        EditorListComponent
+        SchedulerComponent
     ],
     imports: [
         CommonModule,
@@ -42,12 +31,13 @@ export const routes: Routes = [
         PepTopBarModule,
         PepPageLayoutModule,
         PepGenericListModule,
-        TranslateModule.forChild(),
-        RouterModule.forChild(routes)
+        PepSelectModule,
+        MatTabsModule,
+        TranslateModule.forChild()
     ],
-    exports:[EditorListComponent]
+    exports:[SchedulerComponent],    
 })
-export class EditorListModule {
+export class SchedulerModule {
     constructor(
         private pepIconRegistry: PepIconRegistry,
     ) {

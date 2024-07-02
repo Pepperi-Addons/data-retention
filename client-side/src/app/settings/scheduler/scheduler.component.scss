@@ -1,0 +1,30 @@
+.plugin-body {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    height: inherit;
+    padding-top: .5rem;
+
+    p {
+        margin:0;
+    }
+    .required {
+        display: none;
+    }
+
+    .narrow {
+        max-width:34rem;
+    }
+    
+    #schedule-container {
+        .pep-row { 
+            &.first {
+                margin-right:2rem;
+            }
+        }
+    }
+    .pep-row{
+        margin-top:1.5rem;
+        display: inline-block;
+        min-width: 16rem;
+    }    
+}
